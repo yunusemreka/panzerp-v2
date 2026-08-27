@@ -6376,7 +6376,6 @@
       catch (error) { err.classList.remove('hidden'); }
     }
 
-    async function sistemdenCikisYap() { await auth.signOut(); navigate('dashboard'); }
     function openModal(id) {
       const el = document.getElementById(id);
       if (el) el.classList.add('active');
@@ -6917,12 +6916,6 @@
         utDraftKalemler[asama] = utDraftKalemler[asama].filter(k => k.id != id);
       }
       utKalemleriRender(asama);
-    }
-
-    function utKalemUrunSecildi(asama, id, val) {
-      if (!utDraftKalemler[asama]) return;
-      const k = utDraftKalemler[asama].find(x => x.id == id);
-      if (k) k.urun = (val || '').trim();
     }
 
     function utKalemMiktarDegisti(asama, id, val) {
@@ -9415,24 +9408,10 @@
     }
 
 
-    /* ============== MAKİNE & OPERATÖR ============== */
-    function makineEkle() {
-      const kod = document.getElementById('mkKod').value.trim();
-      if (!kod) { alert('Makine kodu zorunlu alandır!'); return; }
-      DB.makineler.push({
-        id: Date.now(), kod,
-        ad: document.getElementById('mkAd').value,
-        kap: parseFloat(document.getElementById('mkKap').value) || 0,
-        durum: document.getElementById('mkDurum').value,
-        op: document.getElementById('mkOp').value
-      });
-      ['mkKod', 'mkAd', 'mkKap', 'mkOp'].forEach(i => { let el = document.getElementById(i); if (el) el.value = ''; });
-      saveDB(); renderAll();
-    }
-
+    /* ============== MAKİNE & OPERATÖR YÖNETİMİ ============== */
     function makineSil(id) {
       if (!confirm('Makine kaydı silinsin mi?')) return;
-      DB.makineler = DB.makineler.filter(m => m.id !== id);
+      DB.makineler = (DB.makineler || []).filter(m => m.id !== id);
       saveDB(); renderAll();
     }
 
@@ -9454,23 +9433,9 @@
       });
     }
 
-    function operatorEkle() {
-      const ad = document.getElementById('opAd').value.trim();
-      if (!ad) { alert('Operatör adı zorunlu alandır!'); return; }
-      DB.operatorler.push({
-        id: Date.now(), ad,
-        sicil: document.getElementById('opSicil').value,
-        vardiya: document.getElementById('opVar').value,
-        tel: document.getElementById('opTel').value,
-        uzm: document.getElementById('opUzm').value
-      });
-      ['opAd', 'opSicil', 'opTel', 'opUzm'].forEach(i => { let el = document.getElementById(i); if (el) el.value = ''; });
-      saveDB(); renderAll();
-    }
-
     function operatorSil(id) {
       if (!confirm('Operatör silinsin mi?')) return;
-      DB.operatorler = DB.operatorler.filter(o => o.id !== id);
+      DB.operatorler = (DB.operatorler || []).filter(o => o.id !== id);
       saveDB(); renderAll();
     }
 
@@ -13112,44 +13077,8 @@
     }
 
     /* ========================================================
-       APM PLAKA VE İŞ EMRİ TAKİP SİSTEMİ
+       APM PLAKA VE İŞ EMRİ YÖNETİMİ
        ======================================================== */
-    function apmPlakaKaydet(e) {
-      e.preventDefault();
-      const p2Ch = document.getElementById('apmP_paso2') ? document.getElementById('apmP_paso2').checked : false;
-      const yeniKayit = {
-        id: Date.now(),
-        durum: 'Planlandı',
-        plaka: document.getElementById('apmP_plakaNo').value.trim().toUpperCase(),
-        masa: document.getElementById('apmP_masaNo') ? document.getElementById('apmP_masaNo').value : '',
-        sacCinsi: document.getElementById('apmP_sacCinsi').value,
-        sacEn: document.getElementById('apmP_sacEn').value,
-        sacBoy: document.getElementById('apmP_sacBoy').value,
-        kaynakCinsi: document.getElementById('apmP_kaynakCinsi').value,
-        kaynakEn: document.getElementById('apmP_kaynakEn').value,
-        kaynakBoy: document.getElementById('apmP_kaynakBoy').value,
-        kalinlik: document.getElementById('apmP_kalinlik').value,
-        telKodu: document.getElementById('apmP_telKodu').value,
-        alasimKodu: document.getElementById('apmP_alasimKodu').value,
-        ttNo: document.getElementById('apmP_ttNo').value,
-        paso2: p2Ch,
-        paso2KaynakCinsi: p2Ch ? (document.getElementById('apmP_paso2KaynakCinsi')?.value || '') : '',
-        paso2KaynakEn: p2Ch ? (document.getElementById('apmP_paso2KaynakEn')?.value || '') : '',
-        paso2KaynakBoy: p2Ch ? (document.getElementById('apmP_paso2KaynakBoy')?.value || '') : '',
-        paso2Kalinlik: p2Ch ? (document.getElementById('apmP_paso2Kalinlik')?.value || '') : '',
-        paso2TelKodu: p2Ch ? (document.getElementById('apmP_paso2TelKodu')?.value || '') : '',
-        paso2AlasimKodu: p2Ch ? (document.getElementById('apmP_paso2AlasimKodu')?.value || '') : '',
-        paso2TtNo: p2Ch ? (document.getElementById('apmP_paso2TtNo')?.value || '') : ''
-      };
-      DB.apmPlakalar = DB.apmPlakalar || [];
-      DB.apmPlakalar.push(yeniKayit);
-      document.getElementById('apmPlakaForm').reset();
-      if (document.getElementById('apmP_paso2Alani')) document.getElementById('apmP_paso2Alani').style.display = 'none';
-      saveDB();
-      renderAll();
-      alert("Plaka eklendi! 'Plaka Takibi' sekmesinde görebilirsiniz.");
-    }
-
     function apmPlakaDurumDegistir(id, yeniDurum) {
       const p = (DB.apmPlakalar || []).find(v => v.id == id);
       if (p) {
@@ -13170,89 +13099,9 @@
       }
     }
 
-    function apmPlakaDuzenleModalAc(id) {
-      const v = (DB.apmPlakalar || []).find(x => x.id == id);
-      if (!v) return;
-
-      document.getElementById('apmEd_id').value = v.id;
-      document.getElementById('apmEd_plakaNo').value = v.plaka || '';
-      document.getElementById('apmEd_masaNo').value = v.masa || '';
-      document.getElementById('apmEd_durum').value = v.durum || 'Planlandı';
-      document.getElementById('apmEd_sacCinsi').value = v.sacCinsi || '';
-      document.getElementById('apmEd_sacEn').value = v.sacEn || '';
-      document.getElementById('apmEd_sacBoy').value = v.sacBoy || '';
-
-      document.getElementById('apmEd_kaynakCinsi').value = v.kaynakCinsi || '';
-      document.getElementById('apmEd_kaynakEn').value = v.kaynakEn || '';
-      document.getElementById('apmEd_kaynakBoy').value = v.kaynakBoy || '';
-      document.getElementById('apmEd_kalinlik').value = v.kalinlik || '';
-      document.getElementById('apmEd_telKodu').value = v.telKodu || '';
-      document.getElementById('apmEd_alasimKodu').value = v.alasimKodu || '';
-      document.getElementById('apmEd_ttNo').value = v.ttNo || '';
-
-      const p2Ch = !!v.paso2;
-      document.getElementById('apmEd_paso2').checked = p2Ch;
-      document.getElementById('apmEd_paso2Alani').style.display = p2Ch ? 'grid' : 'none';
-
-      document.getElementById('apmEd_paso2KaynakCinsi').value = v.paso2KaynakCinsi || '';
-      document.getElementById('apmEd_paso2KaynakEn').value = v.paso2KaynakEn || '';
-      document.getElementById('apmEd_paso2KaynakBoy').value = v.paso2KaynakBoy || '';
-      document.getElementById('apmEd_paso2Kalinlik').value = v.paso2Kalinlik || '';
-      document.getElementById('apmEd_paso2TelKodu').value = v.paso2TelKodu || '';
-      document.getElementById('apmEd_paso2AlasimKodu').value = v.paso2AlasimKodu || '';
-      document.getElementById('apmEd_paso2TtNo').value = v.paso2TtNo || '';
-
-      document.getElementById('apmPlakaDuzenleModal').classList.add('active');
-    }
-
-    function apmPlakaDuzenleKaydet() {
-      const id = document.getElementById('apmEd_id').value;
-      const v = (DB.apmPlakalar || []).find(x => x.id == id);
-      if (!v) return;
-
-      v.plaka = document.getElementById('apmEd_plakaNo').value.trim().toUpperCase();
-      v.masa = document.getElementById('apmEd_masaNo').value;
-      v.durum = document.getElementById('apmEd_durum').value;
-      v.sacCinsi = document.getElementById('apmEd_sacCinsi').value;
-      v.sacEn = document.getElementById('apmEd_sacEn').value;
-      v.sacBoy = document.getElementById('apmEd_sacBoy').value;
-
-      v.kaynakCinsi = document.getElementById('apmEd_kaynakCinsi').value;
-      v.kaynakEn = document.getElementById('apmEd_kaynakEn').value;
-      v.kaynakBoy = document.getElementById('apmEd_kaynakBoy').value;
-      v.kalinlik = document.getElementById('apmEd_kalinlik').value;
-      v.telKodu = document.getElementById('apmEd_telKodu').value;
-      v.alasimKodu = document.getElementById('apmEd_alasimKodu').value;
-      v.ttNo = document.getElementById('apmEd_ttNo').value;
-
-      const p2Ch = document.getElementById('apmEd_paso2').checked;
-      v.paso2 = p2Ch;
-      v.paso2KaynakCinsi = document.getElementById('apmEd_paso2KaynakCinsi').value;
-      v.paso2KaynakEn = document.getElementById('apmEd_paso2KaynakEn').value;
-      v.paso2KaynakBoy = document.getElementById('apmEd_paso2KaynakBoy').value;
-      v.paso2Kalinlik = document.getElementById('apmEd_paso2Kalinlik').value;
-      v.paso2TelKodu = document.getElementById('apmEd_paso2TelKodu').value;
-      v.paso2AlasimKodu = document.getElementById('apmEd_paso2AlasimKodu').value;
-      v.paso2TtNo = document.getElementById('apmEd_paso2TtNo').value;
-
-      if (DB.apmIsEmirleri) {
-        for (let m in DB.apmIsEmirleri) {
-          const item = DB.apmIsEmirleri[m].find(x => x.id == id);
-          if (item) {
-            Object.assign(item, v);
-          }
-        }
-      }
-
-      saveDB();
-      renderAll();
-      closeModal('apmPlakaDuzenleModal');
-      alert("Plaka bilgileri başarıyla güncellendi!");
-    }
-
     function apmPlakaM2Hesapla(plakaListesi) {
       let toplam = 0;
-      plakaListesi.forEach(v => {
+      (plakaListesi || []).forEach(v => {
         const en = parseFloat(v.kaynakEn) || 0;
         const boy = parseFloat(v.kaynakBoy) || 0;
         toplam += (en * boy) / 1000000;
@@ -13296,7 +13145,6 @@
                 </select>
             </td>
             <td class="p-2 flex gap-1">
-                <button class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-bold hover:bg-amber-200 transition-colors" onclick="apmPlakaDuzenleModalAc(${v.id})">✏️ Düzenle</button>
                 <button class="bg-rose-100 text-rose-600 px-2 py-1 rounded text-xs font-bold hover:bg-rose-200 transition-colors" onclick="apmPlakaSil(${v.id})">Sil</button>
             </td>
         </tr>`;
@@ -13311,222 +13159,6 @@
       setHtml('tblPlanlananlar', planlananlar);
       setHtml('tblKaynayanlar', kaynayanlar);
       setHtml('tblTamamlananlar', tamamlananlar);
-    }
-
-    function apmUretimEmriKaydet() {
-      const makine = apmUretimEmriAktifMakine;
-      const liste = (DB.apmIsEmirleri && DB.apmIsEmirleri[makine]) ? DB.apmIsEmirleri[makine] : [];
-      if (liste.length === 0) {
-        alert('Lütfen önce üretim emrine en az bir plaka ekleyiniz!');
-        return;
-      }
-      const ueNo = document.getElementById('apmUeNoGiris') ? document.getElementById('apmUeNoGiris').value.trim() : '';
-
-      // Kayıtlı üretim emirleri listesine ekle
-      DB.apmKayitliUretimEmirleri = DB.apmKayitliUretimEmirleri || [];
-      const mevcutIdx = DB.apmKayitliUretimEmirleri.findIndex(e => e.makine === makine && e.ueNo === ueNo && ueNo !== '');
-
-      const kayit = {
-        id: mevcutIdx >= 0 ? DB.apmKayitliUretimEmirleri[mevcutIdx].id : Date.now(),
-        makine: makine,
-        ueNo: ueNo,
-        tarih: new Date().toLocaleDateString('tr-TR'),
-        plakaAdet: liste.length,
-        plakalar: JSON.parse(JSON.stringify(liste)),
-        not: document.getElementById('apmUeGenelNot') ? document.getElementById('apmUeGenelNot').value : ''
-      };
-
-      if (mevcutIdx >= 0) {
-        DB.apmKayitliUretimEmirleri[mevcutIdx] = kayit;
-      } else {
-        DB.apmKayitliUretimEmirleri.push(kayit);
-      }
-
-      saveDB();
-      alert(`${makine} üretim emri (${ueNo || 'No girilmedi'}) başarıyla kaydedildi! (${liste.length} plaka)`);
-    }
-
-    let apmUretimEmriAktifMakine = 'APM 1';
-
-    function apmUeMakineDegisti() {
-      const val = document.getElementById('apmMakineSecici')?.value;
-      if (val) apmUretimEmriAktifMakine = val;
-      const baslik = document.getElementById('apmUeAktifMakine');
-      if (baslik) baslik.innerText = apmUretimEmriAktifMakine;
-
-      const tAlani = document.getElementById('apmUeTarihAlani');
-      if (tAlani) tAlani.innerText = new Date().toLocaleDateString('tr-TR');
-
-      apmUeGosterimleriGuncelle();
-    }
-
-    function apmUePlakaAra() {
-      const aranan = document.getElementById('apmPlakaAra').value.trim().toUpperCase();
-      const tablo = document.getElementById('apmUeSonuclarTablo');
-      const tbody = document.getElementById('apmUeAramaSonuclari');
-      if (!aranan || !tablo || !tbody) return;
-
-      const sonuclar = (DB.apmPlakalar || []).filter(v => v.plaka.includes(aranan));
-      tbody.innerHTML = '';
-
-      if (sonuclar.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-2 text-center text-slate-500">Bulunamadı.</td></tr>`;
-      } else {
-        sonuclar.forEach(v => {
-          tbody.innerHTML += `<tr class="hover:bg-slate-50">
-                <td class="p-2 font-bold">${v.plaka}</td>
-                <td class="p-2 text-xs">${v.durum}</td>
-                <td class="p-2"><button class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs font-bold hover:bg-blue-200 transition-colors" onclick="apmUePlakaEkle(${v.id})">Ekle +</button></td>
-            </tr>`;
-        });
-      }
-      tablo.style.display = 'table';
-    }
-
-    function apmUePlakaEkle(id) {
-      const eklenecek = (DB.apmPlakalar || []).find(v => v.id == id);
-      if (!eklenecek) return;
-      DB.apmIsEmirleri = DB.apmIsEmirleri || {};
-      DB.apmIsEmirleri[apmUretimEmriAktifMakine] = DB.apmIsEmirleri[apmUretimEmriAktifMakine] || [];
-      if (DB.apmIsEmirleri[apmUretimEmriAktifMakine].some(x => x.id == id)) {
-        alert('Bu sac zaten ' + apmUretimEmriAktifMakine + ' üretim emrine eklenmiş!');
-        return;
-      }
-      const entry = Object.assign({}, eklenecek, { masa: eklenecek.masa || '', paso2: !!eklenecek.paso2 });
-      DB.apmIsEmirleri[apmUretimEmriAktifMakine].push(entry);
-      saveDB(); renderAll();
-    }
-
-    function apmUePlakaCikar(id) {
-      if (!DB.apmIsEmirleri || !DB.apmIsEmirleri[apmUretimEmriAktifMakine]) return;
-      DB.apmIsEmirleri[apmUretimEmriAktifMakine] = DB.apmIsEmirleri[apmUretimEmriAktifMakine].filter(x => x.id != id);
-      saveDB(); renderAll();
-    }
-
-    function apmUeEntryGuncelle(id, alan, deger) {
-      const liste = DB.apmIsEmirleri && DB.apmIsEmirleri[apmUretimEmriAktifMakine];
-      if (!liste) return;
-      const entry = liste.find(x => x.id == id);
-      if (entry) {
-        if (alan === 'paso2') deger = deger === true || deger === 'true';
-        entry[alan] = deger;
-        saveDB();
-        apmUeGosterimleriGuncelle();
-      }
-    }
-
-    function apmUeGosterimleriGuncelle() {
-      const uiBody = document.getElementById('apmUeListeBody');
-      const printBody = document.getElementById('apmUeYazdirBody');
-      if (!uiBody || !printBody) return;
-
-      const liste = (DB.apmIsEmirleri && DB.apmIsEmirleri[apmUretimEmriAktifMakine]) ? DB.apmIsEmirleri[apmUretimEmriAktifMakine] : [];
-      uiBody.innerHTML = ''; printBody.innerHTML = '';
-
-      if (liste.length === 0) {
-        uiBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">${apmUretimEmriAktifMakine} için sac eklenmedi.</td></tr>`;
-        printBody.innerHTML = `<tr><td colspan="17" style="color:#aaa;text-align:center;padding:10px;">Üretim emrine sac eklendiğinde burada görünecektir.</td></tr>`;
-        return;
-      }
-
-      liste.forEach((v) => {
-        const paso2Checked = v.paso2 ? 'checked' : '';
-        uiBody.innerHTML += `
-        <tr class="hover:bg-slate-50 align-top">
-          <td class="p-2 font-bold text-sm">${v.plaka}</td>
-          <td class="p-1">
-            <input type="text" value="${v.masa || ''}" placeholder="Masa No" onchange="apmUeEntryGuncelle(${v.id},'masa',this.value)"
-              class="border border-slate-200 rounded p-1 text-xs w-20 outline-none focus:border-blue-300">
-          </td>
-          <td class="p-1">
-            <label class="flex items-center gap-1 cursor-pointer mb-1">
-              <input type="checkbox" ${paso2Checked} onchange="apmUeEntryGuncelle(${v.id},'paso2',this.checked)" class="accent-amber-500">
-              <span class="text-xs text-amber-700 font-bold">2. Paso</span>
-            </label>
-            ${v.paso2 ? `
-            <div class="space-y-1 mt-1 p-1 bg-amber-50 rounded border border-amber-200">
-              <input type="text" value="${v.paso2TelKodu || ''}" placeholder="2.Paso Tel Kodu" onchange="apmUeEntryGuncelle(${v.id},'paso2TelKodu',this.value)"
-                class="border border-amber-200 rounded p-1 text-xs w-28 outline-none focus:border-amber-400 block">
-              <input type="text" value="${v.paso2Kalinlik || ''}" placeholder="2.Paso Kalınlık" onchange="apmUeEntryGuncelle(${v.id},'paso2Kalinlik',this.value)"
-                class="border border-amber-200 rounded p-1 text-xs w-28 outline-none focus:border-amber-400 block">
-            </div>
-            ` : ''}
-          </td>
-          <td class="p-2 text-right">
-            <button class="bg-rose-100 text-rose-600 px-2 py-1 rounded text-xs font-bold hover:bg-rose-200" onclick="apmUePlakaCikar(${v.id})">Çıkar</button>
-          </td>
-        </tr>`;
-
-        const paso2KynCinsi = v.paso2KaynakCinsi || v.kaynakCinsi || '-';
-        const paso2KynEn = v.paso2KaynakEn || v.kaynakEn || '-';
-        const paso2KynBoy = v.paso2KaynakBoy || v.kaynakBoy || '-';
-        const paso2Kal = v.paso2Kalinlik || '-';
-        const paso2Tel = v.paso2TelKodu || '-';
-        const paso2Alasim = v.paso2AlasimKodu || 'YOK';
-        const paso2Tt = v.paso2TtNo || '-';
-
-        printBody.innerHTML += `
-        <tr style="background:#f1f5f9;font-size:10px;border-top:2px solid #334155;">
-          <th style="border-bottom:1px dotted #000;">Plk No</th>
-          <th style="border-bottom:1px dotted #000;">Mak. Adı</th>
-          <th style="border-bottom:1px dotted #000;">Masa No</th>
-          <th style="border-bottom:1px dotted #000;">Prog. No</th>
-          <th style="border-bottom:1px dotted #000;">Sac Cinsi</th>
-          <th colspan="2" style="border-bottom:1px dotted #000;">Sac Ölç.<br><span style="font-size:8px;">EN &nbsp; BOY</span></th>
-          <th style="border-bottom:1px dotted #000;">Paso</th>
-          <th style="border-bottom:1px dotted #000;">Kaynak Cinsi</th>
-          <th colspan="2" style="border-bottom:1px dotted #000;">Kaynak Ölç.<br><span style="font-size:8px;">EN &nbsp; BOY</span></th>
-          <th style="border-bottom:1px dotted #000;">Kalınlık</th>
-          <th style="border-bottom:1px dotted #000;">Tel Kodu</th>
-          <th style="border-bottom:1px dotted #000;">Alaşım Kod</th>
-          <th style="border-bottom:1px dotted #000;">TT No</th>
-          <th style="border-bottom:1px dotted #000;">Tel Parti No</th>
-          <th style="border-bottom:1px dotted #000;">Operatör</th>
-        </tr>
-        <!-- 1. PASO SATIRI -->
-        <tr style="font-weight:bold;font-size:11px;background:#ffffff;">
-          <td rowspan="2" style="vertical-align:middle;font-size:12px;border-right:1px solid #cbd5e1;">${v.plaka}</td>
-          <td rowspan="2" style="vertical-align:middle;border-right:1px solid #cbd5e1;">${apmUretimEmriAktifMakine}</td>
-          <td rowspan="2" style="vertical-align:middle;border-right:1px solid #cbd5e1;">${v.masa || ''}</td>
-          <td rowspan="2" style="vertical-align:middle;border-right:1px solid #cbd5e1;"></td>
-          <td rowspan="2" style="vertical-align:middle;border-right:1px solid #cbd5e1;">${v.sacCinsi || ''}</td>
-          <td rowspan="2" style="vertical-align:middle;">${v.sacEn || ''}</td>
-          <td rowspan="2" style="vertical-align:middle;border-right:1px solid #cbd5e1;">${v.sacBoy || ''}</td>
-          <td style="background:#e2e8f0;font-size:10px;border-right:1px solid #cbd5e1;">1. Paso</td>
-          <td>${v.kaynakCinsi || '-'}</td>
-          <td>${v.kaynakEn || '-'}</td>
-          <td>${v.kaynakBoy || '-'}</td>
-          <td style="background:#fde047;">${v.kalinlik || '-'}</td>
-          <td>${v.telKodu || '-'}</td>
-          <td>${v.alasimKodu || 'YOK'}</td>
-          <td>${v.ttNo || '-'}</td>
-          <td></td>
-          <td></td>
-        </tr>
-        <!-- 2. PASO SATIRI (BIREBIR AYNI FORMATTA!) -->
-        <tr style="font-weight:bold;font-size:11px;background:#ffffff;${!v.paso2 ? 'color:#94a3b8;' : ''}">
-          <td style="background:#e2e8f0;font-size:10px;border-right:1px solid #cbd5e1;">2. Paso</td>
-          <td>${v.paso2 ? paso2KynCinsi : '-'}</td>
-          <td>${v.paso2 ? paso2KynEn : '-'}</td>
-          <td>${v.paso2 ? paso2KynBoy : '-'}</td>
-          <td style="background:#fef08a;">${v.paso2 ? paso2Kal : '-'}</td>
-          <td>${v.paso2 ? paso2Tel : '-'}</td>
-          <td>${v.paso2 ? paso2Alasim : '-'}</td>
-          <td>${v.paso2 ? paso2Tt : '-'}</td>
-          <td style="vertical-align:middle;font-size:9px;font-weight:normal;">Tel Parti No</td>
-          <td style="vertical-align:middle;font-size:9px;font-weight:normal;">Operatör</td>
-        </tr>
-        <tr style="font-size:10px;height:28px;background:#f8fafc;">
-          <td colspan="17" style="text-align:left;vertical-align:top;padding:4px 8px;border-bottom:2px solid #334155;">Açıklama: <span class="print-note-placeholder"></span></td>
-        </tr>`;
-      });
-      apmUeNotGuncelle();
-    }
-
-    function apmUeNotGuncelle() {
-      const notMetni = document.getElementById('apmUeGenelNot').value.replace(/\n/g, "<br>");
-      const yNotlar = document.querySelectorAll('.print-note-placeholder');
-      yNotlar.forEach(n => n.innerHTML = notMetni);
     }
 
     document.addEventListener('input', function (e) {
