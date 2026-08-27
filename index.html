@@ -6029,8 +6029,90 @@
       isEmriTemizle();
     }
 
+    // 🔔 GÖRSEL & SESLİ BİLDİRİM VE SEKME YANIP SÖNME MOTORU
+    let titleBlinkInterval = null;
+    const originalDocumentTitle = "PANZERCROM ERP · FCW & APM Üretim Yönetimi";
+
+    function startTabBlinking(alertText) {
+      if (titleBlinkInterval) clearInterval(titleBlinkInterval);
+      let isAlt = false;
+      titleBlinkInterval = setInterval(() => {
+        document.title = isAlt ? `🔔 (${alertText})` : `🚨 YENİ BİLDİRİM! - PanzERP`;
+        isAlt = !isAlt;
+      }, 1000);
+
+      // Kullanıcı sekmeye odaklandığında başlığı eski haline getir
+      const stopBlinking = () => {
+        if (titleBlinkInterval) {
+          clearInterval(titleBlinkInterval);
+          titleBlinkInterval = null;
+          document.title = originalDocumentTitle;
+        }
+        window.removeEventListener('focus', stopBlinking);
+        window.removeEventListener('click', stopBlinking);
+      };
+      window.addEventListener('focus', stopBlinking);
+      window.addEventListener('click', stopBlinking);
+    }
+
+    function playNotificationSound(type = 'default') {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        // Hoş ve modern iki tonlu ERP bildirim sesi sentezle
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc2.type = 'triangle';
+
+        osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc1.frequency.setValueAtTime(880.00, ctx.currentTime + 0.12); // A5
+        osc2.frequency.setValueAtTime(440.00, ctx.currentTime); // A4
+        osc2.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12); // E5
+
+        gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        osc1.start();
+        osc2.start();
+        osc1.stop(ctx.currentTime + 0.45);
+        osc2.stop(ctx.currentTime + 0.45);
+      } catch (e) {
+        console.warn("Bildirim sesi çalınamadı:", e);
+      }
+    }
+
+    function triggerGlobalAlert(mesaj, tip = 'info') {
+      showToast(mesaj, tip);
+      playNotificationSound();
+      startTabBlinking('Yeni Veri');
+      
+      // Eğer tarayıcı bildirim izni verilmişse sistem bildirimi de at
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          new Notification("Panzercrom ERP", {
+            body: mesaj,
+            icon: "/icon.png"
+          });
+        } catch(e) {}
+      }
+    }
+
     function listenRealtimeChanges() {
       try {
+        // Tarayıcı Bildirim İzni İste
+        if ("Notification" in window && Notification.permission === "default") {
+          Notification.requestPermission();
+        }
+
         // 1. 🔄 REALTIME DATABASE TÜM ERP VERİLERİ ANLIK CANLI SENKRONİZASYONU
         rtdb.ref('panzerp_data').on('value', (snap) => {
           if (!snap.exists()) return;
@@ -6044,11 +6126,28 @@
           }
 
           let degisiklikOldu = false;
+          let bildirimMesajlari = [];
+
           for (const mod of DB_MODULES) {
             if (val[mod] !== undefined && val[mod] !== null) {
               const eskiStr = JSON.stringify(DB[mod]);
               const yeniStr = JSON.stringify(val[mod]);
               if (eskiStr !== yeniStr) {
+                // Hangi modülde yeni kayıt gelmiş tespit et
+                if (Array.isArray(val[mod]) && Array.isArray(DB[mod])) {
+                  if (val[mod].length > DB[mod].length) {
+                    const yeniEklenen = val[mod][val[mod].length - 1];
+                    if (mod === 'isEmirleri' && yeniEklenen) {
+                      bildirimMesajlari.push(`📋 Yeni İş Emri: ${yeniEklenen.isEmriNo || yeniEklenen.kod || 'Yeni Kayıt'}`);
+                    } else if (mod === 'ktmSiparisler' && yeniEklenen) {
+                      bildirimMesajlari.push(`📦 Yeni KTM Siparişi: ${yeniEklenen.musteri || yeniEklenen.siparisNo || 'Yeni Sipariş'}`);
+                    } else if (mod === 'hammaddeler' && yeniEklenen) {
+                      bildirimMesajlari.push(`🧪 Yeni Hammadde / Stok Girişi Yapıldı`);
+                    } else if (mod === 'apmUretim' && yeniEklenen) {
+                      bildirimMesajlari.push(`⚙️ Yeni APM Üretim Kaydı Eklendi`);
+                    }
+                  }
+                }
                 DB[mod] = val[mod];
                 degisiklikOldu = true;
               }
@@ -6061,6 +6160,11 @@
             saveToIndexedDB(DB);
             try { localStorage.setItem('panzerp_last_valid_state', JSON.stringify(DB)); } catch (e) { }
             renderAll();
+
+            // Eğer yeni bir iş emri / sipariş vb. eklendiyse ses çal, toast göster ve sekmeyi yakıp söndür
+            if (bildirimMesajlari.length > 0) {
+              bildirimMesajlari.forEach(m => triggerGlobalAlert(m, 'info'));
+            }
           }
         });
 
