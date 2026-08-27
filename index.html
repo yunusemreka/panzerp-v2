@@ -6031,7 +6031,40 @@
 
     function listenRealtimeChanges() {
       try {
-        // Realtime DB bildirimler ve mesajlar anlık tetikleme
+        // 1. 🔄 REALTIME DATABASE TÜM ERP VERİLERİ ANLIK CANLI SENKRONİZASYONU
+        rtdb.ref('panzerp_data').on('value', (snap) => {
+          if (!snap.exists()) return;
+          const val = snap.val();
+          if (!val || typeof val !== 'object') return;
+
+          // Eğer bu güncellemeyi az önce bu tarayıcı penceresi kaydettiyse yoksay
+          const meta = val.system_meta;
+          if (meta && meta.savedBySession === window.ERP_SESSION_ID) {
+            return;
+          }
+
+          let degisiklikOldu = false;
+          for (const mod of DB_MODULES) {
+            if (val[mod] !== undefined && val[mod] !== null) {
+              const eskiStr = JSON.stringify(DB[mod]);
+              const yeniStr = JSON.stringify(val[mod]);
+              if (eskiStr !== yeniStr) {
+                DB[mod] = val[mod];
+                degisiklikOldu = true;
+              }
+            }
+          }
+
+          if (degisiklikOldu) {
+            console.log("⚡ [Realtime Senkronizasyon] Diğer kullanıcıdan gelen veriler canlı olarak ekrana yansıtıldı.");
+            ensureDBArrays();
+            saveToIndexedDB(DB);
+            try { localStorage.setItem('panzerp_last_valid_state', JSON.stringify(DB)); } catch (e) { }
+            renderAll();
+          }
+        });
+
+        // 2. Realtime DB Mesajlaşma Bildirimi
         rtdb.ref('panzerp_data/mesajlar').on('value', (snap) => {
           if (!snap.exists()) return;
           const gelenMesajlar = snap.val();
@@ -6054,28 +6087,17 @@
           }
         });
 
-        rtdb.ref('panzerp_data/bildirimler').on('value', (snap) => {
-          if (!snap.exists()) return;
-          const gelenBildirimler = snap.val();
-          if (Array.isArray(gelenBildirimler) && gelenBildirimler.length > 0) {
-            DB.bildirimler = gelenBildirimler;
-            updateNotificationBadges();
-          }
-        });
-
-        // Realtime DB Kullanıcılar Listesi ve Onay Durumu Canlı Dinleyicisi
+        // 3. Realtime DB Kullanıcı Onayı
         rtdb.ref('panzerp_data/kullanicilar').on('value', (snap) => {
           if (!snap.exists()) return;
           const gelenKullanicilar = snap.val();
           if (Array.isArray(gelenKullanicilar)) {
             DB.kullanicilar = gelenKullanicilar;
-            // Eğer aktif kullanıcı varsa profilini tazele
             if (aktifKullanici) {
               const guncel = gelenKullanicilar.find(u => (u.id === aktifKullanici.id) || (u.email && u.email.toLowerCase() === (aktifKullanici.email || '').toLowerCase()));
               if (guncel) {
                 aktifKullanici = guncel;
                 renderSidebarUserProfile();
-                // Eğer daha önce Onay Bekliyor iken şimdi Aktif edildiyse kapıyı aç
                 if (guncel.durum === 'Aktif') {
                   const gate = document.getElementById('firebaseAuthGate');
                   const appContainer = document.getElementById('app-container');
