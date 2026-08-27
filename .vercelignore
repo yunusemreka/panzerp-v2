@@ -1,0 +1,7 @@
+.git
+.agents
+node_modules
+PanzERP.rar
+*.bak
+dist
+panzerp-v2
