@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PANZERCROM ERP · Uçtan Uca İşleyiş Rehberi (How-To)</title>
+  
+  <!-- El yazısı ve modern teknik fontlar -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Kalam:wght@400;700&family=Plus+Jakarta+Sans:wght@500;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Doğrudan PDF İndirme için html2pdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Kalam', cursive, sans-serif;
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .handwriting {
+      font-family: 'Caveat', cursive;
+    }
+    .mono-tag {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .sans-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Not Kağıdı Çizgileri ve Doku Efekti */
+    .notebook-page {
+      background: #fffdfa;
+      background-image: 
+        radial-gradient(#e2e8f0 1px, transparent 1px),
+        linear-gradient(#f8fafc 1px, transparent 1px);
+      background-size: 20px 20px, 100% 28px;
+      box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    .paper-clip {
+      position: absolute;
+      top: -14px;
+      left: 40px;
+      width: 32px;
+      height: 60px;
+      border: 4px solid #94a3b8;
+      border-radius: 16px 16px 0 0;
+      z-index: 20;
+      pointer-events: none;
+      background: transparent;
+    }
+
+    .tape {
+      background: rgba(254, 240, 138, 0.7);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transform: rotate(-2deg);
+    }
+
+    @media print {
+      body {
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .notebook-page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+  <!-- Üst Aksiyon Çubuğu (Yazdır & PDF İndir) -->
+  <div class="max-w-4xl w-full flex justify-between items-center mb-6 no-print bg-slate-900 text-white p-4 rounded-2xl shadow-xl">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🏭</span>
+      <div>
+        <h1 class="sans-title font-black text-base text-amber-400">PANZERCROM ERP — HOW-TO REHBERİ</h1>
+        <p class="text-xs text-slate-400">Hammadde Girişinden Finiş Ürün Çıkışına El Yazısı İş Akışı</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all border border-slate-700 flex items-center gap-1.5 shadow-sm">
+        <span>🖨️</span> Yazdır
+      </button>
+      <button onclick="indirPDF()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-md">
+        <span>📄</span> PDF İndir
+      </button>
+    </div>
+  </div>
+
+  <!-- A4 DEFTER SAYFASI -->
+  <div id="rehberDokuman" class="notebook-page max-w-4xl w-full p-8 md:p-12 rounded-3xl relative border border-amber-200/60 mb-10">
+    <div class="paper-clip"></div>
+
+    <!-- BAŞLIK & LOGO NOTU -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-dashed border-amber-300 pb-5 mb-8">
+      <div>
+        <div class="tape inline-block px-3 py-1 text-xs font-bold text-amber-950 uppercase rounded-sm mb-2">
+          📌 Fabrika İçi Operasyon & ERP El Kitabı
+        </div>
+        <h2 class="handwriting text-3xl md:text-4xl font-black text-slate-900 leading-tight">
+          Panzercrom ERP · Uçtan Uca Nasıl Çalışır?
+        </h2>
+        <p class="text-slate-600 text-sm mt-1">
+          Hammadde Tedariği ➔ Harmanlama ➔ FCW Çekme ➔ Sarma ➔ Sevkiyat / APM Transferi
+        </p>
+      </div>
+      <div class="mt-4 md:mt-0 text-right">
+        <div class="bg-amber-100/80 border border-amber-300 px-3.5 py-1.5 rounded-xl text-xs text-amber-900 font-bold rotate-1 inline-block shadow-xs">
+          📅 Güncel Versiyon 2.0
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. ADIM -->
+    <div class="mb-8 relative pl-6 border-l-4 border-amber-400">
+      <div class="absolute -left-[14px] top-0 w-6 h-6 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">1</div>
+      <div class="flex items-center gap-2 mb-1">
+        <h3 class="sans-title font-extrabold text-lg text-slate-900">1. Adım: Depo & Hazırlık (Hammadde, Ürün ve Reçete)</h3>
+        <span class="mono-tag text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">Mutfak Hazırlığı</span>
+      </div>
+      <p class="text-slate-700 text-sm leading-relaxed mb-3">
+        Üretime başlamadan önce malzeme tanımları ve stoklar sisteme işlenmelidir:
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-amber-50/50 p-3.5 rounded-2xl border border-amber-200/80">
+        <div class="space-y-1.5">
+          <p>🔹 <b>Hammadde Modülü:</b> Gelen Strip (şerit sac), ferro alyaj tozları ve sarf ambalajlar (250 kg Bidon, BS300) stoğa eklenir.</p>
+          <p>🔹 <b>Ürün Kataloğu:</b> Ürün adı ve kodu tanımlanır (Örn: <b class="text-indigo-900">RollHARD 414</b> / FCW-10 / Ø2.8mm).</p>
+        </div>
+        <div class="space-y-1.5">
+          <p>🔹 <b>Reçete Modülü:</b> Ürünün toz karışım formülü girilir. <i>(Toplam oran her zaman %100 olmalıdır!)</i></p>
+          <p>🔹 <b>Otomatik Entegrasyon:</b> Ürün eklendiğinde KTM Mamül Stoğunda kartı otomatik açılır.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ADIM -->
+    <div class="mb-8 relative pl-6 border-l-4 border-indigo-400">
+      <div class="absolute -left-[14px] top-0 w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center font-black text-xs shadow-sm">2</div>
+      <div class="flex items-center gap-2 mb-1">
+        <h3 class="sans-title font-extrabold text-lg text-slate-900">2. Adım: İş Emri Açma & Hat Planlama</h3>
+        <span class="mono-tag text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold">Üretim Başlatıcı</span>
+      </div>
+      <p class="text-slate-700 text-sm leading-relaxed mb-3">
+        Müşteri siparişi veya yan fabrika APM plaka robotları tel istediğinde iş emri açılır:
+      </p>
+      <div class="bg-indigo-50/40 p-3.5 rounded-2xl border border-indigo-200 text-xs space-y-2">
+        <div class="flex flex-wrap gap-2 items-center text-slate-800">
+          <span class="bg-white px-2 py-1 rounded-lg border border-indigo-200 font-bold">🎯 Ürün: RollHARD 414</span>
+          <span class="bg-white px-2 py-1 rounded-lg border border-indigo-200 font-bold">⚖️ Hedef: 1.000 kg</span>
+          <span class="bg-white px-2 py-1 rounded-lg border border-indigo-200 font-bold">🛢️ Ambalaj: 250 kg Bidon</span>
+          <span class="bg-white px-2 py-1 rounded-lg border border-indigo-200 font-bold">📊 Doluluk: %33</span>
+        </div>
+        <p class="text-slate-600">
+          👉 <b>Otomatik Parti (Batch) Hesabı:</b> Sistem gereken <b>670 kg Strip</b> sacı ve tartılacak <b>330 kg Harmanı (2 Parti x 165 kg)</b> anında hesaplar.
+        </p>
+      </div>
+    </div>
+
+    <!-- 3. ADIM -->
+    <div class="mb-8 relative pl-6 border-l-4 border-emerald-400">
+      <div class="absolute -left-[14px] top-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xs shadow-sm">3</div>
+      <div class="flex items-center gap-2 mb-1">
+        <h3 class="sans-title font-extrabold text-lg text-slate-900">3. Adım: Harman Tartımı (Harman Odası)</h3>
+        <span class="mono-tag text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold">Hassas Tartım</span>
+      </div>
+      <p class="text-slate-700 text-sm leading-relaxed mb-2">
+        Operatör sistemden <b>A4 Harman Tartım Formunu</b> açar/yazdırır:
+      </p>
+      <div class="p-3 bg-emerald-50/40 border border-emerald-200 rounded-2xl text-xs space-y-1.5">
+        <p>1️⃣ Reçetedeki FeCr, FeMn, FeTi vb. gramajlar teraziyle tartılır ve miksere dökülür.</p>
+        <p>2️⃣ Parti tamamlandığında ERP ekranında <b>"Harmanı Tamamla"</b> butonuna basılır.</p>
+        <p class="font-bold text-emerald-900">✅ Sonuç: Kullanılan tüm hammaddeler anında genel stoktan otomatik düşer.</p>
+      </div>
+    </div>
+
+    <!-- 4. ADIM -->
+    <div class="mb-8 relative pl-6 border-l-4 border-blue-500">
+      <div class="absolute -left-[14px] top-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-sm">4</div>
+      <div class="flex items-center gap-2 mb-1">
+        <h3 class="sans-title font-extrabold text-lg text-slate-900">4. Adım: FCW Tel Çekme & Sarma (Fabrika Sahası)</h3>
+        <span class="mono-tag text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold">Üretim Hattı</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mt-3">
+        <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <b class="text-blue-900 block mb-1 text-sm">⚙️ A. Kaba Çekme Hattı:</b>
+          <p class="text-slate-600">Strip sac şekillenir, içine harman tozu dolar ve kapatılır. Çıkan kaba tel miktarı <b>Üretim Takibi</b> modülüne işlenir.</p>
+        </div>
+        <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+          <b class="text-blue-900 block mb-1 text-sm">🎯 B. Sarma & Finiş:</b>
+          <p class="text-slate-600"><b>Bidon Sarma</b> (250kg) veya ince teller (< 2.8mm) için <b>İnce Çekme ➔ Hassas Sarma</b> (Makara) yapılır. Tek tıkla <b>QR Palet Etiketi</b> basılır.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. ADIM -->
+    <div class="mb-4 relative pl-6 border-l-4 border-rose-500">
+      <div class="absolute -left-[14px] top-0 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center font-black text-xs shadow-sm">5</div>
+      <div class="flex items-center gap-2 mb-1">
+        <h3 class="sans-title font-extrabold text-lg text-slate-900">5. Adım: Mamül Sevkiyatı veya APM Transferi (Finiş)</h3>
+        <span class="mono-tag text-[10px] bg-rose-50 text-rose-700 px-2 py-0.5 rounded font-bold">Çıkış & Kapanış</span>
+      </div>
+      <p class="text-slate-700 text-sm leading-relaxed mb-3">
+        Üretilen sağlam tel <b>FCW Tel Çıkışı & Sevkiyat</b> modülünden 2 ana yola ayrılır:
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 bg-amber-50/60 border border-amber-200 rounded-2xl">
+          <b class="text-amber-950 block text-xs">🛒 Yol 1: Müşteri Satışı / KTM Mamül Deposu</b>
+          <p class="text-slate-600 mt-1">KTM satış stoğuna veya doğrudan müşteriye irsaliye/lot no ile sevk edilir.</p>
+        </div>
+        <div class="p-3 bg-indigo-50/60 border border-indigo-200 rounded-2xl">
+          <b class="text-indigo-950 block text-xs">🛡️ Yol 2: Dahili APM Fabrikası Transferi</b>
+          <p class="text-slate-600 mt-1">APM aşınma plakası robotlarına verilir. <b>APM Üretim Modülü</b> ile kaynaklanan m² sisteme işlenir.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALT NOT & İMZA ALANI -->
+    <div class="mt-10 pt-6 border-t-2 border-dashed border-amber-300 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">💡</span>
+        <span><b>Önemli Kural:</b> Hedef kg tamamlandığında iş emri kapatılır ve kullanılan ambalajlar (Bidon/Makara) otomatik düşülür.</span>
+      </div>
+      <div class="handwriting text-xl text-slate-800 font-bold rotate-[-2deg]">
+        Panzercrom Teknik Yönetim Ekibi ✍️
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function indirPDF() {
+      const element = document.getElementById('rehberDokuman');
+      const opt = {
+        margin:       [8, 8, 8, 8],
+        filename:     'PanzERP_Isleyis_ve_Uretim_Rehberi.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+</body>
+</html>
