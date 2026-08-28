@@ -6204,6 +6204,9 @@
       otomatikGunlukYedekKontrol();
       renderAll();
       isEmriTemizle();
+      if (typeof checkAuthGateStatus === 'function') {
+        await checkAuthGateStatus();
+      }
     }
 
     // 🔔 GÖRSEL & SESLİ BİLDİRİM VE SEKME YANIP SÖNME MOTORU
@@ -6368,22 +6371,35 @@
           }
         });
 
-        // 3. Realtime DB Kullanıcı Onayı
+        // 3. Realtime DB Kullanıcı Onayı & Yetki Canlı Senkronizasyonu
         rtdb.ref('panzerp_data/kullanicilar').on('value', (snap) => {
           if (!snap.exists()) return;
           const gelenKullanicilar = snap.val();
           if (Array.isArray(gelenKullanicilar)) {
             DB.kullanicilar = gelenKullanicilar;
-            if (aktifKullanici) {
-              const guncel = gelenKullanicilar.find(u => (u.id === aktifKullanici.id) || (u.email && u.email.toLowerCase() === (aktifKullanici.email || '').toLowerCase()));
+            const currentUser = firebase.auth().currentUser;
+            const targetEmail = (currentUser?.email || aktifKullanici?.email || '').toLowerCase().trim();
+            if (targetEmail) {
+              const guncel = gelenKullanicilar.find(u => (u.email && u.email.toLowerCase() === targetEmail) || (currentUser && u.authUid === currentUser.uid));
               if (guncel) {
                 aktifKullanici = guncel;
-                renderSidebarUserProfile();
-                if (guncel.durum === 'Aktif') {
-                  const gate = document.getElementById('firebaseAuthGate');
-                  const appContainer = document.getElementById('app-container');
+                const gate = document.getElementById('firebaseAuthGate');
+                const appContainer = document.getElementById('app-container');
+                const pLogin = document.getElementById('authGateLoginForm');
+                const pReg = document.getElementById('authGateRegisterForm');
+                const pWait = document.getElementById('authGateWaitingApproval');
+
+                const isMasterAdmin = targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com' || targetEmail.startsWith('yunuskaya');
+
+                if (guncel.durum === 'Aktif' || isMasterAdmin) {
                   if (gate) gate.classList.add('hidden');
                   if (appContainer) appContainer.classList.remove('opacity-0', 'pointer-events-none', 'blur-sm');
+                } else if (guncel.durum === 'Onay Bekliyor') {
+                  if (gate) gate.classList.remove('hidden');
+                  if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
+                  if (pLogin) pLogin.classList.add('hidden');
+                  if (pReg) pReg.classList.add('hidden');
+                  if (pWait) pWait.classList.remove('hidden');
                 }
               }
             }
@@ -6600,15 +6616,18 @@
       } catch (e) { }
     }
 
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
       window.currentUser = user;
+      if (typeof checkAuthGateStatus === 'function') {
+        await checkAuthGateStatus();
+      }
     });
     setTimeout(loadDB, 200);
 
     /* NAV & MODAL */
     function navigate(t) {
       if (aktifKullanici) {
-        const isYonetici = aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin')));
+        const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : (aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin'))));
 
         // Yönetici değilse ve modül yetkisi yoksa engelle
         if (!isYonetici) {
@@ -14943,6 +14962,13 @@
       }
     }
 
+    function checkIsUserAdmin(userOrEmail) {
+      if (!userOrEmail) return false;
+      const email = (typeof userOrEmail === 'string' ? userOrEmail : (userOrEmail.email || '')).toLowerCase().trim();
+      const dep = (typeof userOrEmail === 'object' ? userOrEmail.departman : '') || '';
+      return email === 'yunus@panzercrom.com' || email === 'admin@panzercrom.com' || email.startsWith('yunuskaya') || (dep === 'Yönetim' && email.includes('panzercrom.com'));
+    }
+
     async function checkAuthGateStatus() {
       const gate = document.getElementById('firebaseAuthGate');
       const appContainer = document.getElementById('app-container');
@@ -14967,8 +14993,8 @@
       ensureDBArrays();
       let profil = (DB.kullanicilar || []).find(u => (u.email && u.email.toLowerCase() === emailToCheck) || (user && u.authUid && u.authUid === user.uid));
 
-      // Otomatik sistem ana kurucu kontrolü (Sadece yetkili ana yönetici adresleri)
-      const isFirstAdmin = emailToCheck === 'yunus@panzercrom.com' || emailToCheck === 'admin@panzercrom.com' || emailToCheck.startsWith('yunuskaya');
+      // Otomatik sistem ana kurucu kontrolü
+      const isMasterAdmin = checkIsUserAdmin(emailToCheck);
 
       if (!profil) {
         profil = {
@@ -14976,22 +15002,23 @@
           authUid: user?.uid || ('user_' + Date.now()),
           ad: user?.displayName || emailToCheck.split('@')[0].toUpperCase(),
           email: emailToCheck,
-          departman: isFirstAdmin ? 'Yönetim' : 'Üretim',
-          unvan: isFirstAdmin ? 'Sistem Yöneticisi' : 'Operatör',
-          avatar: isFirstAdmin ? '👨‍💼' : '👷‍♂️',
-          durum: isFirstAdmin ? 'Aktif' : 'Onay Bekliyor',
+          departman: isMasterAdmin ? 'Yönetim' : 'Üretim',
+          unvan: isMasterAdmin ? 'Sistem Yöneticisi' : 'Operatör',
+          avatar: isMasterAdmin ? '👨‍💼' : '👷‍♂️',
+          durum: isMasterAdmin ? 'Aktif' : 'Onay Bekliyor',
+          izinliModuller: isMasterAdmin ? ERP_ALL_MODULES.map(m => m.id) : ['dashboard', 'uretim', 'isemri', 'mesajlar'],
           kayitTarihi: new Date().toISOString()
         };
         DB.kullanicilar.push(profil);
         saveDB();
-      } else if (isFirstAdmin && profil.durum !== 'Aktif') {
+      } else if (isMasterAdmin && profil.durum !== 'Aktif') {
         profil.durum = 'Aktif';
         profil.departman = 'Yönetim';
         saveDB();
       }
 
-      // Onay Kontrolü: Durumu Aktif olmayan personeller bekleme ekranında tutulur
-      if (profil.durum !== 'Aktif' && !isFirstAdmin) {
+      // Onay Kontrolü: Yöneticiler haricinde, durumu Aktif olmayan personeller bekleme ekranında tutulur
+      if (profil.durum !== 'Aktif' && !isMasterAdmin) {
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         if (gate) gate.classList.remove('hidden');
         if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
@@ -15317,7 +15344,7 @@
       if (sAvatar) sAvatar.textContent = aktifKullanici.avatar || '👤';
 
       // Sadece Yöneticiye "Kullanıcı & Personel" sekmesini göster ve onay bekleyenleri rozetle
-      const isYonetici = aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin')));
+      const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : (aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin'))));
       const navKullanicilar = document.getElementById('navItemKullanicilar');
       const badgeOnay = document.getElementById('bKullaniciOnay');
 
