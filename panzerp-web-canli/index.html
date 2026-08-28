@@ -4858,6 +4858,149 @@
     </div>
   </div>
 
+  <!-- İŞ EMRİ SEVKİYAT VE KADEMELİ PAKETLEME MODALI -->
+  <div id="isEmriSevkModal" class="modal">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl p-2 rounded-xl bg-blue-100 text-blue-800 border border-blue-200">🚚</span>
+          <div>
+            <h3 class="font-bold text-lg text-slate-800" id="ieSevkModalTitle">İş Emri Kademeli Sevkiyat & Paketleme</h3>
+            <p class="text-xs text-slate-500 font-medium" id="ieSevkModalSubtitle">Sıralama: Hazırlanan Miktar ➔ Paketleme / Palet Bilgisi ➔ Sevk</p>
+          </div>
+        </div>
+        <button onclick="closeModal('isEmriSevkModal')"
+          class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200">✕</button>
+      </div>
+
+      <input type="hidden" id="ieSevk_isEmriId">
+      
+      <!-- Özet Kartı -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-xs">
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-400 font-bold uppercase block">İş Emri Hedefi</span>
+          <b id="ieSevk_hedef" class="text-slate-800 text-sm font-black">0 kg</b>
+        </div>
+        <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+          <span class="text-[10px] text-emerald-700 font-bold uppercase block">Üretilen (Paketlenen)</span>
+          <b id="ieSevk_uretilen" class="text-emerald-800 text-sm font-black">0 kg</b>
+        </div>
+        <div class="bg-blue-50 p-2.5 rounded-xl border border-blue-200">
+          <span class="text-[10px] text-blue-700 font-bold uppercase block">Hazır Miktar</span>
+          <b id="ieSevk_hazirGosterim" class="text-blue-800 text-sm font-black">0 kg</b>
+        </div>
+        <div class="bg-purple-50 p-2.5 rounded-xl border border-purple-200">
+          <span class="text-[10px] text-purple-700 font-bold uppercase block">Toplam Sevk Edilen</span>
+          <b id="ieSevk_sevkEdilen" class="text-purple-800 text-sm font-black">0 kg</b>
+        </div>
+      </div>
+
+      <!-- Kademeli Adım 1: Hazırlanan Miktar Girişi -->
+      <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 mb-3 space-y-2">
+        <div class="flex justify-between items-center">
+          <b class="text-xs text-slate-800 flex items-center gap-1.5">
+            <span class="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">1</span>
+            Hazırlanan Miktar Belirleme (kg)
+          </b>
+          <button type="button" onclick="ieSevkTumunuHazirla()" class="text-[11px] font-bold text-blue-700 hover:underline">Tümünü Hazır Yap</button>
+        </div>
+        <div class="flex gap-2 items-center">
+          <input type="number" step="0.01" id="ieSevk_hazirInput" class="border border-slate-300 p-2 rounded-lg w-full text-xs font-bold text-blue-700 bg-white" placeholder="Hazır Miktar (kg)">
+          <button type="button" onclick="ieSevkHazirKaydet()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm whitespace-nowrap">Hazır Kaydet</button>
+        </div>
+      </div>
+
+      <!-- Kademeli Adım 2: Paketleme / Palet Bilgisi (ZORUNLU) -->
+      <div class="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200 mb-3 space-y-2">
+        <b class="text-xs text-amber-900 flex items-center gap-1.5">
+          <span class="bg-amber-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">2</span>
+          Paketleme & Palet / Ambalaj Bilgisi <span class="text-rose-600 font-bold">* (Zorunlu)</span>
+        </b>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Ambalaj / Palet Türü *</label>
+            <select id="ieSevk_paketTuru" class="border border-slate-300 p-2 rounded-lg w-full bg-white font-semibold">
+              <option value="Euro Palet (Streçli & Çemberli)">Euro Palet (Streçli & Çemberli)</option>
+              <option value="Sandık Palet">Sandık Palet</option>
+              <option value="Bidon Üzeri Palet">Bidon Üzeri Palet</option>
+              <option value="Koli / Kutu">Koli / Kutu</option>
+              <option value="Özel Ambalaj">Özel Ambalaj</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Palet / Paket Adedi *</label>
+            <input type="number" id="ieSevk_paketAdedi" min="1" value="1" class="border border-slate-300 p-2 rounded-lg w-full bg-white font-bold">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Paketleme Notu / Etiket No</label>
+            <input type="text" id="ieSevk_paketNotu" placeholder="Örn: 2 Palet hazırlandı, etiketler yapıştırıldı..." class="border border-slate-300 p-2 rounded-lg w-full bg-white">
+          </div>
+        </div>
+      </div>
+
+      <!-- Kademeli Adım 3: Sevkiyat Yap -->
+      <div class="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200 mb-4 space-y-2">
+        <b class="text-xs text-emerald-900 flex items-center gap-1.5">
+          <span class="bg-emerald-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">3</span>
+          Sevkiyat Çıkışı
+        </b>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Sevk Edilecek Miktar (kg) *</label>
+            <input type="number" step="0.01" id="ieSevk_miktarInput" class="border border-emerald-300 p-2 rounded-lg w-full bg-white font-black text-emerald-700" placeholder="Sevk Miktarı">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Sevk Tarihi *</label>
+            <input type="date" id="ieSevk_tarihInput" class="border border-slate-300 p-2 rounded-lg w-full bg-white font-semibold">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Sevk / İrsaliye Açıklaması</label>
+            <input type="text" id="ieSevk_aciklama" placeholder="İrsaliye No, Araç Plakası veya Sevkiyat Notu..." class="border border-slate-300 p-2 rounded-lg w-full bg-white">
+          </div>
+        </div>
+      </div>
+
+      <!-- Sevk Geçmişi -->
+      <div id="ieSevk_gecmisAlani" class="mb-4 text-xs"></div>
+
+      <div class="flex justify-between items-center pt-3 border-t border-slate-200">
+        <button type="button" onclick="closeModal('isEmriSevkModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs">Kapat</button>
+        <button type="button" onclick="ieSevkGerceklestir()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-md flex items-center gap-1.5">
+          <span>🚚</span> Sevkiyatı Onayla ve Çıkış Yap
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAMAMLANAN İŞ EMRİ NOT VE EK SİPARİŞ MODALI -->
+  <div id="isEmriNotModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl p-1.5 rounded-lg bg-amber-100 text-amber-800">📝</span>
+          <h3 class="font-bold text-base text-slate-800" id="ieNotModalTitle">İş Emri Notu & Ek Sipariş</h3>
+        </div>
+        <button onclick="closeModal('isEmriNotModal')" class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200">✕</button>
+      </div>
+      <input type="hidden" id="ieNot_isEmriId">
+      <div class="space-y-3 text-xs mb-4">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">İş Emri Notları / Revize Açıklaması</label>
+          <textarea id="ieNot_metin" rows="4" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white" placeholder="İş emri hakkında notlarınızı buraya yazabilirsiniz..."></textarea>
+        </div>
+      </div>
+      <div class="flex flex-wrap justify-between items-center gap-2 border-t pt-3">
+        <button type="button" onclick="ieNotEkSiparisOlustur()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1">
+          <span>➕</span> Bu İşe Ek Sipariş Emri Aç
+        </button>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeModal('isEmriNotModal')" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl font-bold text-xs">Kapat</button>
+          <button type="button" onclick="ieNotKaydet()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm">💾 Notu Kaydet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- KRİTİK / ASGARİ STOK SATINALMA BİLDİRİM VE TALEP MODALI -->
   <div id="kritikStokTalepModal" class="modal">
     <div class="modal-content" style="max-width: 750px;">
@@ -5675,6 +5818,16 @@
                   utKalemUrunYazildi(asama, kalemId, selectedVal);
                 }
               }
+
+              // KTM Sipariş Kalem inputu ise state'i güncelle
+              if (activeEl.id.startsWith('ktmSipUrunInput_')) {
+                const parts = activeEl.id.split('_');
+                const idx = parseInt(parts[1]);
+                if (!isNaN(idx)) {
+                  ktmSiparisKalemUrunYazildi(idx, selectedVal);
+                }
+              }
+
               if (e.key === 'Enter') {
                 e.preventDefault();
               }
@@ -7716,18 +7869,26 @@
         }
       });
 
-      // Bağlı iş emrinin durumunu ve ilerlemesini güncelle
-      if (bagliIsEmri) {
-        if (bagliIsEmri.durum === 'Planlandı') {
-          bagliIsEmri.durum = 'Üretimde';
-        }
-        const ieOzet = getIsEmriUretimOzet(bagliIsEmri.id);
-        const hedefKg = parseFloat(bagliIsEmri.hedef) || 0;
+      // Bağlı iş emrinin durumunu ve ilerlemesini güncelle (Emir hedefi kadarını o işe, fazlasını stoğa aktar)
+      let fazlaStokUretimiVarMi = false;
+      let fazlaKgMiktari = 0;
 
-        // Sadece paketleme hedefi tam olarak karşılandığında ve kullanıcı teyidi ile veya %100 olunca durum güncellenir
-        if (hedefKg > 0 && ieOzet.paketlenenToplam >= hedefKg) {
+      if (bagliIsEmri) {
+        const hedefKg = parseFloat(bagliIsEmri.hedef) || 0;
+        const ieOzetOnceki = getIsEmriUretimOzet(bagliIsEmri.id);
+        const buUretimPaketlenen = asamaTotals.bidon + asamaTotals.hassas;
+
+        // Hedef aşımı kontrolü (Paketlenen miktar hedefi aşıyorsa)
+        if (hedefKg > 0 && (ieOzetOnceki.paketlenenToplam > hedefKg)) {
+          fazlaKgMiktari = ieOzetOnceki.paketlenenToplam - hedefKg;
+          fazlaStokUretimiVarMi = true;
+          mesajOzeti.push(`📦 İş Emri Hedefi (${hedefKg} kg) tamamlandı!`);
+          mesajOzeti.push(`⭐ Hedef fazlası üretilen ${fazlaKgMiktari.toFixed(1)} kg ürün otomatik olarak SERBEST MAMÜL STOĞUNA ayrıldı.`);
+        }
+
+        if (hedefKg > 0 && ieOzetOnceki.paketlenenToplam >= hedefKg) {
           bagliIsEmri.durum = 'Tamamlandı';
-          mesajOzeti.push(`🎉 Tebrikler! ${bagliIsEmri.no} iş emrinin paketleme hedefi (${hedefKg} kg) tamamlandı!`);
+          if (!bagliIsEmri.tamamlanmaTarihi) bagliIsEmri.tamamlanmaTarihi = tarih || new Date().toISOString().slice(0, 10);
         } else {
           bagliIsEmri.durum = 'Üretimde';
         }
@@ -8253,9 +8414,9 @@
         capInput.value = finalCap;
       }
 
-      // Harman numarasını otomatik olarak Ürün Adı + Benzersiz Sayaç ile doldur
+      // Harman numarasını otomatik olarak Ürün Adı + Benzersiz Sayaç ile doldur (Eğer yeni iş emriyse)
       const harmanInput = document.getElementById('ieHarmanNo');
-      if (harmanInput) {
+      if (harmanInput && (!duzenlenenIsEmriId || !harmanInput.value)) {
         const safAd = urun ? (urun.kod || urun.ad) : urunStr;
         harmanInput.value = generateNextHarmanNo(safAd);
       }
@@ -8488,6 +8649,9 @@
       }
 
       ieUrunSecildi(safAd, capDeger);
+      if (document.getElementById('ieHarmanNo')) {
+        document.getElementById('ieHarmanNo').value = ie.harmanNo || '';
+      }
 
       const isEmriSection = document.getElementById('isemri');
       if (isEmriSection) {
@@ -8726,6 +8890,249 @@
       renderAll();
     }
 
+    /* ========================================================================= */
+    /* İŞ EMRİ KADEMELİ SEVKİYAT MOTORU (HAZIRLA > PAKETLE > SEVK ET)            */
+    /* ========================================================================= */
+    let currentSevkIsEmriId = null;
+
+    function isEmriSevkModalAc(id) {
+      const ie = (DB.isEmirleri || []).find(x => x.id == id);
+      if (!ie) return;
+      currentSevkIsEmriId = id;
+
+      document.getElementById('ieSevk_isEmriId').value = id;
+      document.getElementById('ieSevkModalTitle').innerHTML = `<span>🚚</span> Kademeli Sevkiyat: <b>${ie.no}</b>`;
+      document.getElementById('ieSevkModalSubtitle').textContent = `${ie.musteri || 'Müşteri'} · ${ie.safUrunAdi || ie.urunAdi || ''} (${ie.cap || ''})`;
+
+      const hedefKg = parseFloat(ie.hedef) || 0;
+      const ozet = getIsEmriUretimOzet(ie.id);
+      const hazirKg = parseFloat(ie.hazirlananMiktar) || ozet.paketlenenToplam;
+      const sevkEdilenKg = (ie.sevkGecmisi || []).reduce((acc, s) => acc + (parseFloat(s.miktar) || 0), 0);
+
+      document.getElementById('ieSevk_hedef').textContent = `${hedefKg} kg`;
+      document.getElementById('ieSevk_uretilen').textContent = `${ozet.paketlenenToplam} kg`;
+      document.getElementById('ieSevk_hazirGosterim').textContent = `${hazirKg} kg`;
+      document.getElementById('ieSevk_sevkEdilen').textContent = `${sevkEdilenKg} kg`;
+
+      document.getElementById('ieSevk_hazirInput').value = hazirKg > 0 ? hazirKg : ozet.paketlenenToplam;
+      
+      const kalanKg = Math.max(0, hazirKg - sevkEdilenKg);
+      document.getElementById('ieSevk_miktarInput').value = kalanKg > 0 ? kalanKg : '';
+      document.getElementById('ieSevk_tarihInput').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('ieSevk_aciklama').value = '';
+
+      if (ie.paketTuru) document.getElementById('ieSevk_paketTuru').value = ie.paketTuru;
+      if (ie.paketAdedi) document.getElementById('ieSevk_paketAdedi').value = ie.paketAdedi;
+      if (ie.paketNotu) document.getElementById('ieSevk_paketNotu').value = ie.paketNotu;
+
+      // Sevk geçmişi render
+      const gecmisAlani = document.getElementById('ieSevk_gecmisAlani');
+      if (gecmisAlani) {
+        const gecmis = ie.sevkGecmisi || [];
+        if (gecmis.length > 0) {
+          let gHtml = '<div class="font-bold text-slate-700 mb-1.5 flex items-center gap-1"><span>📜</span> Geçmiş Sevkiyatlar:</div><div class="space-y-1.5">';
+          gecmis.forEach((g, idx) => {
+            gHtml += `<div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
+              <div>
+                <b class="text-emerald-700">${g.miktar} kg</b> <span class="text-slate-500">(${formatTarihTR(g.tarih)})</span>
+                <div class="text-[10px] text-slate-600">${g.paketTuru || 'Ambalaj'}: ${g.paketAdedi || 1} Adet ${g.aciklama ? ' - ' + g.aciklama : ''}</div>
+              </div>
+              <span class="text-[10px] font-bold bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">✅ Sevk Edildi</span>
+            </div>`;
+          });
+          gHtml += '</div>';
+          gecmisAlani.innerHTML = gHtml;
+          gecmisAlani.classList.remove('hidden');
+        } else {
+          gecmisAlani.innerHTML = '<div class="text-slate-400 text-center py-1">Bu iş emri için henüz yapılmış bir sevkiyat kaydı bulunmuyor.</div>';
+        }
+      }
+
+      openModal('isEmriSevkModal');
+    }
+
+    function ieSevkTumunuHazirla() {
+      if (!currentSevkIsEmriId) return;
+      const ie = (DB.isEmirleri || []).find(x => x.id == currentSevkIsEmriId);
+      if (!ie) return;
+      const ozet = getIsEmriUretimOzet(ie.id);
+      const hedefKg = parseFloat(ie.hedef) || 0;
+      const tamMiktar = ozet.paketlenenToplam > 0 ? ozet.paketlenenToplam : hedefKg;
+      document.getElementById('ieSevk_hazirInput').value = tamMiktar;
+      showToast(`${tamMiktar} kg hazır olarak belirlendi.`, 'info');
+    }
+
+    function ieSevkHazirKaydet() {
+      if (!currentSevkIsEmriId) return;
+      const ie = (DB.isEmirleri || []).find(x => x.id == currentSevkIsEmriId);
+      if (!ie) return;
+
+      const hazirKg = parseFloat(document.getElementById('ieSevk_hazirInput')?.value) || 0;
+      if (hazirKg <= 0) {
+        alert('Lütfen geçerli bir hazır miktar giriniz!');
+        return;
+      }
+
+      ie.hazirlananMiktar = hazirKg;
+      document.getElementById('ieSevk_hazirGosterim').textContent = `${hazirKg} kg`;
+
+      const sevkEdilenKg = (ie.sevkGecmisi || []).reduce((acc, s) => acc + (parseFloat(s.miktar) || 0), 0);
+      const kalanKg = Math.max(0, hazirKg - sevkEdilenKg);
+      document.getElementById('ieSevk_miktarInput').value = kalanKg > 0 ? kalanKg : '';
+
+      saveDB();
+      renderAll();
+      showToast(`İş emri hazır miktarı (${hazirKg} kg) güncellendi.`, 'success');
+    }
+
+    function ieSevkGerceklestir() {
+      if (!currentSevkIsEmriId) return;
+      const ie = (DB.isEmirleri || []).find(x => x.id == currentSevkIsEmriId);
+      if (!ie) return;
+
+      const hazirKg = parseFloat(ie.hazirlananMiktar) || parseFloat(document.getElementById('ieSevk_hazirInput')?.value) || 0;
+      const paketTuru = (document.getElementById('ieSevk_paketTuru')?.value || '').trim();
+      const paketAdedi = parseInt(document.getElementById('ieSevk_paketAdedi')?.value) || 0;
+      const paketNotu = (document.getElementById('ieSevk_paketNotu')?.value || '').trim();
+
+      const sevkMiktar = parseFloat(document.getElementById('ieSevk_miktarInput')?.value) || 0;
+      const sevkTarihi = document.getElementById('ieSevk_tarihInput')?.value || new Date().toISOString().slice(0, 10);
+      const sevkAciklama = (document.getElementById('ieSevk_aciklama')?.value || '').trim();
+
+      // Kural 1: Hazır miktar kontrolü
+      if (hazirKg <= 0) {
+        alert('⚠️ SEVKİYAT ENGELLENDİ:\n\nSevkiyat yapabilmek için önce 1. Adımdan "Hazırlanan Miktar" belirleyip kaydetmelisiniz!');
+        return;
+      }
+
+      // Kural 2: Paketleme / Palet Bilgisi Zorunluluğu (Sıralama: Hazırlanan Miktar > Paketleme > Sevk)
+      if (!paketTuru || paketAdedi <= 0) {
+        alert('⚠️ SEVKİYAT ENGELLENDİ (PAKETLEME BİLGİSİ EKSİK):\n\nSevkiyat sıralaması kuralı gereği:\n[ Hazırlanan Miktar ➔ Paketleme Bilgisi ➔ Sevk ]\n\nLütfen 2. Adımdan geçerli bir "Paketleme / Palet Türü" ve "Adet" bilgisi giriniz!');
+        return;
+      }
+
+      // Kural 3: Miktar geçerliliği
+      if (sevkMiktar <= 0) {
+        alert('Lütfen sevk edilecek miktar için sıfırdan büyük bir kg değeri giriniz!');
+        return;
+      }
+
+      const oncekiSevkEdilen = (ie.sevkGecmisi || []).reduce((acc, s) => acc + (parseFloat(s.miktar) || 0), 0);
+      if (oncekiSevkEdilen + sevkMiktar > hazirKg) {
+        if (!confirm(`DİKKAT: Sevk edilmek istenen toplam miktar (${oncekiSevkEdilen + sevkMiktar} kg), hazır miktarı (${hazirKg} kg) aşıyor. Devam etmek istiyor musunuz?`)) {
+          return;
+        }
+      }
+
+      // Sevkiyat kaydını işle
+      ie.paketTuru = paketTuru;
+      ie.paketAdedi = paketAdedi;
+      ie.paketNotu = paketNotu;
+      ie.hazirlananMiktar = hazirKg;
+
+      ie.sevkGecmisi = ie.sevkGecmisi || [];
+      ie.sevkGecmisi.push({
+        id: Date.now(),
+        tarih: sevkTarihi,
+        miktar: sevkMiktar,
+        paketTuru: paketTuru,
+        paketAdedi: paketAdedi,
+        aciklama: sevkAciklama
+      });
+
+      const toplamYeniSevk = oncekiSevkEdilen + sevkMiktar;
+      const hedefKg = parseFloat(ie.hedef) || 0;
+
+      if (toplamYeniSevk >= hedefKg && hedefKg > 0) {
+        ie.durum = 'Tamamlandı';
+        ie.sevkDurumu = 'Tamamı Sevk Edildi';
+      } else {
+        ie.sevkDurumu = 'Kısmi Sevk Edildi';
+      }
+
+      // KTM Stok Hareketi ve FCW Tel Çıkışı oluştur
+      DB.ktmHareketler = DB.ktmHareketler || [];
+      DB.ktmHareketler.push({
+        id: Date.now() + Math.random(),
+        urunKod: ie.safUrunAdi || ie.urunAdi || 'FCW-TEL',
+        urunAd: ie.urunAdi || '',
+        tip: 'cikis',
+        miktar: sevkMiktar,
+        kaynakTip: 'İş Emri Sevkiyatı',
+        proje: ie.musteri || ie.no,
+        aciklama: `İş Emri Sevk Çıkışı: ${ie.no} (${paketTuru} - ${paketAdedi} Adet) ${sevkAciklama ? ' - ' + sevkAciklama : ''}`,
+        tarih: new Date(sevkTarihi).toISOString()
+      });
+
+      bildirimGonder("İş Emri Sevkiyatı Yapıldı", `${ie.no} nolu iş emrinden ${sevkMiktar} kg ürün (${paketTuru}) başarıyla sevk edildi.\nMüşteri: ${ie.musteri || '-'}`, 'success', true);
+
+      saveDB(true);
+      renderAll();
+      closeModal('isEmriSevkModal');
+      showToast(`🚚 ${ie.no} nolu iş emrinden ${sevkMiktar} kg sevkiyat başarıyla gerçekleştirildi.`, 'success');
+    }
+
+    /* ========================================================================= */
+    /* İŞ EMRİ NOT EKLEME & EK SİPARİŞ OLUŞTURMA MOTORU                          */
+    /* ========================================================================= */
+    let currentNotIsEmriId = null;
+
+    function isEmriNotModalAc(id) {
+      const ie = (DB.isEmirleri || []).find(x => x.id == id);
+      if (!ie) return;
+      currentNotIsEmriId = id;
+
+      document.getElementById('ieNot_isEmriId').value = id;
+      document.getElementById('ieNotModalTitle').textContent = `${ie.no} · Not & Ek Sipariş`;
+      document.getElementById('ieNot_metin').value = ie.notlar || '';
+
+      openModal('isEmriNotModal');
+    }
+
+    function ieNotKaydet() {
+      if (!currentNotIsEmriId) return;
+      const ie = (DB.isEmirleri || []).find(x => x.id == currentNotIsEmriId);
+      if (!ie) return;
+
+      const yeniNot = (document.getElementById('ieNot_metin')?.value || '').trim();
+      ie.notlar = yeniNot;
+
+      saveDB();
+      renderAll();
+      closeModal('isEmriNotModal');
+      showToast(`${ie.no} iş emri notu başarıyla kaydedildi.`, 'success');
+    }
+
+    function ieNotEkSiparisOlustur() {
+      if (!currentNotIsEmriId) return;
+      const anaIe = (DB.isEmirleri || []).find(x => x.id == currentNotIsEmriId);
+      if (!anaIe) return;
+
+      closeModal('isEmriNotModal');
+
+      // Yeni iş emri formunu doldurarak aç
+      isEmriTemizle();
+
+      const urun = (DB.urunler || []).find(u => u.id == anaIe.urunId);
+      const safAd = anaIe.safUrunAdi || (urun ? (urun.ad || urun.kod) : (anaIe.urunAdi || '').split(' - ')[0] || '');
+      const capDeger = anaIe.cap || (urun ? urun.cap : 'Ø2.8mm');
+
+      document.getElementById('ieUrunInput').value = safAd;
+      if (document.getElementById('ieCap')) document.getElementById('ieCap').value = capDeger;
+      if (document.getElementById('ieMusteri')) document.getElementById('ieMusteri').value = anaIe.musteri || '';
+      if (document.getElementById('ieSipNo')) document.getElementById('ieSipNo').value = `${anaIe.sipNo || anaIe.no}-EK`;
+      if (document.getElementById('ieNotlar')) document.getElementById('ieNotlar').value = `[${anaIe.no} İş Emrine Ek Sipariş] ` + (anaIe.notlar ? '(' + anaIe.notlar + ')' : '');
+      if (document.getElementById('iePaket')) document.getElementById('iePaket').value = anaIe.paket || 'Panzerrom Bidon';
+      if (document.getElementById('ieHat')) document.getElementById('ieHat').value = anaIe.hat || 'Kaba Çekme 1';
+
+      ieUrunSecildi(safAd, capDeger);
+
+      const isEmriSection = document.getElementById('isemri');
+      if (isEmriSection) isEmriSection.scrollIntoView({ behavior: 'smooth' });
+
+      showToast(`"${anaIe.no}" iş emrine bağlı Ek Sipariş Emri taslağı hazırlandı. Miktar girip kaydedebilirsiniz.`, 'info');
+    }
+
     function isEmriListele() {
       const filtreElement = document.getElementById('ieFiltre');
       const filtre = filtreElement ? filtreElement.value : 'Tüm Durumlar';
@@ -8746,14 +9153,25 @@
         const ozet = getIsEmriUretimOzet(i.id);
         const yuzde = hedefKg > 0 ? Math.min(100, Math.round((ozet.paketlenenToplam / hedefKg) * 100)) : 0;
 
-        let durumSelect = `
-      <select onchange="isEmriDurumDegistir(${i.id}, this.value)" class="border border-slate-200 rounded-lg p-1.5 text-xs font-bold outline-none bg-white shadow-sm focus:ring-2 focus:ring-blue-100 cursor-pointer">
-        <option value="Planlandı" ${i.durum === 'Planlandı' ? 'selected' : ''}>⏳ Planlandı</option>
-        <option value="Üretimde" ${i.durum === 'Üretimde' ? 'selected' : ''}>⚙️ Üretimde</option>
-        <option value="Tamamlandı" ${i.durum === 'Tamamlandı' ? 'selected' : ''}>✅ Tamamlandı</option>
-        <option value="İptal" ${i.durum === 'İptal' ? 'selected' : ''}>❌ İptal</option>
-      </select>
-    `;
+        let durumSelect = '';
+        if (i.durum === 'Tamamlandı') {
+          durumSelect = `
+            <div class="flex items-center gap-1">
+              <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-2 py-1 rounded-lg text-xs flex items-center gap-1 shadow-sm cursor-default" title="Tamamlanmış iş emirlerinde durum kilitlidir. Revize veya ek sipariş için butonları kullanınız.">
+                <span>🔒</span> ✅ Tamamlandı
+              </span>
+            </div>
+          `;
+        } else {
+          durumSelect = `
+            <select onchange="isEmriDurumDegistir(${i.id}, this.value)" class="border border-slate-200 rounded-lg p-1.5 text-xs font-bold outline-none bg-white shadow-sm focus:ring-2 focus:ring-blue-100 cursor-pointer">
+              <option value="Planlandı" ${i.durum === 'Planlandı' ? 'selected' : ''}>⏳ Planlandı</option>
+              <option value="Üretimde" ${i.durum === 'Üretimde' ? 'selected' : ''}>⚙️ Üretimde</option>
+              <option value="Tamamlandı" ${i.durum === 'Tamamlandı' ? 'selected' : ''}>✅ Tamamlandı</option>
+              <option value="İptal" ${i.durum === 'İptal' ? 'selected' : ''}>❌ İptal</option>
+            </select>
+          `;
+        }
         const isDahili = i.tur === 'Dahili Kullanım (APM)' || (i.musteri && i.musteri.includes('APM'));
         const turRozeti = isDahili ?
           `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 block w-max mt-1">🏭 DAHİLİ APM</span>` :
@@ -8820,6 +9238,8 @@
         </td>
         <td class="py-3">${durumSelect}</td>
         <td class="py-3 text-right whitespace-nowrap">
+          <button onclick="isEmriSevkModalAc(${i.id})" class="text-emerald-700 bg-emerald-50 hover:bg-emerald-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="Kademeli Sevkiyat ve Paketleme (Hazırla > Paketle > Sevk)">🚚 Sevk</button>
+          <button onclick="isEmriNotModalAc(${i.id})" class="text-indigo-700 bg-indigo-50 hover:bg-indigo-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="İş Emri Notu / Ek Sipariş">📝 Not / Ek</button>
           <button onclick="isEmriDuzenle(${i.id})" class="text-amber-700 bg-amber-50 hover:bg-amber-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="İş Emrini Düzenle / Revize Et">✏️ Düzenle</button>
           <button onclick="ieDetay(${i.id})" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="Yazdırılabilir Form">👁️ Form</button>
           ${i.revizyonNo ? `<button onclick="ieRevizyonGecmisiAc(${i.id})" class="text-purple-700 bg-purple-50 hover:bg-purple-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="Revizyon Geçmişi">🕒</button>` : ''}
@@ -12337,17 +12757,26 @@
       ktmSiparisToplamHesaplaUI();
     }
 
-    function ktmSiparisKalemMiktarDegisti(idx, val) {
-      if (ktmSiparisFormDraftKalemler[idx]) {
-        ktmSiparisFormDraftKalemler[idx].miktar = parseFloat(val) || 0;
+    function ktmSiparisKalemUrunYazildi(idx, text) {
+      if (!ktmSiparisFormDraftKalemler[idx]) return;
+      const temiz = (text || '').trim().toLowerCase();
+      const urunler = DB.ktmUrunler || [];
+      const eslesen = urunler.find(u => 
+        (u.kod && u.kod.toLowerCase() === temiz) ||
+        (u.ad && u.ad.toLowerCase() === temiz) ||
+        (`${u.kod} - ${u.ad}`.toLowerCase() === temiz) ||
+        (`${u.ad} (${u.kod})`.toLowerCase().includes(temiz))
+      );
+
+      if (eslesen) {
+        ktmSiparisFormDraftKalemler[idx].urunId = eslesen.id;
+        ktmSiparisFormDraftKalemler[idx].urunKod = eslesen.kod;
+        ktmSiparisFormDraftKalemler[idx].urunAd = `${eslesen.ad} (Çap: ${eslesen.cap || '-'} | ${eslesen.paket || '-'})`;
+      } else {
+        ktmSiparisFormDraftKalemler[idx].urunKod = text.trim();
+        ktmSiparisFormDraftKalemler[idx].urunAd = text.trim();
       }
       ktmSiparisToplamHesaplaUI();
-    }
-
-    function ktmSiparisKalemNotDegisti(idx, val) {
-      if (ktmSiparisFormDraftKalemler[idx]) {
-        ktmSiparisFormDraftKalemler[idx].not = val.trim();
-      }
     }
 
     function ktmSiparisKalemleriRender() {
@@ -12358,18 +12787,32 @@
       let html = '';
 
       ktmSiparisFormDraftKalemler.forEach((k, idx) => {
-        let urunOptions = '<option value="">-- Ürün Seçiniz --</option>';
-        urunler.forEach(u => {
-          const sel = (k.urunId == u.id || k.urunKod === u.kod) ? 'selected' : '';
-          urunOptions += `<option value="${u.id}" ${sel}>${u.kod} - ${u.ad} | Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'} [Stok: ${u.stok || 0} kg]</option>`;
-        });
+        const urunGosterim = k.urunKod ? `${k.urunKod} - ${k.urunAd || ''}` : '';
+        const listId = `ktmSipUrunInput_${idx}-list`;
+
+        const urunlerDropdownHtml = urunler.map(u => {
+          const itemText = `${u.kod} - ${u.ad} (Çap: ${u.cap || '-'} | ${u.paket || '-'})`;
+          return `<div class="dropdown-item" data-ad="${u.kod}" data-cap="${u.cap || ''}" onclick="selectKtmKalemDropdownVal(${idx}, '${u.id}', '${u.kod}', '${u.ad.replace(/'/g, "\\'")}', '${u.cap || ''}', '${u.paket || ''}')">
+            <div class="font-bold text-slate-800">${u.kod} - ${u.ad}</div>
+            <div class="text-[10px] text-slate-500">Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'} | Stok: <b>${u.stok || 0} kg</b></div>
+          </div>`;
+        }).join('');
 
         html += `<tr>
           <td class="p-2.5 font-bold text-slate-500">${idx + 1}</td>
           <td class="p-2.5">
-            <select onchange="ktmSiparisKalemUrunSecildi(${idx}, this.value)" class="border border-slate-300 p-2 rounded-lg w-full text-xs font-semibold bg-white outline-none focus:border-blue-500">
-              ${urunOptions}
-            </select>
+            <div class="custom-dropdown-container">
+              <input type="text" id="ktmSipUrunInput_${idx}" 
+                value="${urunGosterim}"
+                placeholder="Ürün Ara / Yaz (Örn: AbraHARD, 9200...)"
+                onfocus="openDropdown('ktmSipUrunInput_${idx}')"
+                onkeyup="filterDropdown('ktmSipUrunInput_${idx}'); ktmSiparisKalemUrunYazildi(${idx}, this.value)"
+                onblur="setTimeout(()=>closeDropdown('ktmSipUrunInput_${idx}'), 250)"
+                class="border border-slate-300 p-2 rounded-lg w-full text-xs font-bold text-slate-800 bg-white outline-none focus:border-blue-500">
+              <div id="${listId}" class="custom-dropdown-list max-h-56 overflow-y-auto">
+                ${urunlerDropdownHtml}
+              </div>
+            </div>
           </td>
           <td class="p-2.5">
             <input type="number" step="0.01" value="${k.miktar > 0 ? k.miktar : ''}" oninput="ktmSiparisKalemMiktarDegisti(${idx}, this.value)" placeholder="Miktar (kg)" class="border border-slate-300 p-2 rounded-lg w-full text-xs font-bold text-emerald-700 bg-white outline-none focus:border-emerald-500">
@@ -12384,6 +12827,18 @@
       });
 
       tbody.innerHTML = html;
+      ktmSiparisToplamHesaplaUI();
+    }
+
+    function selectKtmKalemDropdownVal(idx, uId, uKod, uAd, uCap, uPaket) {
+      if (ktmSiparisFormDraftKalemler[idx]) {
+        ktmSiparisFormDraftKalemler[idx].urunId = uId;
+        ktmSiparisFormDraftKalemler[idx].urunKod = uKod;
+        ktmSiparisFormDraftKalemler[idx].urunAd = `${uAd} (Çap: ${uCap || '-'} | ${uPaket || '-'})`;
+        const inputEl = document.getElementById(`ktmSipUrunInput_${idx}`);
+        if (inputEl) inputEl.value = `${uKod} - ${uAd} (Çap: ${uCap || '-'} | ${uPaket || '-'})`;
+      }
+      closeDropdown(`ktmSipUrunInput_${idx}`);
       ktmSiparisToplamHesaplaUI();
     }
 
@@ -12981,12 +13436,39 @@
     function ktmSipSil(id) {
       const sip = (DB.ktmSiparisler || []).find(s => s.id == id);
       if (!sip) return;
-      if (!confirm(`Sipariş No: "${sip.siparisNo || ('SIP-' + sip.id)}" olan (${sip.musteri}) siparişini kalıcı olarak silmek istediğinize emin misiniz?`)) return;
+      const sNo = (sip.siparisNo || ('SIP-' + sip.id)).trim();
 
+      // Bağlı iş emirlerini bul
+      const bagliIsEmirleri = (DB.isEmirleri || []).filter(ie => 
+        (ie.sipNo && ie.sipNo.trim() === sNo) ||
+        (ie.ktmSiparisId && ie.ktmSiparisId == id) ||
+        (ie.musteri && ie.musteri === sip.musteri && ie.sipNo === sNo)
+      );
+
+      let onayMesaji = `Sipariş No: "${sNo}" (${sip.musteri}) olan siparişi kalıcı olarak silmek istediğinize emin misiniz?`;
+      if (bagliIsEmirleri.length > 0) {
+        const ieNolar = bagliIsEmirleri.map(ie => ie.no).join(', ');
+        onayMesaji += `\n\n⚠️ DİKKAT: Bu siparişe bağlı oluşturulmuş İş Emri (${ieNolar}) bulunmaktadır.\nSiparişi silerseniz bağlı bu iş emirleri de otomatik olarak silinecektir!`;
+      }
+
+      if (!confirm(onayMesaji)) return;
+
+      // Siparişi sil
       DB.ktmSiparisler = (DB.ktmSiparisler || []).filter(s => s.id != id);
+
+      // Bağlı iş emirlerini sil
+      if (bagliIsEmirleri.length > 0) {
+        const bagliIdList = bagliIsEmirleri.map(ie => String(ie.id));
+        DB.isEmirleri = (DB.isEmirleri || []).filter(ie => !bagliIdList.includes(String(ie.id)));
+        bagliIdList.forEach(ieId => {
+          if (DB.ozelReceteler) delete DB.ozelReceteler[ieId];
+          if (DB.ozelReceteNotlar) delete DB.ozelReceteNotlar[ieId];
+        });
+      }
+
       saveDB();
       renderAll();
-      showToast('KTM siparişi başarıyla silindi.', 'info');
+      showToast(`KTM siparişi ${bagliIsEmirleri.length > 0 ? 've bağlı ' + bagliIsEmirleri.length + ' iş emri' : ''} başarıyla silindi.`, 'info');
     }
 
     function ktmHareketListele() {
