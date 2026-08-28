@@ -2183,9 +2183,15 @@
                 onkeyup="filterDropdown('ieMusteri')" onblur="setTimeout(()=>closeDropdown('ieMusteri'), 200)">
               <div id="ieMusteri-list" class="custom-dropdown-list"></div>
             </div>
-            <div class="input-group"><label>Harman Numarası (Manuel Kağıt Kodu)</label><input id="ieHarmanNo"
+            <div class="input-group">
+              <label class="flex items-center justify-between">
+                <span>Harman Numarası (Otomatik)</span>
+                <span class="text-[10px] text-amber-700 font-bold">Ürün + Benzersiz No</span>
+              </label>
+              <input id="ieHarmanNo"
                 class="border border-amber-300 p-2.5 rounded-lg w-full bg-amber-50/50 shadow-sm font-mono font-bold text-amber-900"
-                placeholder="Örn: HRM-2026-084"></div>
+                placeholder="Ürün seçildiğinde otomatik atanır (Örn: 9200-2026-001)">
+            </div>
             <div class="input-group"><label>Etiket Türü</label><select id="ieEtiketTuru"
                 class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm font-bold text-slate-800">
                 <option value="Panzercrom Etiketi">🏷️ Panzercrom Etiketi</option>
@@ -8137,6 +8143,32 @@
       return found || null;
     }
 
+    function generateNextHarmanNo(urunStr) {
+      const year = new Date().getFullYear();
+      let prefix = 'HRM';
+      if (urunStr) {
+        // Ürün adını temizleyip kısa harman etiketine dönüştür (Örn: AbraHARD 9200 -> ABRA9200 veya 9200)
+        const cleanName = urunStr.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        prefix = cleanName.length > 8 ? cleanName.slice(0, 8) : cleanName;
+        if (!prefix) prefix = 'HRM';
+      }
+
+      // Mevcut harman numaralarını tara ve son sayacı bul
+      let maxNum = 0;
+      (DB.isEmirleri || []).forEach(ie => {
+        if (ie.harmanNo) {
+          const m = ie.harmanNo.match(/(\d+)$/);
+          if (m) {
+            const num = parseInt(m[1]);
+            if (!isNaN(num) && num > maxNum && num < 999999) maxNum = num;
+          }
+        }
+      });
+
+      const nextNum = maxNum + 1;
+      return `${prefix}-${year}-${nextNum.toString().padStart(3, '0')}`;
+    }
+
     function ieUrunSecildi(urunStr, capStr) {
       const urunInput = document.getElementById('ieUrunInput');
       if (urunInput) urunInput.value = urunStr;
@@ -8148,6 +8180,13 @@
 
       if (capInput && (!capInput.value || capStr)) {
         capInput.value = finalCap;
+      }
+
+      // Harman numarasını otomatik olarak Ürün Adı + Benzersiz Sayaç ile doldur
+      const harmanInput = document.getElementById('ieHarmanNo');
+      if (harmanInput) {
+        const safAd = urun ? (urun.kod || urun.ad) : urunStr;
+        harmanInput.value = generateNextHarmanNo(safAd);
       }
 
       ieCapGirdisiDegisti(finalCap);
@@ -8210,7 +8249,10 @@
       const urunGorunumAdi = `${safUrunAdi} - ${finalCap}`;
 
       const musteriVal = document.getElementById('ieMusteri').value.trim();
-      const harmanNoVal = (document.getElementById('ieHarmanNo')?.value || '').trim();
+      let harmanNoVal = (document.getElementById('ieHarmanNo')?.value || '').trim();
+      if (!harmanNoVal) {
+        harmanNoVal = generateNextHarmanNo(safUrunAdi);
+      }
       const etiketTuruVal = document.getElementById('ieEtiketTuru')?.value || 'Panzercrom Etiketi';
       const notlarVal = (document.getElementById('ieNotlar')?.value || '').trim();
 
