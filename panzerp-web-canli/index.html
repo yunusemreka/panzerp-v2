@@ -2147,13 +2147,13 @@
                 class="border border-slate-300 p-2.5 rounded-lg w-full bg-slate-100 shadow-sm font-bold text-blue-700"
                 readonly></div>
             <div class="input-group"><label>Tarih</label><input id="ieTarih" type="date"
-                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm"></div>
+                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm font-bold text-slate-800"></div>
             <div class="input-group"><label>Sipariş / Üretim Amacı</label><select id="ieTur"
                 onchange="ieTurDegisti(this.value)"
                 class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm font-bold text-slate-800">
-                <option value="Müşteri Siparişi">🛒 Müşteri Siparişi</option>
+                <option value="Müşteri Tel Siparişi">🛒 Müşteri Tel Siparişi</option>
                 <option value="Dahili Kullanım (APM)">🏭 Dahili Kullanım (APM Plaka Kaynağı)</option>
-                <option value="Stok Üretimi">📦 Genel Depo Stoğu</option>
+                <option value="Stok Üretimi">📦 Genel Depo Stoğu (KTM Deposu)</option>
               </select></div>
             <div class="input-group relative">
               <label>Ürün Seçimi (Ad/Kod ile Ara)</label>
@@ -2170,11 +2170,28 @@
                 placeholder="Örn: Ø2.4mm veya 2.8" oninput="ieCapGirdisiDegisti(this.value)">
             </div>
             <div class="input-group"><label>Hedef Miktar (Kg)</label><input id="ieHedef" type="number"
-                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm" placeholder="0"
+                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm font-bold" placeholder="0"
                 oninput="ieHarmanPartiHesapla()"></div>
-            <div class="input-group"><label>Müşteri Adı</label><input id="ieMusteri"
-                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm"
-                placeholder="Müşteri (Opsiyonel)"></div>
+            <div class="input-group relative">
+              <div class="flex justify-between items-center mb-1">
+                <label class="font-bold text-slate-700">Müşteri Adı</label>
+                <button type="button" onclick="musteriModalAc()" class="text-[10px] text-blue-600 hover:text-blue-800 font-bold">➕ Müşteri Listesi</button>
+              </div>
+              <input id="ieMusteri"
+                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm font-bold text-slate-800 outline-none"
+                placeholder="Müşteri Yaz veya Seç..." onfocus="openDropdown('ieMusteri')"
+                onkeyup="filterDropdown('ieMusteri')" onblur="setTimeout(()=>closeDropdown('ieMusteri'), 200)">
+              <div id="ieMusteri-list" class="custom-dropdown-list"></div>
+            </div>
+            <div class="input-group"><label>Harman Numarası (Manuel Kağıt Kodu)</label><input id="ieHarmanNo"
+                class="border border-amber-300 p-2.5 rounded-lg w-full bg-amber-50/50 shadow-sm font-mono font-bold text-amber-900"
+                placeholder="Örn: HRM-2026-084"></div>
+            <div class="input-group"><label>Etiket Türü</label><select id="ieEtiketTuru"
+                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm font-bold text-slate-800">
+                <option value="Panzercrom Etiketi">🏷️ Panzercrom Etiketi</option>
+                <option value="Müşteri Etiketi">🏷️ Müşteri Özel Etiketi</option>
+                <option value="Nötr / Standart Etiket">🏷️ Nötr / Standart Etiket</option>
+              </select></div>
             <div class="input-group"><label>Paketleme Tipi / Sarf Malzeme</label><select id="iePaket"
                 class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm font-semibold text-slate-700">
                 <option value="Panzerrom Bidon">Panzerrom Bidon (250 kg)</option>
@@ -2216,6 +2233,16 @@
                 class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm"></div>
             <div class="input-group"><label>Planlanan Bitiş Tarihi</label><input id="iePlanBitis" type="date"
                 class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm"></div>
+            
+            <div class="input-group md:col-span-3">
+              <label class="font-bold text-slate-700 flex items-center gap-1.5">
+                <span>📝</span> İş Emri Notları & Özel Talimatlar
+              </label>
+              <textarea id="ieNotlar" rows="2"
+                class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm text-xs"
+                placeholder="Paketleme şartı, müşteri özel istekleri veya üretim talimatlarını buraya girebilirsiniz..."></textarea>
+            </div>
+
             <div id="ieProsesUyarisi"
               class="md:col-span-3 text-xs bg-indigo-50 border border-indigo-200 text-indigo-900 p-3 rounded-lg font-medium hidden">
             </div>
@@ -4799,6 +4826,32 @@
     </div>
   </div>
 
+  <!-- İŞ EMRİ REVİZYON GEÇMİŞİ MODALI -->
+  <div id="ieRevizyonModal" class="modal">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl p-2 rounded-xl bg-purple-100 text-purple-800 border border-purple-200">🕒</span>
+          <div>
+            <h3 class="font-bold text-lg text-slate-800" id="ieRevizyonModalTitle">İş Emri Revizyon Geçmişi</h3>
+            <p class="text-xs text-slate-500 font-medium" id="ieRevizyonModalSubtitle">İş emri üzerindeki tüm revizyon kayıtları</p>
+          </div>
+        </div>
+        <button onclick="closeModal('ieRevizyonModal')"
+          class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200">✕</button>
+      </div>
+
+      <div id="ieRevizyonIcerik" class="max-h-[380px] overflow-y-auto space-y-3 p-1">
+        <!-- JS ile doldurulacak -->
+      </div>
+
+      <div class="flex justify-end pt-3 border-t border-slate-100 mt-4">
+        <button type="button" onclick="closeModal('ieRevizyonModal')"
+          class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-xl font-bold text-xs">Kapat</button>
+      </div>
+    </div>
+  </div>
+
   <!-- KRİTİK / ASGARİ STOK SATINALMA BİLDİRİM VE TALEP MODALI -->
   <div id="kritikStokTalepModal" class="modal">
     <div class="modal-content" style="max-width: 750px;">
@@ -5511,6 +5564,25 @@
 
       const tcTelListEl = document.getElementById('tcTelInput-list');
       if (tcTelListEl) tcTelListEl.innerHTML = urunlerHtml;
+
+      // Müşteri Açılır Listesi (İş Emri & Müşteri Siparişleri için)
+      const musterilerHtml = (DB.musteriler || []).map(m => {
+        const adStr = (m.ad || '').trim();
+        const unvanStr = (m.unvan || '').trim();
+        return `<div class="dropdown-item flex items-center justify-between" onclick="selectDropdownVal(this, '${adStr}')">
+          <span class="font-bold text-slate-800">${adStr}</span>
+          ${unvanStr ? `<span class="text-xs text-slate-400 font-medium">${unvanStr}</span>` : ''}
+        </div>`;
+      }).join('');
+
+      const ieMusteriListEl = document.getElementById('ieMusteri-list');
+      if (ieMusteriListEl) {
+        if (musterilerHtml) {
+          ieMusteriListEl.innerHTML = musterilerHtml;
+        } else {
+          ieMusteriListEl.innerHTML = `<div class="p-3 text-center text-slate-400 text-xs font-medium">Kayıtlı müşteri bulunamadı.<br><button type="button" onclick="musteriModalAc()" class="text-blue-600 font-bold underline mt-1">➕ Müşteri Ekle</button></div>`;
+        }
+      }
 
       const ktmHtml = (DB.ktmUrunler || []).map(u => {
         const val = `${u.ad ? u.ad + ' (' + u.kod + ')' : u.kod} (Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'})`;
@@ -8128,7 +8200,8 @@
       const finalCap = capGirdisi || (urun ? urun.cap : 'Ø2.8mm');
 
       const lotInput = document.getElementById('ieLotNo');
-      const lotNoVal = lotInput && lotInput.value.trim() ? lotInput.value.trim() : `LOT-${urun ? (urun.ad || urun.kod) : urunStr}-${(document.getElementById('ieTarih').value || '').replace(/-/g, '') || new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
+      const tarihVal = document.getElementById('ieTarih').value || new Date().toISOString().slice(0, 10);
+      const lotNoVal = lotInput && lotInput.value.trim() ? lotInput.value.trim() : `LOT-${urun ? (urun.ad || urun.kod) : urunStr}-${tarihVal.replace(/-/g, '')}`;
 
       const capVal = ieCapBilgisiHesapla(finalCap);
       const isCiftKademe = capVal < 2.8;
@@ -8136,8 +8209,13 @@
       const safUrunAdi = urun ? (urun.ad || urun.kod) : urunStr;
       const urunGorunumAdi = `${safUrunAdi} - ${finalCap}`;
 
+      const musteriVal = document.getElementById('ieMusteri').value.trim();
+      const harmanNoVal = (document.getElementById('ieHarmanNo')?.value || '').trim();
+      const etiketTuruVal = document.getElementById('ieEtiketTuru')?.value || 'Panzercrom Etiketi';
+      const notlarVal = (document.getElementById('ieNotlar')?.value || '').trim();
+
       if (duzenlenenIsEmriId) {
-        // DÜZENLEME MODU - Kendi numarası dışında aynı numara var mı kontrolü
+        // DÜZENLEME / REVİZYON MODU - Kendi numarası dışında aynı numara var mı kontrolü
         const baskaEmirVarMi = (DB.isEmirleri || []).some(x => x.id != duzenlenenIsEmriId && (x.no || '').trim().toLowerCase() === no.toLowerCase());
         if (baskaEmirVarMi) {
           alert(`HATA: "${no}" numaralı iş emri başka bir kayıtta zaten mevcut! Lütfen farklı bir numara giriniz.`);
@@ -8146,15 +8224,42 @@
 
         const ie = (DB.isEmirleri || []).find(x => x.id == duzenlenenIsEmriId);
         if (ie) {
+          // REVİZYON GEÇMİŞİ TAKİBİ
+          if (!Array.isArray(ie.revizyonlar)) ie.revizyonlar = [];
+          const revNo = (ie.revizyonNo || 0) + 1;
+
+          // Eski durumu revizyon geçmişine kaydet
+          ie.revizyonlar.push({
+            revNo: revNo,
+            tarih: new Date().toISOString(),
+            kullanici: aktifKullanici ? aktifKullanici.ad : 'Sistem',
+            eskiVeri: {
+              hedef: ie.hedef,
+              musteri: ie.musteri,
+              urunAdi: ie.urunAdi,
+              cap: ie.cap,
+              hat: ie.hat,
+              paket: ie.paket,
+              harmanNo: ie.harmanNo,
+              etiketTuru: ie.etiketTuru,
+              notlar: ie.notlar
+            }
+          });
+
+          ie.revizyonNo = revNo;
+          ie.sonRevizyonTarihi = new Date().toISOString();
           ie.no = no;
-          ie.tarih = document.getElementById('ieTarih').value;
+          ie.tarih = tarihVal;
           ie.tur = document.getElementById('ieTur').value;
           ie.urunId = urunId;
           ie.safUrunAdi = safUrunAdi;
           ie.cap = finalCap;
           ie.urunAdi = urunGorunumAdi;
           ie.hedef = parseFloat(document.getElementById('ieHedef').value) || 0;
-          ie.musteri = document.getElementById('ieMusteri').value;
+          ie.musteri = musteriVal;
+          ie.harmanNo = harmanNoVal;
+          ie.etiketTuru = etiketTuruVal;
+          ie.notlar = notlarVal;
           ie.paket = document.getElementById('iePaket').value;
           ie.doluluk = parseFloat(document.getElementById('ieDoluluk').value) || 0;
           ie.partiSayisi = partiSayisi;
@@ -8163,11 +8268,12 @@
           ie.lotNo = lotNoVal;
           ie.sipNo = document.getElementById('ieSipNo').value;
           ie.teslim = document.getElementById('ieTeslim').value;
-          ie.planBaslangic = document.getElementById('iePlanBaslangic').value || document.getElementById('ieTarih').value;
-          ie.planBitis = document.getElementById('iePlanBitis').value || document.getElementById('ieTeslim').value || document.getElementById('ieTarih').value;
+          ie.planBaslangic = document.getElementById('iePlanBaslangic').value || tarihVal;
+          ie.planBitis = document.getElementById('iePlanBitis').value || document.getElementById('ieTeslim').value || tarihVal;
           ie.ciftKademe = isCiftKademe;
 
-          showToast(`İş Emri (${no}) başarıyla güncellendi.`, 'success');
+          showToast(`İş Emri (${no}) başarıyla güncellendi (Rev. #${revNo}).`, 'success');
+          bildirimGonder("İş Emri Revize Edildi", `${no} nolu iş emri revize edildi (Rev. #${revNo}).`, 'info');
         }
         duzenlenenIsEmriId = null;
       } else {
@@ -8182,31 +8288,36 @@
         DB.isEmirleri.push({
           id: Date.now(),
           no: no,
-          tarih: document.getElementById('ieTarih').value,
+          revizyonNo: 0,
+          revizyonlar: [],
+          tarih: tarihVal,
           tur: document.getElementById('ieTur').value,
           urunId: urunId,
           safUrunAdi: safUrunAdi,
           cap: finalCap,
           urunAdi: urunGorunumAdi,
           hedef: parseFloat(document.getElementById('ieHedef').value) || 0,
-          musteri: document.getElementById('ieMusteri').value,
+          musteri: musteriVal,
+          harmanNo: harmanNoVal,
+          etiketTuru: etiketTuruVal,
+          notlar: notlarVal,
           paket: document.getElementById('iePaket').value,
           doluluk: parseFloat(document.getElementById('ieDoluluk').value) || 0,
           partiSayisi: partiSayisi,
-          hat: document.getElementById('ieHat').value,
+          hat = document.getElementById('ieHat').value,
           operator: document.getElementById('ieOperator').value,
           lotNo: lotNoVal,
           sipNo: document.getElementById('ieSipNo').value,
           teslim: document.getElementById('ieTeslim').value,
-          planBaslangic: document.getElementById('iePlanBaslangic').value || document.getElementById('ieTarih').value,
-          planBitis: document.getElementById('iePlanBitis').value || document.getElementById('ieTeslim').value || document.getElementById('ieTarih').value,
+          planBaslangic: document.getElementById('iePlanBaslangic').value || tarihVal,
+          planBitis: document.getElementById('iePlanBitis').value || document.getElementById('ieTeslim').value || tarihVal,
           durum: 'Planlandı',
           uretim: 0,
           ciftKademe: isCiftKademe,
           harmanDurum: 'Bekliyor'
         });
 
-        bildirimGonder("Yeni İş Emri Oluşturuldu", `İş Emri No: ${no}\nÜrün: ${safUrunAdi}\nÇap: ${finalCap}\nHedef Miktar: ${document.getElementById('ieHedef').value} kg\nHat: ${document.getElementById('ieHat').value}\nLot No: ${lotNoVal}\nMüşteri: ${document.getElementById('ieMusteri').value || '-'}`, 'success', true);
+        bildirimGonder("Yeni İş Emri Oluşturuldu", `İş Emri No: ${no}\nÜrün: ${safUrunAdi}\nÇap: ${finalCap}\nHedef: ${document.getElementById('ieHedef').value} kg\nHarman No: ${harmanNoVal || '-'}\nEtiket: ${etiketTuruVal}\nMüşteri: ${musteriVal || '-'}`, 'success', true);
       }
 
       isEmriTemizle();
@@ -8221,9 +8332,9 @@
       duzenlenenIsEmriId = id;
 
       document.getElementById('ieNo').value = ie.no || '';
-      document.getElementById('ieTarih').value = ie.tarih || '';
-      document.getElementById('ieTur').value = ie.tur || 'Müşteri Siparişi';
-      ieTurDegisti(ie.tur || 'Müşteri Siparişi');
+      document.getElementById('ieTarih').value = ie.tarih || new Date().toISOString().slice(0, 10);
+      document.getElementById('ieTur').value = ie.tur || 'Müşteri Tel Siparişi';
+      ieTurDegisti(ie.tur || 'Müşteri Tel Siparişi');
 
       const urun = (DB.urunler || []).find(u => u.id == ie.urunId);
       const safAd = ie.safUrunAdi || (urun ? (urun.ad || urun.kod) : (ie.urunAdi || '').split(' - ')[0] || '');
@@ -8236,6 +8347,9 @@
 
       document.getElementById('ieHedef').value = ie.hedef || 0;
       document.getElementById('ieMusteri').value = ie.musteri || '';
+      if (document.getElementById('ieHarmanNo')) document.getElementById('ieHarmanNo').value = ie.harmanNo || '';
+      if (document.getElementById('ieEtiketTuru')) document.getElementById('ieEtiketTuru').value = ie.etiketTuru || 'Panzercrom Etiketi';
+      if (document.getElementById('ieNotlar')) document.getElementById('ieNotlar').value = ie.notlar || '';
       document.getElementById('iePaket').value = ie.paket || 'Panzerrom Bidon';
       document.getElementById('ieDoluluk').value = ie.doluluk || 0;
       document.getElementById('iePartiSayisi').value = ie.partiSayisi || 1;
@@ -8250,13 +8364,13 @@
       const kaydetBtn = document.getElementById('ieKaydetBtn');
       if (kaydetBtn) {
         kaydetBtn.className = 'bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm flex-1 md:flex-none';
-        kaydetBtn.innerHTML = '✏️ Değişiklikleri Güncelle';
+        kaydetBtn.innerHTML = `✏️ Değişiklikleri Güncelle (Revize Et ${ie.revizyonNo ? '#Rev.' + (ie.revizyonNo + 1) : '#Rev.1'})`;
       }
 
       const modRozeti = document.getElementById('ieModRozeti');
       if (modRozeti) {
         modRozeti.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300 flex items-center gap-1';
-        modRozeti.innerHTML = `<span>✏️</span> Düzenleme Modu: <b>${ie.no}</b>`;
+        modRozeti.innerHTML = `<span>✏️</span> Düzenleme Modu: <b>${ie.no}</b> ${ie.revizyonNo ? `<span class="bg-purple-600 text-white text-[10px] px-1.5 py-0.2 rounded font-black">Rev.${ie.revizyonNo}</span>` : ''}`;
         modRozeti.classList.remove('hidden');
       }
 
@@ -8271,15 +8385,24 @@
     function isEmriTemizle() {
       duzenlenenIsEmriId = null;
       const newNo = generateNextIsEmriNo();
+      const todayISO = new Date().toISOString().slice(0, 10);
 
-      ['ieTarih', 'ieHedef', 'ieMusteri', 'ieOperator', 'ieSipNo', 'ieTeslim', 'iePlanBaslangic', 'iePlanBitis', 'ieDoluluk', 'ieUrunInput', 'ieCap', 'ieLotNo'].forEach(i => {
+      ['ieHedef', 'ieMusteri', 'ieHarmanNo', 'ieNotlar', 'ieOperator', 'ieSipNo', 'ieTeslim', 'iePlanBaslangic', 'iePlanBitis', 'ieDoluluk', 'ieUrunInput', 'ieCap', 'ieLotNo'].forEach(i => {
         let el = document.getElementById(i);
         if (el) el.value = '';
       });
+
+      // Tarihe varsayılan o anın tarihi atanır
+      let tEl = document.getElementById('ieTarih');
+      if (tEl) tEl.value = todayISO;
+
       let pSayiEl = document.getElementById('iePartiSayisi');
       if (pSayiEl) pSayiEl.value = '1';
       let ieNoEl = document.getElementById('ieNo');
       if (ieNoEl) ieNoEl.value = newNo;
+
+      let etiketEl = document.getElementById('ieEtiketTuru');
+      if (etiketEl) etiketEl.value = 'Panzercrom Etiketi';
 
       const modRozeti = document.getElementById('ieModRozeti');
       if (modRozeti) modRozeti.classList.add('hidden');
@@ -8288,7 +8411,10 @@
       if (prosesUyariEl) prosesUyariEl.classList.add('hidden');
 
       const turEl = document.getElementById('ieTur');
-      if (turEl) turEl.value = 'Müşteri Siparişi';
+      if (turEl) {
+        turEl.value = 'Müşteri Tel Siparişi';
+        ieTurDegisti('Müşteri Tel Siparişi');
+      }
 
       const kaydetBtn = document.getElementById('ieKaydetBtn');
       if (kaydetBtn) {
@@ -8296,6 +8422,7 @@
         kaydetBtn.innerHTML = '💾 İş Emrini Kaydet';
       }
 
+      renderCustomDropdowns();
       ieHarmanPartiHesapla();
     }
 
@@ -8303,16 +8430,73 @@
       const musteriEl = document.getElementById('ieMusteri');
       const modRozeti = document.getElementById('ieModRozeti');
       if (val === 'Dahili Kullanım (APM)') {
-        if (musteriEl && !musteriEl.value) musteriEl.value = 'PANZERCROM APM FABRİKASI (İÇ TÜKETİM)';
+        if (musteriEl) musteriEl.value = 'PANZERCROM APM FABRİKASI (İÇ TÜKETİM)';
         if (modRozeti) {
           modRozeti.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1';
           modRozeti.innerHTML = '<span>🏭</span> Dahili Tüketim Modu (APM Plaka Besleme)';
           modRozeti.classList.remove('hidden');
         }
+      } else if (val === 'Stok Üretimi') {
+        if (musteriEl) musteriEl.value = 'KTM Deposu';
+        if (modRozeti) {
+          modRozeti.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1';
+          modRozeti.innerHTML = '<span>📦</span> Genel Depo Stoğu (KTM Deposu)';
+          modRozeti.classList.remove('hidden');
+        }
       } else {
-        if (musteriEl && musteriEl.value === 'PANZERCROM APM FABRİKASI (İÇ TÜKETİM)') musteriEl.value = '';
+        if (musteriEl && (musteriEl.value === 'PANZERCROM APM FABRİKASI (İÇ TÜKETİM)' || musteriEl.value === 'KTM Deposu')) {
+          musteriEl.value = '';
+        }
         if (modRozeti && !duzenlenenIsEmriId) modRozeti.classList.add('hidden');
       }
+    }
+
+    function ieRevizyonGecmisiAc(id) {
+      const ie = (DB.isEmirleri || []).find(x => x.id == id);
+      if (!ie) return;
+
+      const titleEl = document.getElementById('ieRevizyonModalTitle');
+      const subEl = document.getElementById('ieRevizyonModalSubtitle');
+      const container = document.getElementById('ieRevizyonIcerik');
+      if (!container) return;
+
+      if (titleEl) titleEl.innerHTML = `<span>🕒</span> İş Emri Revizyon Geçmişi (${ie.no})`;
+      if (subEl) subEl.textContent = `Toplam Revizyon Sayısı: ${ie.revizyonNo || 0} adet`;
+
+      const revizyonlar = Array.isArray(ie.revizyonlar) ? ie.revizyonlar : [];
+      if (revizyonlar.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center text-slate-500">
+            <span class="text-3xl block mb-2">📋</span>
+            <b>Bu iş emri henüz hiç revize edilmemiştir.</b>
+            <p class="text-xs text-slate-400 mt-1">İş emrini düzenleyip güncellediğinizde revizyon geçmişi otomatik olarak burada listelenecektir.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = revizyonlar.slice().reverse().map(r => {
+          const e = r.eskiVeri || {};
+          return `
+            <div class="bg-white border border-purple-200 rounded-xl p-3.5 shadow-2xs hover:border-purple-300 transition-colors text-xs">
+              <div class="flex justify-between items-center border-b border-slate-100 pb-2 mb-2">
+                <span class="font-black text-purple-800 bg-purple-100 px-2 py-0.5 rounded text-[11px]">Revizyon #${r.revNo}</span>
+                <span class="text-slate-400 font-medium">${formatTarihTR(r.tarih ? r.tarih.slice(0, 10) : '')} ${r.tarih ? r.tarih.slice(11, 16) : ''}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-slate-600">
+                <div><b>Hedef Miktar:</b> ${e.hedef ? e.hedef + ' kg' : '-'}</div>
+                <div><b>Müşteri:</b> ${e.musteri || '-'}</div>
+                <div><b>Ürün:</b> ${e.urunAdi || '-'} (Çap: ${e.cap || '-'})</div>
+                <div><b>Üretim Hattı:</b> ${e.hat || '-'}</div>
+                <div><b>Harman No:</b> ${e.harmanNo || '-'}</div>
+                <div><b>Etiket:</b> ${e.etiketTuru || '-'}</div>
+              </div>
+              ${e.notlar ? `<div class="mt-2 text-slate-500 bg-slate-50 p-2 rounded border border-slate-100 text-[11px]"><b>Önceki Not:</b> ${e.notlar}</div>` : ''}
+              <div class="text-[10px] text-slate-400 mt-2 text-right">Düzenleyen: <b>${r.kullanici || 'Sistem'}</b></div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      openModal('ieRevizyonModal');
     }
 
     /* ========================================================================= */
@@ -8470,19 +8654,39 @@
         const capGosterim = i.cap || (urun ? urun.cap : (i.urunAdi || '').split(' - ')[1] || '');
         const urunGosterim = `<b class="text-slate-900 text-sm">${safAd}</b> ${capGosterim ? `<span class="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded ml-1">${capGosterim}</span>` : ''}`;
 
+        const revizyonRozeti = (i.revizyonNo && i.revizyonNo > 0)
+          ? `<button type="button" onclick="ieRevizyonGecmisiAc(${i.id})" class="text-[9px] font-black px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300 hover:bg-purple-200 transition-colors inline-flex items-center gap-0.5 mt-1" title="Revizyon Geçmişini Gör"><span>🕒</span> Rev.${i.revizyonNo}</button>`
+          : '';
+
+        const harmanNoRozeti = i.harmanNo
+          ? `<div class="text-[10px] text-amber-800 font-mono font-bold mt-0.5">Harman: <b>${i.harmanNo}</b></div>`
+          : '';
+
+        const etiketRozeti = i.etiketTuru
+          ? `<span class="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200 inline-block mt-0.5">${i.etiketTuru}</span>`
+          : '';
+
         html += `
       <tr class="hover:bg-slate-50 transition-colors">
         <td class="py-3">
-          <b class="text-slate-800 bg-slate-100 px-2 py-1 rounded text-sm">${i.no}</b>
+          <div class="flex items-center gap-1">
+            <b class="text-slate-800 bg-slate-100 px-2 py-1 rounded text-sm">${i.no}</b>
+            ${revizyonRozeti}
+          </div>
           ${turRozeti}
           ${ciftKademeRozeti}
+          ${harmanNoRozeti}
         </td>
-        <td class="py-3"><span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 px-2 py-1 rounded border border-sky-200">${i.lotNo || lotVal}</span></td>
+        <td class="py-3">
+          <span class="font-mono text-xs font-bold text-sky-700 bg-sky-50 px-2 py-1 rounded border border-sky-200">${i.lotNo || lotVal}</span>
+          ${etiketRozeti ? `<br>${etiketRozeti}` : ''}
+        </td>
         <td class="py-3 font-medium">${formatTarihTR(i.tarih)}</td>
         <td class="py-3 text-xs font-semibold text-slate-600">${planStart} → ${planEnd}</td>
         <td class="py-3 text-slate-700">
           ${urunGosterim}
           <div class="text-[10px] text-slate-400 font-normal mt-0.5">Hat: <b class="text-slate-600">${i.hat || 'Kaba Çekme'}</b> | Paket: <b>${i.paket || '-'}</b></div>
+          ${i.notlar ? `<div class="text-[10px] text-slate-500 italic mt-0.5 bg-slate-50 p-1 rounded border border-slate-100">📌 ${i.notlar.slice(0, 35)}${i.notlar.length > 35 ? '...' : ''}</div>` : ''}
         </td>
         <td class="py-3 font-black text-slate-700">${hedefKg} <span class="text-xs font-normal">kg</span></td>
         <td class="py-3">
@@ -8499,9 +8703,10 @@
         </td>
         <td class="py-3 font-bold text-amber-700 bg-amber-50/50 px-2 py-1 rounded text-xs">${pSayi} Parti</td>
         <td class="py-3">${durumSelect}</td>
-        <td class="py-3 text-right">
-          <button onclick="isEmriDuzenle(${i.id})" class="text-amber-700 bg-amber-50 hover:bg-amber-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="İş Emrini Düzenle">✏️ Düzenle</button>
+        <td class="py-3 text-right whitespace-nowrap">
+          <button onclick="isEmriDuzenle(${i.id})" class="text-amber-700 bg-amber-50 hover:bg-amber-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="İş Emrini Düzenle / Revize Et">✏️ Düzenle</button>
           <button onclick="ieDetay(${i.id})" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="Yazdırılabilir Form">👁️ Form</button>
+          ${i.revizyonNo ? `<button onclick="ieRevizyonGecmisiAc(${i.id})" class="text-purple-700 bg-purple-50 hover:bg-purple-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="Revizyon Geçmişi">🕒</button>` : ''}
           <button onclick="ieSil(${i.id})" class="text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm" title="Sil">🗑️</button>
         </td>
       </tr>`;
@@ -8539,12 +8744,18 @@
 
       const lotNo = `LOT-${urun ? urun.kod : ''}-${(i.tarih || '').replace(/-/g, '')}`;
 
-      const ozet = getIsEmriUretimOzet(i.id);
-      const yuzde = i.hedef > 0 ? Math.min(100, Math.round((ozet.paketlenenToplam / i.hedef) * 100)) : 0;
+      const revNoStr = (i.revizyonNo && i.revizyonNo > 0) ? `Rev. ${i.revizyonNo}` : 'Rev. 0';
+      const etiketTuruStr = i.etiketTuru || 'Panzercrom Etiketi';
+      const harmanNoStr = i.harmanNo || '-';
+      const notlarStr = i.notlar ? i.notlar.replace(/\n/g, '<br>') : '-';
 
       let html = `
     <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 190mm; margin: 0 auto; box-sizing: border-box; line-height: 1.2;">
-        <div style="text-align: center; font-size: 18px; font-weight: bold; border-bottom: 3px double #334155; padding-bottom: 6px; margin-bottom: 10px; letter-spacing: 0.5px;">FCW İŞ EMRİ FORMU</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #334155; padding-bottom: 6px; margin-bottom: 10px;">
+          <div style="font-size: 13px; font-weight: bold; color: #475569;">PANZERCROM® ERP</div>
+          <div style="text-align: center; font-size: 18px; font-weight: bold; letter-spacing: 0.5px;">FCW İŞ EMRİ FORMU</div>
+          <div style="font-size: 12px; font-weight: bold; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 2px 8px; rounded: 4px;">${revNoStr}</div>
+        </div>
         
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 11px;">
           <tr>
@@ -8565,15 +8776,19 @@
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 11px;">
           <tr>
              <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold; width: 18%;">Sipariş Türü:</td>
-             <td style="border: 1px solid #94a3b8; padding: 4px 6px;" colspan="2">[ ${i.tur === 'Müşteri Siparişi' ? '<b>X</b>' : '&nbsp;&nbsp;'} ] Müşteri Siparişi &nbsp;&nbsp; [ ${i.tur === 'Dahili Kullanım (APM)' ? '<b>X</b>' : '&nbsp;&nbsp;'} ] Dahili APM &nbsp;&nbsp; [ ${i.tur === 'Stok Üretimi' ? '<b>X</b>' : '&nbsp;&nbsp;'} ] Stok</td>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px;" colspan="2">[ ${i.tur === 'Müşteri Tel Siparişi' || i.tur === 'Müşteri Siparişi' ? '<b>X</b>' : '&nbsp;&nbsp;'} ] Müşteri Tel Siparişi &nbsp;&nbsp; [ ${i.tur === 'Dahili Kullanım (APM)' ? '<b>X</b>' : '&nbsp;&nbsp;'} ] Dahili APM &nbsp;&nbsp; [ ${i.tur === 'Stok Üretimi' ? '<b>X</b>' : '&nbsp;&nbsp;'} ] Stok (KTM)</td>
              <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold; width: 18%;">Müşteri Adı:</td>
-             <td style="border: 1px solid #94a3b8; padding: 4px 6px;">${i.musteri || '-'}</td>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px;"><b>${i.musteri || '-'}</b></td>
           </tr>
           <tr>
              <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">Teslim Tarihi:</td>
              <td style="border: 1px solid #94a3b8; padding: 4px 6px;" colspan="2">${formatTarihTR(i.teslim)}</td>
              <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">Sipariş No:</td>
              <td style="border: 1px solid #94a3b8; padding: 4px 6px;">${i.sipNo || '-'}</td>
+          </tr>
+          <tr>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">Etiket Türü:</td>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px;" colspan="4">🏷️ <b>${etiketTuruStr}</b></td>
           </tr>
         </table>
 
@@ -8597,6 +8812,10 @@
              <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">Lot / Parti No:</td>
              <td style="border: 1px solid #94a3b8; padding: 4px 6px;"><b>${i.lotNo || lotNo}</b></td>
           </tr>
+          <tr>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">Harman No (Manuel):</td>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-family: monospace; font-size: 12px; font-weight: bold; color: #92400e;" colspan="3"><b>${harmanNoStr}</b> (Harman kağıdına işlenecek kod)</td>
+          </tr>
         </table>
 
         <div style="background: #1e293b; color: #ffd10f; padding: 4px 8px; font-weight: bold; text-align: center; font-size: 11px; margin-bottom: 6px; border-radius: 3px;">HAMMADDE KULLANIMI</div>
@@ -8615,6 +8834,12 @@
             <tr><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">Spool / Drum</td><td style="border: 1px solid #94a3b8; padding: 4px;">${i.paket || '-'}</td><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">${paketAdet} Adet</td><td style="border: 1px solid #94a3b8; padding: 4px; height: 22px;"></td></tr>
           </tbody>
         </table>
+
+        <!-- İŞ EMRİ ÖZEL TALİMATLAR VE NOTLAR -->
+        <div style="border: 1px solid #94a3b8; background: #fafafa; padding: 6px; border-radius: 4px; margin-bottom: 8px; font-size: 11px;">
+          <b style="color: #334155;">📌 Özel Üretim Notları & Talimatlar:</b>
+          <div style="margin-top: 2px; color: #475569;">${notlarStr}</div>
+        </div>
 
         <div style="background: #1e293b; color: #ffd10f; padding: 4px 8px; font-weight: bold; text-align: center; font-size: 11px; margin-bottom: 6px; border-radius: 3px;">ÜRETİM SONUÇLARI (Doldurulacak Alanlar)</div>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px;">
