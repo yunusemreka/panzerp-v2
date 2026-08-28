@@ -5695,11 +5695,17 @@
 
     function renderCustomDropdowns() {
       const urunlerHtml = (DB.urunler || []).map(u => {
-        const safAd = temizSafUrunAdi(u.ad || u.kod || '');
+        const adGosterim = (u.ad || u.kod || '').trim();
+        const kodGosterim = (u.kod || '').trim();
         const capGosterim = (u.cap || '').trim();
-        return `<div class="dropdown-item flex items-center justify-between" data-ad="${safAd}" data-cap="${capGosterim}" onclick="selectDropdownVal(this, '${safAd}', '${capGosterim}')">
-          <span class="font-bold text-slate-800">${safAd}</span>
-          ${capGosterim ? `<span class="text-xs text-slate-400 font-mono bg-slate-100 px-1.5 py-0.5 rounded">${capGosterim}</span>` : ''}
+        const fullMetin = kodGosterim && kodGosterim !== adGosterim ? `${adGosterim} (${kodGosterim})` : adGosterim;
+        
+        return `<div class="dropdown-item flex items-center justify-between py-2 px-3 hover:bg-amber-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${adGosterim}" data-kod="${kodGosterim}" data-cap="${capGosterim}" onclick="selectDropdownVal(this, '${adGosterim.replace(/'/g, "\\'")}', '${capGosterim}')">
+          <div>
+            <span class="font-bold text-slate-800 text-xs block">${adGosterim}</span>
+            ${kodGosterim && kodGosterim !== adGosterim ? `<span class="text-[11px] text-slate-500 font-medium">Kod: ${kodGosterim}</span>` : ''}
+          </div>
+          ${capGosterim ? `<span class="text-xs text-indigo-700 font-mono font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">${capGosterim}</span>` : ''}
         </div>`;
       }).join('');
 
@@ -5754,20 +5760,26 @@
       if (el) el.classList.remove('active');
     }
     function filterDropdown(id) {
-      const val = document.getElementById(id).value.toLowerCase();
+      const val = (document.getElementById(id)?.value || '').toLowerCase().trim();
       const listEl = document.getElementById(id + '-list');
       if (!listEl) return;
       listEl.classList.add('active');
       const items = listEl.children;
       for (let item of items) {
-        item.style.display = item.innerText.toLowerCase().includes(val) ? 'block' : 'none';
+        const itemText = (item.innerText || '').toLowerCase();
+        const dataAd = (item.dataset.ad || '').toLowerCase();
+        const dataKod = (item.dataset.kod || '').toLowerCase();
+        const dataCap = (item.dataset.cap || '').toLowerCase();
+        const eslesti = itemText.includes(val) || dataAd.includes(val) || dataKod.includes(val) || dataCap.includes(val);
+        item.style.display = eslesti ? 'flex' : 'none';
       }
     }
     function selectDropdownVal(element, val, capVal) {
       const parentListId = element.parentElement.id;
       const inputId = parentListId.replace('-list', '');
       const inputEl = document.getElementById(inputId);
-      if (inputEl) inputEl.value = val;
+      const selectedName = element.dataset.ad || val;
+      if (inputEl) inputEl.value = selectedName;
       closeDropdown(inputId);
 
       // İş Emri Girişi ise
@@ -5776,7 +5788,7 @@
         if (capInput && capVal) {
           capInput.value = capVal;
         }
-        ieUrunSecildi(val, capVal);
+        ieUrunSecildi(selectedName, capVal);
       }
 
       // FCW Tel Çıkışı ise çapı otomatik doldur
@@ -12791,10 +12803,13 @@
         const listId = `ktmSipUrunInput_${idx}-list`;
 
         const urunlerDropdownHtml = urunler.map(u => {
-          const itemText = `${u.kod} - ${u.ad} (Çap: ${u.cap || '-'} | ${u.paket || '-'})`;
-          return `<div class="dropdown-item" data-ad="${u.kod}" data-cap="${u.cap || ''}" onclick="selectKtmKalemDropdownVal(${idx}, '${u.id}', '${u.kod}', '${u.ad.replace(/'/g, "\\'")}', '${u.cap || ''}', '${u.paket || ''}')">
-            <div class="font-bold text-slate-800">${u.kod} - ${u.ad}</div>
-            <div class="text-[10px] text-slate-500">Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'} | Stok: <b>${u.stok || 0} kg</b></div>
+          const itemText = `${u.ad || u.kod} (Kod: ${u.kod} | Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'})`;
+          return `<div class="dropdown-item flex items-center justify-between py-2 px-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${u.ad || u.kod}" data-kod="${u.kod}" data-cap="${u.cap || ''}" onclick="selectKtmKalemDropdownVal(${idx}, '${u.id}', '${u.kod}', '${(u.ad || u.kod).replace(/'/g, "\\'")}', '${u.cap || ''}', '${u.paket || ''}')">
+            <div>
+              <div class="font-bold text-slate-800 text-xs">${u.ad || u.kod}</div>
+              <div class="text-[11px] text-slate-500 font-medium">Kod: <b>${u.kod}</b> | Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'}</div>
+            </div>
+            <span class="text-xs text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${u.stok || 0} kg</span>
           </div>`;
         }).join('');
 
@@ -12803,8 +12818,8 @@
           <td class="p-2.5">
             <div class="custom-dropdown-container">
               <input type="text" id="ktmSipUrunInput_${idx}" 
-                value="${urunGosterim}"
-                placeholder="Ürün Ara / Yaz (Örn: AbraHARD, 9200...)"
+                value="${k.urunAd || k.urunKod || ''}"
+                placeholder="Ürün Adı veya Kodu Yazınız (Örn: AbraHARD, 9200...)"
                 onfocus="openDropdown('ktmSipUrunInput_${idx}')"
                 onkeyup="filterDropdown('ktmSipUrunInput_${idx}'); ktmSiparisKalemUrunYazildi(${idx}, this.value)"
                 onblur="setTimeout(()=>closeDropdown('ktmSipUrunInput_${idx}'), 250)"
@@ -12834,9 +12849,10 @@
       if (ktmSiparisFormDraftKalemler[idx]) {
         ktmSiparisFormDraftKalemler[idx].urunId = uId;
         ktmSiparisFormDraftKalemler[idx].urunKod = uKod;
-        ktmSiparisFormDraftKalemler[idx].urunAd = `${uAd} (Çap: ${uCap || '-'} | ${uPaket || '-'})`;
+        const tamAd = uAd || uKod;
+        ktmSiparisFormDraftKalemler[idx].urunAd = tamAd;
         const inputEl = document.getElementById(`ktmSipUrunInput_${idx}`);
-        if (inputEl) inputEl.value = `${uKod} - ${uAd} (Çap: ${uCap || '-'} | ${uPaket || '-'})`;
+        if (inputEl) inputEl.value = tamAd;
       }
       closeDropdown(`ktmSipUrunInput_${idx}`);
       ktmSiparisToplamHesaplaUI();
