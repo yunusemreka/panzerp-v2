@@ -6389,11 +6389,12 @@
                 const pReg = document.getElementById('authGateRegisterForm');
                 const pWait = document.getElementById('authGateWaitingApproval');
 
-                const isMasterAdmin = targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com' || targetEmail.startsWith('yunuskaya');
+                const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(targetEmail) : (targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com' || targetEmail.startsWith('yunuskaya'));
 
                 if (guncel.durum === 'Aktif' || isMasterAdmin) {
                   if (gate) gate.classList.add('hidden');
                   if (appContainer) appContainer.classList.remove('opacity-0', 'pointer-events-none', 'blur-sm');
+                  if (pWait) pWait.classList.add('hidden');
                 } else if (guncel.durum === 'Onay Bekliyor') {
                   if (gate) gate.classList.remove('hidden');
                   if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
@@ -15036,6 +15037,7 @@
 
       // Başarılı ve Onaylı Giriş
       aktifKullanici = profil;
+      if (pWait) pWait.classList.add('hidden');
       if (gate) gate.classList.add('hidden');
       if (appContainer) {
         appContainer.classList.remove('opacity-0', 'pointer-events-none', 'blur-sm');
