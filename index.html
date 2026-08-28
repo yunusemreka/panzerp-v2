@@ -5739,6 +5739,40 @@
     let editId = null, receteUrunId = null, spTamamlanacakId = null, isDbLoaded = false;
     window.currentUser = null;
     let aktifKullanici = null;
+
+    const ERP_ALL_MODULES = [
+      { id: 'dashboard', ad: 'Dashboard', icon: '📊', grup: 'Genel' },
+      { id: 'planlama', ad: 'Üretim Planlama & Gantt', icon: '📅', grup: 'FCW Üretim' },
+      { id: 'uretim', ad: 'Üretim Takibi', icon: '🏭', grup: 'FCW Üretim' },
+      { id: 'isemri', ad: 'İş Emirleri', icon: '📝', grup: 'FCW Üretim' },
+      { id: 'telcikis', ad: 'FCW Tel Çıkışı', icon: '🏷️', grup: 'FCW Üretim' },
+      { id: 'urun', ad: 'Ürünler', icon: '📦', grup: 'FCW Üretim' },
+      { id: 'recete', ad: 'Reçeteler', icon: '🧪', grup: 'FCW Üretim' },
+      { id: 'hammadde', ad: 'Hammadde Stok', icon: '🧱', grup: 'Stok' },
+      { id: 'ktm', ad: 'KTM', icon: '🔗', grup: 'Stok' },
+      { id: 'apmisemri', ad: 'APM Üretim Verileri', icon: '🛡️', grup: 'APM' },
+      { id: 'mesajlar', ad: 'Mesajlaşma & Sohbet', icon: '💬', grup: 'İletişim' },
+      { id: 'kullanicilar', ad: 'Kullanıcı & Personel', icon: '👥', grup: 'Yönetim' },
+      { id: 'rapor', ad: 'Üretim Raporları', icon: '📑', grup: 'Analiz & Raporlama' },
+      { id: 'yillikOzet', ad: 'Yıllık Özet & MRP', icon: '📈', grup: 'Analiz & Raporlama' }
+    ];
+
+    function checkIsUserAdmin(userOrEmail) {
+      if (!userOrEmail) return false;
+      const email = (typeof userOrEmail === 'string' ? userOrEmail : (userOrEmail.email || '')).toLowerCase().trim();
+      const dep = (typeof userOrEmail === 'object' ? (userOrEmail.departman || '') : '').trim();
+      const unvan = (typeof userOrEmail === 'object' ? (userOrEmail.unvan || '') : '').toLowerCase().trim();
+      const ad = (typeof userOrEmail === 'object' ? (userOrEmail.ad || '') : '').toLowerCase().trim();
+
+      if (email === 'yunus@panzercrom.com' || email === 'admin@panzercrom.com' || email.includes('yunus') || email.includes('admin')) {
+        return true;
+      }
+      if (dep === 'Yönetim' || unvan.includes('yönetici') || unvan.includes('admin') || ad.includes('yunus')) {
+        return true;
+      }
+      return false;
+    }
+
     let aktifSohbetHedefi = {
       id: 'genel',
       ad: 'Fabrika Genel Sohbet (#Genel)',
@@ -6389,7 +6423,12 @@
                 const pReg = document.getElementById('authGateRegisterForm');
                 const pWait = document.getElementById('authGateWaitingApproval');
 
-                const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(targetEmail) : (targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com' || targetEmail.startsWith('yunuskaya'));
+                const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(guncel) : (targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com' || targetEmail.startsWith('yunuskaya'));
+
+                if (isMasterAdmin) {
+                  guncel.durum = 'Aktif';
+                  guncel.departman = 'Yönetim';
+                }
 
                 if (guncel.durum === 'Aktif' || isMasterAdmin) {
                   if (gate) gate.classList.add('hidden');
@@ -6678,7 +6717,7 @@
       }
 
       if (t === 'kullanicilar') {
-        const isYonetici = aktifKullanici && (aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin'))));
+        const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : (aktifKullanici && (aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin')))));
         if (!isYonetici) {
           alert('⛔ Bu modüle sadece Sistem Yöneticisi erişebilir.');
           navigate('dashboard');
@@ -14963,12 +15002,7 @@
       }
     }
 
-    function checkIsUserAdmin(userOrEmail) {
-      if (!userOrEmail) return false;
-      const email = (typeof userOrEmail === 'string' ? userOrEmail : (userOrEmail.email || '')).toLowerCase().trim();
-      const dep = (typeof userOrEmail === 'object' ? userOrEmail.departman : '') || '';
-      return email === 'yunus@panzercrom.com' || email === 'admin@panzercrom.com' || email.startsWith('yunuskaya') || (dep === 'Yönetim' && email.includes('panzercrom.com'));
-    }
+
 
     async function checkAuthGateStatus() {
       const gate = document.getElementById('firebaseAuthGate');
@@ -15012,10 +15046,15 @@
         };
         DB.kullanicilar.push(profil);
         saveDB();
-      } else if (isMasterAdmin && profil.durum !== 'Aktif') {
-        profil.durum = 'Aktif';
-        profil.departman = 'Yönetim';
-        saveDB();
+      } else if (isMasterAdmin) {
+        let changed = false;
+        if (profil.durum !== 'Aktif') { profil.durum = 'Aktif'; changed = true; }
+        if (profil.departman !== 'Yönetim') { profil.departman = 'Yönetim'; changed = true; }
+        if (!Array.isArray(profil.izinliModuller) || profil.izinliModuller.length < ERP_ALL_MODULES.length) {
+          profil.izinliModuller = ERP_ALL_MODULES.map(m => m.id);
+          changed = true;
+        }
+        if (changed) saveDB();
       }
 
       // Onay Kontrolü: Yöneticiler haricinde, durumu Aktif olmayan personeller bekleme ekranında tutulur
@@ -15320,21 +15359,6 @@
       showToast(`${u.ad} sistemden silindi.`, 'warning');
     }
 
-    const ERP_ALL_MODULES = [
-      { id: 'dashboard', ad: 'Dashboard', icon: '📊', grup: 'Genel' },
-      { id: 'planlama', ad: 'Üretim Planlama & Gantt', icon: '📅', grup: 'FCW Üretim' },
-      { id: 'uretim', ad: 'Üretim Takibi', icon: '🏭', grup: 'FCW Üretim' },
-      { id: 'isemri', ad: 'İş Emirleri', icon: '📝', grup: 'FCW Üretim' },
-      { id: 'telcikis', ad: 'FCW Tel Çıkışı', icon: '🏷️', grup: 'FCW Üretim' },
-      { id: 'urun', ad: 'Ürünler', icon: '📦', grup: 'FCW Üretim' },
-      { id: 'recete', ad: 'Reçeteler', icon: '🧪', grup: 'FCW Üretim' },
-      { id: 'hammadde', ad: 'Hammadde Stok', icon: '🧱', grup: 'Stok' },
-      { id: 'ktm', ad: 'KTM', icon: '🔗', grup: 'Stok' },
-      { id: 'apmisemri', ad: 'APM Üretim Verileri', icon: '🛡️', grup: 'APM' },
-      { id: 'mesajlar', ad: 'Mesajlaşma & Sohbet', icon: '💬', grup: 'İletişim' },
-      { id: 'rapor', ad: 'Üretim Raporları', icon: '📑', grup: 'Analiz & Raporlama' },
-      { id: 'yillikOzet', ad: 'Yıllık Özet & MRP', icon: '📈', grup: 'Analiz & Raporlama' }
-    ];
 
     function renderSidebarUserProfile() {
       if (!aktifKullanici) return;
