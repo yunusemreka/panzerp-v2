@@ -2663,13 +2663,23 @@
             <div class="text-xl md:text-2xl font-black text-emerald-700 mt-1" id="ktmToplamStok">0 <span
                 class="text-sm font-normal">kg</span></div>
           </div>
-          <div class="card p-4 border-l-4 border-l-orange-400">
-            <div class="text-[10px] font-bold text-orange-500 uppercase tracking-wider">Düşük Stok</div>
+          <div class="card p-4 border-l-4 border-l-orange-400 bg-gradient-to-b from-white to-orange-50/30 hover:bg-orange-50/60 hover:-translate-y-1 hover:shadow-md cursor-pointer transition-all group"
+            onclick="ktmStokDetayModalAc('dusuk')" title="Düşük Stoklu Ürünleri Listele">
+            <div class="flex items-center justify-between">
+              <div class="text-[10px] font-bold text-orange-600 uppercase tracking-wider">Düşük Stok</div>
+              <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity">🔍</span>
+            </div>
             <div class="text-xl md:text-2xl font-black text-orange-600 mt-1" id="ktmDusuk">0</div>
+            <div class="text-[9px] text-orange-700 font-bold mt-1">Detay için tıklayın →</div>
           </div>
-          <div class="card p-4 border-l-4 border-l-red-500">
-            <div class="text-[10px] font-bold text-red-500 uppercase tracking-wider">Kritik/Tükenmiş</div>
+          <div class="card p-4 border-l-4 border-l-red-500 bg-gradient-to-b from-white to-red-50/30 hover:bg-red-50/60 hover:-translate-y-1 hover:shadow-md cursor-pointer transition-all group"
+            onclick="ktmStokDetayModalAc('kritik')" title="Kritik ve Tükenmiş Ürünleri Listele">
+            <div class="flex items-center justify-between">
+              <div class="text-[10px] font-bold text-red-500 uppercase tracking-wider">Kritik/Tükenmiş</div>
+              <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity">🔍</span>
+            </div>
             <div class="text-xl md:text-2xl font-black text-red-600 mt-1" id="ktmKritik">0</div>
+            <div class="text-[9px] text-red-700 font-bold mt-1">Detay için tıklayın →</div>
           </div>
           <div class="card p-4 border-l-4 border-l-blue-400">
             <div class="text-[10px] font-bold text-blue-500 uppercase tracking-wider">Bu Ay Çıkış</div>
@@ -4843,6 +4853,47 @@
           class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5">
           <span>💬</span> WhatsApp ile Paylaş
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KTM STOK DETAY MODALI (DÜŞÜK / KRİTİK STOK LİSTESİ) -->
+  <div id="ktmStokDetayModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <span id="ktmStokDetayModalIcon" class="text-2xl p-2 rounded-xl bg-orange-100 text-orange-700 border border-orange-200">⚠️</span>
+          <div>
+            <h3 class="font-bold text-lg text-slate-800" id="ktmStokDetayModalTitle">KTM Stok Detayları</h3>
+            <p class="text-xs text-slate-500 font-medium" id="ktmStokDetayModalSubtitle">Ürün adı, çapı ve kalan miktar listesi</p>
+          </div>
+        </div>
+        <button onclick="closeModal('ktmStokDetayModal')"
+          class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200">✕</button>
+      </div>
+
+      <div class="table-responsive border border-slate-200 rounded-2xl max-h-[380px] overflow-y-auto mb-4">
+        <table class="w-full text-xs text-left">
+          <thead class="bg-slate-50 text-slate-700 font-bold sticky top-0 border-b border-slate-200 z-10 shadow-2xs">
+            <tr>
+              <th class="p-3">Ürün Kodu</th>
+              <th class="p-3">Ürün Adı</th>
+              <th class="p-3">Çap (mm)</th>
+              <th class="p-3 text-right">Kalan Miktar</th>
+              <th class="p-3 text-right">Min. Stok</th>
+              <th class="p-3 text-center">Durum</th>
+            </tr>
+          </thead>
+          <tbody id="ktmStokDetayModalTableBody" class="divide-y divide-slate-100 bg-white">
+            <!-- JS ile doldurulacak -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t border-slate-100 text-xs">
+        <span class="text-slate-500 font-medium" id="ktmStokDetayModalCount">0 ürün listelendi</span>
+        <button type="button" onclick="closeModal('ktmStokDetayModal')"
+          class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-xl font-bold transition-all">Kapat</button>
       </div>
     </div>
   </div>
@@ -10412,6 +10463,73 @@
       if (document.getElementById('ktmDusuk')) document.getElementById('ktmDusuk').innerText = dusuk;
       if (document.getElementById('ktmKritik')) document.getElementById('ktmKritik').innerText = kritik;
       if (document.getElementById('ktmAyCikis')) document.getElementById('ktmAyCikis').innerHTML = buAyCikis.toFixed(2) + ' <span class="text-sm font-normal">kg</span>';
+    }
+
+    function ktmStokDetayModalAc(tip) {
+      const modal = document.getElementById('ktmStokDetayModal');
+      const titleEl = document.getElementById('ktmStokDetayModalTitle');
+      const subEl = document.getElementById('ktmStokDetayModalSubtitle');
+      const iconEl = document.getElementById('ktmStokDetayModalIcon');
+      const tbody = document.getElementById('ktmStokDetayModalTableBody');
+      const countEl = document.getElementById('ktmStokDetayModalCount');
+      if (!modal || !tbody) return;
+
+      const items = (DB.ktmUrunler || []).filter(u => {
+        const s = parseFloat(u.stok) || 0;
+        const ms = parseFloat(u.minStok) || 0;
+        if (tip === 'dusuk') {
+          // Düşük stok: 0'dan büyük ama minimum stok seviyesinde veya altında
+          return s > 0 && s <= ms;
+        } else if (tip === 'kritik') {
+          // Kritik/Tükenmiş: stoğu 0 veya altında olanlar
+          return s <= 0;
+        }
+        return false;
+      });
+
+      if (tip === 'dusuk') {
+        titleEl.textContent = 'Düşük Stoklu KTM Ürünleri';
+        subEl.textContent = 'Minimum stok seviyesine yaklaşan veya eşitlenen ürünler';
+        iconEl.textContent = '⚠️';
+        iconEl.className = 'text-2xl p-2 rounded-xl bg-orange-100 text-orange-700 border border-orange-200';
+      } else {
+        titleEl.textContent = 'Kritik / Tükenmiş KTM Ürünleri';
+        subEl.textContent = 'Stoğu tükenmiş (0 kg) acil tedarik veya üretim gereken ürünler';
+        iconEl.textContent = '🚨';
+        iconEl.className = 'text-2xl p-2 rounded-xl bg-rose-100 text-rose-700 border border-rose-200';
+      }
+
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-medium">${tip === 'dusuk' ? 'Harika! Düşük seviyede KTM ürünü bulunmuyor.' : 'Harika! Tükenmiş kritik KTM ürünü bulunmuyor.'}</td></tr>`;
+      } else {
+        tbody.innerHTML = items.map(u => {
+          const s = parseFloat(u.stok) || 0;
+          const ms = parseFloat(u.minStok) || 0;
+          const isTukenmis = s <= 0;
+          return `
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="p-3"><b class="text-slate-800 bg-slate-100 px-2 py-1 rounded text-[11px] font-mono">${u.kod || '-'}</b></td>
+              <td class="p-3">
+                <div class="font-bold text-slate-800 text-xs">${u.ad || '-'}</div>
+                <div class="text-[10px] text-slate-400">${u.tip || ''} ${u.paket ? '· ' + u.paket : ''}</div>
+              </td>
+              <td class="p-3 font-extrabold text-slate-700 font-mono text-xs">${u.cap || '-'}</td>
+              <td class="p-3 text-right">
+                <b class="text-xs font-black ${isTukenmis ? 'text-rose-600' : 'text-orange-600'}">${s.toFixed(2)} kg</b>
+              </td>
+              <td class="p-3 text-right font-medium text-slate-500 font-mono text-xs">${ms.toFixed(2)} kg</td>
+              <td class="p-3 text-center">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${isTukenmis ? 'bg-rose-100 text-rose-800 border border-rose-200' : 'bg-orange-100 text-orange-800 border border-orange-200'}">
+                  ${isTukenmis ? '🔴 Tükenmiş' : '🟡 Düşük'}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      if (countEl) countEl.textContent = `${items.length} adet ürün listelendi`;
+      openModal('ktmStokDetayModal');
     }
 
     function ktmStokSil(id) {
