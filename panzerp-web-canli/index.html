@@ -8144,29 +8144,41 @@
     }
 
     function generateNextHarmanNo(urunStr) {
-      const year = new Date().getFullYear();
-      let prefix = 'HRM';
+      let prefix = '9200';
       if (urunStr) {
-        // Ürün adını temizleyip kısa harman etiketine dönüştür (Örn: AbraHARD 9200 -> ABRA9200 veya 9200)
-        const cleanName = urunStr.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-        prefix = cleanName.length > 8 ? cleanName.slice(0, 8) : cleanName;
-        if (!prefix) prefix = 'HRM';
+        // Ürün adı veya kodundaki temel sayısal/kısa kodu yakala (Örn: AbraHARD 9200 -> 9200, RollHARD 414 -> 414)
+        const numMatch = urunStr.match(/\d+/);
+        if (numMatch) {
+          prefix = numMatch[0];
+        } else {
+          // Sayı yoksa temiz ilk kelimeyi al (Örn: KROM -> KROM)
+          const cleanName = urunStr.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+          prefix = cleanName.length > 6 ? cleanName.slice(0, 6) : cleanName;
+        }
       }
+      if (!prefix) prefix = '9200';
 
-      // Mevcut harman numaralarını tara ve son sayacı bul
+      // Mevcut harman numaralarındaki 4 haneli sıralı numarayı tara
       let maxNum = 0;
       (DB.isEmirleri || []).forEach(ie => {
         if (ie.harmanNo) {
-          const m = ie.harmanNo.match(/(\d+)$/);
-          if (m) {
-            const num = parseInt(m[1]);
-            if (!isNaN(num) && num > maxNum && num < 999999) maxNum = num;
+          // 9200-0001 veya 9200-0001-1 formatından ortadaki ana sayacı yakala
+          const parts = ie.harmanNo.split('-');
+          if (parts.length >= 2) {
+            const num = parseInt(parts[1]);
+            if (!isNaN(num) && num > maxNum && num < 99999) maxNum = num;
+          } else {
+            const m = ie.harmanNo.match(/(\d+)$/);
+            if (m) {
+              const num = parseInt(m[1]);
+              if (!isNaN(num) && num > maxNum && num < 99999) maxNum = num;
+            }
           }
         }
       });
 
       const nextNum = maxNum + 1;
-      return `${prefix}-${year}-${nextNum.toString().padStart(3, '0')}`;
+      return `${prefix}-${nextNum.toString().padStart(4, '0')}`;
     }
 
     function ieUrunSecildi(urunStr, capStr) {
@@ -8743,7 +8755,10 @@
             <div class="text-[9px] text-slate-400 mt-0.5">Kaba: ${ozet.kabaToplam} kg</div>
           </div>
         </td>
-        <td class="py-3 font-bold text-amber-700 bg-amber-50/50 px-2 py-1 rounded text-xs">${pSayi} Parti</td>
+        <td class="py-3 font-bold text-amber-700 bg-amber-50/50 px-2 py-1 rounded text-xs">
+          <div>${pSayi} Parti</div>
+          ${i.harmanNo ? `<div class="text-[9px] font-mono text-slate-500 font-normal mt-0.5">${pSayi > 1 ? `${i.harmanNo}-1..${pSayi}` : i.harmanNo}</div>` : ''}
+        </td>
         <td class="py-3">${durumSelect}</td>
         <td class="py-3 text-right whitespace-nowrap">
           <button onclick="isEmriDuzenle(${i.id})" class="text-amber-700 bg-amber-50 hover:bg-amber-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="İş Emrini Düzenle / Revize Et">✏️ Düzenle</button>
@@ -8855,8 +8870,10 @@
              <td style="border: 1px solid #94a3b8; padding: 4px 6px;"><b>${i.lotNo || lotNo}</b></td>
           </tr>
           <tr>
-             <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">Harman No (Manuel):</td>
-             <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-family: monospace; font-size: 12px; font-weight: bold; color: #92400e;" colspan="3"><b>${harmanNoStr}</b> (Harman kağıdına işlenecek kod)</td>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">Harman No:</td>
+             <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-family: monospace; font-size: 12px; font-weight: bold; color: #92400e;" colspan="3">
+               <b>${harmanNoStr}</b> ${partiSayisi > 1 ? `<span style="font-size: 10px; color: #64748b; font-weight: normal; margin-left: 8px;">(Partiler: ${Array.from({length: partiSayisi}, (_, idx) => `<b>${harmanNoStr}-${idx+1}</b>`).join(', ')})</span>` : ''}
+             </td>
           </tr>
         </table>
 
@@ -8872,7 +8889,7 @@
           </thead>
           <tbody>
             <tr><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">Strip</td><td style="border: 1px solid #94a3b8; padding: 4px;">${urun ? urun.strip : '-'}</td><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">${stripMiktar.toFixed(2)} Kg</td><td style="border: 1px solid #94a3b8; padding: 4px; height: 22px;"></td></tr>
-            <tr><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">Harman (${partiSayisi} Parti)</td><td style="border: 1px solid #94a3b8; padding: 4px;">${urun ? urun.harman : '-'} (${partiSayisi} Parti x ${partiToplamHarman.toFixed(2)} Kg)</td><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">${genelHarmanMiktari.toFixed(2)} Kg</td><td style="border: 1px solid #94a3b8; padding: 4px; height: 22px;"></td></tr>
+            <tr><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">Harman (${partiSayisi} Parti)</td><td style="border: 1px solid #94a3b8; padding: 4px;">${urun ? urun.harman : '-'} (${partiSayisi > 1 ? Array.from({length: partiSayisi}, (_, idx) => `${harmanNoStr}-${idx+1}`).join(', ') : harmanNoStr})</td><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">${genelHarmanMiktari.toFixed(2)} Kg (${partiSayisi} x ${partiToplamHarman.toFixed(2)} Kg)</td><td style="border: 1px solid #94a3b8; padding: 4px; height: 22px;"></td></tr>
             <tr><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">Spool / Drum</td><td style="border: 1px solid #94a3b8; padding: 4px;">${i.paket || '-'}</td><td style="border: 1px solid #94a3b8; padding: 4px; font-weight: bold;">${paketAdet} Adet</td><td style="border: 1px solid #94a3b8; padding: 4px; height: 22px;"></td></tr>
           </tbody>
         </table>
