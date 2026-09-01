@@ -2584,10 +2584,24 @@
 
       <!-- KTM STOKLARI VE EXCEL -->
       <section id="ktm" class="module-section">
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight mb-2">🔗 KTM Stokları (Mamül)</h2>
-        <p
-          class="text-sm text-slate-500 mb-6 bg-white py-2 px-4 inline-block rounded-lg shadow-sm border border-slate-100">
-          Kaynak telleri, elektrotlar ve bitmiş sarf malzemelerinin stok takibi.</p>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+              <span class="bg-indigo-100 text-indigo-700 p-2 rounded-2xl text-2xl shadow-sm">🔗</span> KTM Stokları (Mamül)
+            </h2>
+            <p class="text-sm text-slate-500 mt-1">Kaynak telleri, elektrotlar ve bitmiş sarf malzemelerinin stok ve sevkiyat takibi.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="ktmCikisModalAc()"
+              class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow-sm transition-transform active:scale-95 flex items-center gap-1.5 border border-amber-400">
+              <span>➕</span> Manuel KTM Çıkışı Yap
+            </button>
+            <button type="button" onclick="exportKTMExcel()"
+              class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5 border border-slate-700">
+              <span>📊</span> Excel Çıktısı
+            </button>
+          </div>
+        </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div class="card p-4 border-l-4 border-l-slate-400">
@@ -4711,6 +4725,119 @@
     </div>
   </div>
 
+  <!-- KTM MAMÜL STOK ÇIKIŞI MODALI (POP-UP) -->
+  <div id="ktmCikisModal" class="modal">
+    <div class="modal-content" style="max-width: 620px;">
+      <div class="flex justify-between items-center mb-5 no-print border-b border-indigo-200 pb-3 bg-gradient-to-r from-indigo-50 to-white -mx-6 -mt-6 p-6 rounded-t-2xl">
+        <div>
+          <h3 class="font-black text-xl text-slate-800 flex items-center gap-2">
+            <span class="bg-indigo-100 text-indigo-800 p-1.5 rounded-xl text-lg shadow-xs">📤</span> KTM Mamül Stok Çıkışı
+          </h3>
+          <p class="text-xs text-slate-500 mt-1">KTM deposundaki mamül ürün için hızlı çıkış ve sevkiyat kaydı oluşturun.</p>
+        </div>
+        <button onclick="closeModal('ktmCikisModal')"
+          class="text-slate-400 bg-slate-100 p-2 rounded-xl hover:bg-slate-200 hover:text-slate-700 transition-colors font-bold text-base">✕</button>
+      </div>
+
+      <!-- SEÇİLEN ÜRÜN VE CANLI STOK KARTI -->
+      <div class="mb-4 p-4 rounded-xl bg-gradient-to-r from-indigo-50/80 via-blue-50/50 to-slate-50 border border-indigo-200 shadow-2xs">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Seçilen Mamül Ürün</div>
+            <div class="text-base font-extrabold text-slate-900 flex items-center gap-2 mt-0.5">
+              <span id="ktmModalUrunBaslik">Lütfen Ürün Seçiniz</span>
+              <span id="ktmModalGrupBadge" class="text-xs text-indigo-700 font-bold bg-white px-2 py-0.5 rounded border border-indigo-200 shadow-2xs">-</span>
+            </div>
+            <div id="ktmModalCapPaketBadge" class="text-xs text-slate-500 font-medium mt-0.5">-</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] font-bold text-emerald-700 uppercase">Mevcut KTM Stoğu</div>
+            <div class="text-lg font-black text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl" id="ktmModalMevcutStok">0.00 kg</div>
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" id="ktmModalUrunId">
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+        <!-- Ürün Arama / Seçimi -->
+        <div class="md:col-span-12 relative">
+          <label class="block font-bold text-slate-700 mb-1">Mamül Ürün <span class="text-rose-500 font-bold">* (Zorunlu)</span></label>
+          <input type="text" id="ktmModalUrunInput"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-inner font-bold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-300"
+            placeholder="Ürün adı veya kodu yazarak seçin..." onfocus="openDropdown('ktmModalUrunInput')"
+            onkeyup="filterDropdown('ktmModalUrunInput')" onblur="setTimeout(()=>closeDropdown('ktmModalUrunInput'), 200)">
+          <div id="ktmModalUrunInput-list" class="custom-dropdown-list"></div>
+        </div>
+
+        <!-- Çıkış Miktarı (kg / adet) - Zorunlu -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Çıkış Miktarı (kg / Adet) <span class="text-rose-500 font-bold">* (Zorunlu)</span></label>
+          <input id="ktmModalMiktar" type="number" step="0.01" required
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-black text-rose-600 text-sm shadow-sm outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"
+            placeholder="Örn: 250">
+        </div>
+
+        <!-- Teslim / Çıkış Tarihi - Zorunlu -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Teslim / Çıkış Tarihi <span class="text-rose-500 font-bold">* (Zorunlu)</span></label>
+          <input id="ktmModalTarih" type="date" required
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-semibold text-slate-800 shadow-sm outline-none focus:ring-2 focus:ring-indigo-200">
+        </div>
+
+        <!-- Teslim Alan Kişi / Müşteri - Zorunlu -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Teslim Alan / Müşteri / Proje <span class="text-rose-500 font-bold">* (Zorunlu)</span></label>
+          <input id="ktmModalTeslimAlan" type="text" required
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-800 shadow-sm outline-none focus:ring-2 focus:ring-indigo-200"
+            placeholder="Örn: ABC Metal A.Ş. / Ahmet Usta">
+        </div>
+
+        <!-- Çıkış Türü / Nedeni -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Çıkış Nedeni / Kanalı</label>
+          <select id="ktmModalKaynakTip"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 shadow-sm outline-none">
+            <option value="Müşteri Sevkiyatı / Satış">🚚 Müşteri Sevkiyatı / Satış</option>
+            <option value="Projeye Çıkış">🏗️ Projeye Çıkış / İmalat</option>
+            <option value="Dahili Kullanım">⚙️ Dahili Kullanım / Test</option>
+            <option value="İade Çıkış">↩️ Tedarikçiye İade Çıkış</option>
+            <option value="Hurda/Fire">🗑️ Hurda / Fire</option>
+            <option value="Diğer">Diğer</option>
+          </select>
+        </div>
+
+        <!-- İş Emri / Proje / İrsaliye No -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">İş Emri / Proje / İrsaliye No</label>
+          <input id="ktmModalProje" type="text"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-xs shadow-sm outline-none focus:ring-2 focus:ring-indigo-200"
+            placeholder="Örn: İE-2026-042 / İRS-10293">
+        </div>
+
+        <!-- Açıklama / Not -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Açıklama / Sevk Notu</label>
+          <input id="ktmModalAcik" type="text"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-xs shadow-sm outline-none focus:ring-2 focus:ring-indigo-200"
+            placeholder="Örn: 1 Palet sevk edildi...">
+        </div>
+
+        <!-- Uyarı Alanı -->
+        <div id="ktmModalUyari" class="md:col-span-12 hidden text-xs p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-medium"></div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4">
+        <button type="button" onclick="closeModal('ktmCikisModal')"
+          class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-xs transition-colors">İptal</button>
+        <button type="button" onclick="ktmCikisModalKaydet()"
+          class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-7 py-2.5 rounded-xl font-bold text-xs shadow-md transition-transform active:scale-95 flex items-center gap-2">
+          <span>💾</span> Çıkışı Onayla ve Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TEL ÇIKIŞI DÜZENLEME MODALI -->
   <div id="telCikisDuzenleModal" class="modal">
     <div class="modal-content" style="max-width: 550px;">
@@ -5803,6 +5930,9 @@
 
       const ktmSipListEl = document.getElementById('ktmSipUrun-list');
       if (ktmSipListEl) ktmSipListEl.innerHTML = ktmHtml;
+
+      const ktmModalListEl = document.getElementById('ktmModalUrunInput-list');
+      if (ktmModalListEl) ktmModalListEl.innerHTML = ktmHtml;
     }
 
     function openDropdown(id) {
@@ -5847,6 +5977,19 @@
           capInput.value = capVal;
         }
         ieUrunSecildi(selectedName, capVal);
+      }
+
+      // KTM Mamül Çıkışı Modalı ise
+      if (inputId === 'ktmModalUrunInput') {
+        const kodVal = element.dataset.kod || '';
+        const urun = (DB.ktmUrunler || []).find(u => (u.kod === kodVal || u.ad === selectedName) && (!capVal || u.cap === capVal));
+        if (urun) {
+          const idEl = document.getElementById('ktmModalUrunId');
+          if (idEl) idEl.value = urun.id;
+        }
+        if (typeof ktmModalStokGuncelle === 'function') {
+          ktmModalStokGuncelle();
+        }
       }
 
       // FCW Tel Çıkışı Modalı ise çapı ve başlığı otomatik doldur ve stoğu güncelle
@@ -11296,6 +11439,7 @@
             <td class="py-3 text-slate-500 text-xs">${u.kaynak || '-'}</td>
             <td class="py-3 text-xs">${u.lokasyon || '-'}</td>
             <td class="py-3 whitespace-nowrap">
+                <button onclick="ktmCikisModalAc(${u.id})" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-2.5 py-1.5 rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-xs inline-flex items-center gap-1 mr-1"><span>📤</span> Çıkış Yap</button>
                 <button onclick="ktmStokDuzenle(${u.id})" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1">✏️ Düzenle</button>
                 <button onclick="ktmStokSil(${u.id})" class="text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm">🗑️ Sil</button>
             </td>
@@ -11429,6 +11573,236 @@
       u.stok = yeniStok;
 
       saveDB(); closeModal('ktmDuzenleModal'); renderAll();
+    }
+
+    /* ========================================================================= */
+    /* KTM MAMÜL STOK ÇIKIŞI MODALI & HIZLI SEVKİYAT İŞLEMLERİ                  */
+    /* ========================================================================= */
+    function ktmCikisModalAc(urunId) {
+      renderCustomDropdowns();
+      const modal = document.getElementById('ktmCikisModal');
+      if (!modal) return;
+
+      const bugun = new Date().toISOString().slice(0, 10);
+      const tarihEl = document.getElementById('ktmModalTarih');
+      const miktarEl = document.getElementById('ktmModalMiktar');
+      const teslimAlanEl = document.getElementById('ktmModalTeslimAlan');
+      const kaynakTipEl = document.getElementById('ktmModalKaynakTip');
+      const projeEl = document.getElementById('ktmModalProje');
+      const acikEl = document.getElementById('ktmModalAcik');
+      const urunIdEl = document.getElementById('ktmModalUrunId');
+      const urunInputEl = document.getElementById('ktmModalUrunInput');
+
+      if (tarihEl) tarihEl.value = bugun;
+      if (miktarEl) miktarEl.value = '';
+      if (teslimAlanEl) teslimAlanEl.value = '';
+      if (kaynakTipEl) kaynakTipEl.value = 'Müşteri Sevkiyatı / Satış';
+      if (projeEl) projeEl.value = '';
+      if (acikEl) acikEl.value = '';
+
+      // Doğrulama vurgularını temizle
+      ['ktmModalTarih', 'ktmModalTeslimAlan', 'ktmModalMiktar', 'ktmModalUrunInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+      });
+
+      if (urunId) {
+        const u = (DB.ktmUrunler || []).find(x => String(x.id) === String(urunId));
+        if (u) {
+          if (urunIdEl) urunIdEl.value = u.id;
+          const adGosterim = (u.ad || u.kod || '').trim();
+          const capGosterim = (u.cap || '').trim();
+          if (urunInputEl) urunInputEl.value = adGosterim + (capGosterim && capGosterim !== '-' ? ` - ${capGosterim}` : '');
+        }
+      } else {
+        if (urunIdEl) urunIdEl.value = '';
+        if (urunInputEl) urunInputEl.value = '';
+      }
+
+      ktmModalStokGuncelle();
+      openModal('ktmCikisModal');
+
+      setTimeout(() => {
+        if (!urunInputEl?.value) {
+          urunInputEl?.focus();
+        } else {
+          teslimAlanEl?.focus();
+        }
+      }, 100);
+    }
+
+    function ktmModalStokGuncelle() {
+      const urunInputVal = (document.getElementById('ktmModalUrunInput')?.value || '').trim();
+      const urunIdVal = document.getElementById('ktmModalUrunId')?.value || '';
+
+      const baslikEl = document.getElementById('ktmModalUrunBaslik');
+      const grupBadgeEl = document.getElementById('ktmModalGrupBadge');
+      const capPaketBadgeEl = document.getElementById('ktmModalCapPaketBadge');
+      const mevcutStokEl = document.getElementById('ktmModalMevcutStok');
+      const uyariEl = document.getElementById('ktmModalUyari');
+
+      let u = null;
+      if (urunIdVal) {
+        u = (DB.ktmUrunler || []).find(x => String(x.id) === String(urunIdVal));
+      }
+      if (!u && urunInputVal) {
+        u = findKtmUrunByInput(urunInputVal);
+      }
+
+      if (!u) {
+        if (baslikEl) baslikEl.innerText = 'Lütfen Ürün Seçiniz';
+        if (grupBadgeEl) grupBadgeEl.innerText = '-';
+        if (capPaketBadgeEl) capPaketBadgeEl.innerText = '-';
+        if (mevcutStokEl) {
+          mevcutStokEl.innerText = '0.00 kg';
+          mevcutStokEl.className = 'text-lg font-black text-slate-400 bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl';
+        }
+        if (uyariEl) uyariEl.classList.add('hidden');
+        return;
+      }
+
+      const stokVal = parseFloat(u.stok) || 0;
+      const minStokVal = parseFloat(u.minStok) || 0;
+      const adGosterim = u.ad || u.kod;
+      const anaGrup = ktmAnaGrupBul(u.tip);
+
+      let grupText = '⚡ Tel';
+      if (anaGrup === 'elektrod') grupText = '🪄 Elektrod';
+      else if (anaGrup === 'sarf') grupText = '🧰 Sarf';
+
+      if (baslikEl) baslikEl.innerText = adGosterim;
+      if (grupBadgeEl) grupBadgeEl.innerText = grupText + (u.tip ? ` · ${u.tip}` : '');
+      if (capPaketBadgeEl) capPaketBadgeEl.innerText = `Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'} | Kod: ${u.kod || '-'}`;
+
+      if (mevcutStokEl) {
+        mevcutStokEl.innerText = `${stokVal.toFixed(2)} kg`;
+        if (stokVal <= 0) {
+          mevcutStokEl.className = 'text-lg font-black text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-xl';
+        } else if (stokVal <= minStokVal) {
+          mevcutStokEl.className = 'text-lg font-black text-orange-600 bg-orange-50 border border-orange-200 px-3 py-1 rounded-xl';
+        } else {
+          mevcutStokEl.className = 'text-lg font-black text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl';
+        }
+      }
+
+      if (uyariEl) {
+        if (stokVal <= 0) {
+          uyariEl.classList.remove('hidden');
+          uyariEl.className = 'md:col-span-12 text-xs p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-medium';
+          uyariEl.innerHTML = `⚠️ <b>Dikkat:</b> Bu ürün için KTM stoklarında kayıtlı stok (0 kg) bulunmuyor. Çıkış yaparsanız stok eksiye düşecektir.`;
+        } else if (stokVal <= minStokVal) {
+          uyariEl.classList.remove('hidden');
+          uyariEl.className = 'md:col-span-12 text-xs p-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-800 font-medium';
+          uyariEl.innerHTML = `ℹ️ <b>Uyarı:</b> Mevcut stok (${stokVal.toFixed(2)} kg), minimum stok seviyesindedir (${minStokVal.toFixed(2)} kg).`;
+        } else {
+          uyariEl.classList.add('hidden');
+        }
+      }
+    }
+
+    function ktmCikisModalKaydet() {
+      const urunInputEl = document.getElementById('ktmModalUrunInput');
+      const urunIdVal = document.getElementById('ktmModalUrunId')?.value || '';
+      const tarihInputEl = document.getElementById('ktmModalTarih');
+      const teslimAlanInputEl = document.getElementById('ktmModalTeslimAlan');
+      const miktarInputEl = document.getElementById('ktmModalMiktar');
+      const kaynakTipEl = document.getElementById('ktmModalKaynakTip');
+      const projeInputEl = document.getElementById('ktmModalProje');
+      const acikInputEl = document.getElementById('ktmModalAcik');
+
+      const urunStr = urunInputEl ? urunInputEl.value.trim() : '';
+      let urun = null;
+      if (urunIdVal) urun = (DB.ktmUrunler || []).find(x => String(x.id) === String(urunIdVal));
+      if (!urun && urunStr) urun = findKtmUrunByInput(urunStr);
+
+      const tarih = tarihInputEl ? tarihInputEl.value.trim() : '';
+      const teslimAlan = teslimAlanInputEl ? teslimAlanInputEl.value.trim() : '';
+      const miktar = miktarInputEl ? parseFloat(miktarInputEl.value) || 0 : 0;
+      const kaynakTip = kaynakTipEl ? kaynakTipEl.value : 'Müşteri Sevkiyatı / Satış';
+      const proje = projeInputEl ? projeInputEl.value.trim() : '';
+      const acik = acikInputEl ? acikInputEl.value.trim() : '';
+
+      // Sıfırla
+      [urunInputEl, tarihInputEl, teslimAlanInputEl, miktarInputEl].forEach(el => {
+        if (el) el.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+      });
+
+      // ZORUNLU ALAN KONTROLLERİ
+      if (!urun) {
+        if (urunInputEl) {
+          urunInputEl.focus();
+          urunInputEl.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: KTM Mamül ürün seçimi zorunludur!');
+        showToast('Lütfen geçerli bir mamül ürün seçiniz!', 'error');
+        return;
+      }
+
+      if (!tarih) {
+        if (tarihInputEl) {
+          tarihInputEl.focus();
+          tarihInputEl.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: Teslim / Çıkış Tarihi girilmesi zorunludur!');
+        showToast('Teslim / Çıkış Tarihi zorunludur!', 'error');
+        return;
+      }
+
+      if (!teslimAlan) {
+        if (teslimAlanInputEl) {
+          teslimAlanInputEl.focus();
+          teslimAlanInputEl.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: Teslim Alan / Müşteri / Proje bilgisi zorunludur!');
+        showToast('Teslim Alan / Müşteri bilgisi zorunludur!', 'error');
+        return;
+      }
+
+      if (miktar <= 0) {
+        if (miktarInputEl) {
+          miktarInputEl.focus();
+          miktarInputEl.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: Çıkış Miktarı (kg / adet) 0\'dan büyük ve zorunludur!');
+        showToast('Geçerli bir çıkış miktarı giriniz!', 'error');
+        return;
+      }
+
+      const mevcutStok = parseFloat(urun.stok) || 0;
+      if (miktar > mevcutStok) {
+        if (!confirm(`DİKKAT: Çıkış miktarı (${miktar} kg), mevcut KTM stok miktarından (${mevcutStok.toFixed(2)} kg) fazladır. Stok eksiye düşecek, devam etmek istiyor musunuz?`)) {
+          return;
+        }
+      }
+
+      ensureDBArrays();
+      DB.ktmHareketler = DB.ktmHareketler || [];
+
+      const yeniHareket = {
+        id: Date.now(),
+        urunId: urun.id,
+        urunAd: urun.ad,
+        urunKod: urun.kod,
+        tip: 'cikis',
+        miktar: miktar,
+        kaynakTip: kaynakTip,
+        proje: proje || teslimAlan,
+        teslimAlan: teslimAlan,
+        aciklama: `KTM Çıkışı: ${teslimAlan}${acik ? ' - ' + acik : ''}`,
+        tarih: new Date(tarih).toISOString()
+      };
+
+      DB.ktmHareketler.push(yeniHareket);
+      urun.stok = mevcutStok - miktar;
+
+      bildirimGonder("KTM Mamül Çıkışı Yapıldı", `${urun.ad || urun.kod} (${miktar} kg) -> ${teslimAlan} (${kaynakTip})`, 'info');
+
+      closeModal('ktmCikisModal');
+      saveDB();
+      renderAll();
+      ktmStokListele();
+      ktmHareketListele();
+      showToast(`✅ ${urun.ad || urun.kod} (${miktar} kg) KTM mamül çıkışı başarıyla kaydedildi!`, 'success');
     }
 
     function findKtmUrunByInput(str) {
