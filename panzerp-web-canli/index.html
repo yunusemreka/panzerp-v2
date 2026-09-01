@@ -3108,38 +3108,15 @@
         </div>
 
         <div class="flex gap-2 border-b border-slate-200 mb-6 overflow-x-auto pt-1 px-1">
-          <div class="tab-btn active whitespace-nowrap text-sm font-bold flex items-center gap-1.5" data-tab="apmVeriGiris">
+          <div class="tab-btn active whitespace-nowrap text-sm font-bold flex items-center gap-1.5 cursor-pointer" data-tab="apmVeriGiris">
             <span>➕</span> Yeni Vardiya / Kafa Girişi
           </div>
-          <div class="tab-btn whitespace-nowrap text-sm font-bold flex items-center gap-1.5" data-tab="apmGecmis">
+          <div class="tab-btn whitespace-nowrap text-sm font-bold flex items-center gap-1.5 cursor-pointer" data-tab="apmGecmis">
             <span>📑</span> Geçmiş Vardiya Kayıtları
           </div>
         </div>
 
-                    <th class="py-3 px-3">Plaka No & TT No</th>
-                    <th class="py-3 px-3">Sac Cinsi & Ölçü</th>
-                    <th class="py-3 px-3">Kaynak Ölçüsü & m²</th>
-                    <th class="py-3 px-3">Kalınlık (Ana/Kap/Top)</th>
-                    <th class="py-3 px-3">Tel & Kaynak Cinsi</th>
-                    <th class="py-3 px-3">Tarih Aralığı</th>
-                    <th class="py-3 px-3">Ağırlıklar (Tel / Sac / Top)</th>
-                    <th class="py-3 px-3">Durum</th>
-                    <th class="py-3 px-3 text-right">İşlem</th>
-                  </tr>
-                </thead>
-                <tbody id="apmPlakaTableBody" class="divide-y divide-slate-100 bg-white">
-                  <!-- JS ile apmPlakaListele dolduracak -->
-                </tbody>
-              </table>
-            </div>
-            <div class="p-3 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 font-medium">
-              <span id="apmPlakaKayitSayisiInfo" class="font-bold text-slate-700">0 plaka listeleniyor</span>
-              <span class="text-[11px] text-slate-400">💡 Kaynak m² dolgu alanı, sac ve tel tüketimleri e-tablo standartlarıyla otomatik hesaplanır.</span>
-            </div>
-          </div>
-        </div>
-
-        <div id="apmVeriGiris" class="tab-content">
+        <div id="apmVeriGiris" class="tab-content active">
 
           <div
             class="card p-5 mb-6 border-l-4 border-l-blue-600 bg-gradient-to-r from-slate-50 to-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -7494,7 +7471,9 @@
             ? aktifKullanici.izinliModuller
             : ['dashboard', 'uretim', 'isemri', 'mesajlar'];
 
-          if (!userModuller.includes(t)) {
+          if (t === 'apmplakalar' && (userModuller.includes('apmisemri') || userModuller.includes('apmplakalar'))) {
+            // izinli
+          } else if (!userModuller.includes(t)) {
             showToast(`⛔ "${t.toUpperCase()}" modülüne erişim yetkiniz bulunmamaktadır. Yöneticiniz ile görüşünüz.`, 'error');
             // İlk erişebildiği modüle git veya dashboard
             const ilkModul = userModuller[0] || 'dashboard';
@@ -7522,6 +7501,7 @@
         hammadde: 'HAMMADDE STOK',
         ktm: 'KTM',
         apmisemri: 'APM ÜRETİM VERİLERİ',
+        apmplakalar: 'APM PLAKA LİSTESİ & YÖNETİMİ',
         kullanicilar: 'KULLANICI & PERSONEL YÖNETİMİ',
         mesajlar: 'DAHİLİ MESAJLAŞMA & SOHBET',
         rapor: 'ÜRETİM RAPORLARI',
@@ -7550,6 +7530,11 @@
         if (typeof renderDashboardHatDoluluk === 'function') renderDashboardHatDoluluk();
       }
       if (t === 'kullanicilar' && typeof renderKullaniciListesi === 'function') renderKullaniciListesi();
+      if (t === 'apmplakalar' && typeof apmPlakaListele === 'function') apmPlakaListele();
+      if (t === 'apmisemri') {
+        if (typeof apmUretimListele === 'function') apmUretimListele();
+        if (typeof renderApmKafaGrid === 'function') renderApmKafaGrid();
+      }
       if (t === 'mesajlar') {
         if (typeof renderMesajlar === 'function') renderMesajlar();
         if (typeof mesajlariOkunduIsaretle === 'function') mesajlariOkunduIsaretle();
