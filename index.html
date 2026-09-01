@@ -14715,59 +14715,152 @@
       return { kalanBidon, kalanHassas, toplamNetFcw };
     }
 
+    /* ÇAP VE ÜRÜN FORMATLAYICI YARDIMCILARI */
+    function standartCapFormat(rawCap, defaultTur) {
+      if (!rawCap || rawCap === '-') {
+        return defaultTur === 'hassas' ? 'Ø1.6 mm' : 'Ø2.8 mm';
+      }
+      let c = String(rawCap).trim().replace(/Ø/g, '').replace(/mm/gi, '').trim().replace(',', '.');
+      let n = parseFloat(c);
+      if (!isNaN(n) && n > 0 && n < 10) {
+        return `Ø${n.toFixed(1)} mm`;
+      }
+      return rawCap.trim();
+    }
+
+    function capEsit(c1, c2) {
+      if (!c1 || !c2) return false;
+      let s1 = String(c1).replace(/Ø/g, '').replace(/mm/gi, '').trim().replace(',', '.');
+      let s2 = String(c2).replace(/Ø/g, '').replace(/mm/gi, '').trim().replace(',', '.');
+      let n1 = parseFloat(s1);
+      let n2 = parseFloat(s2);
+      if (!isNaN(n1) && !isNaN(n2)) {
+        return Math.abs(n1 - n2) < 0.05;
+      }
+      return s1.toLowerCase() === s2.toLowerCase();
+    }
+
+    function urunAdiKodAyristir(str) {
+      if (!str) return { kod: '', safAd: '', cap: '' };
+      let parts = str.split(' - ');
+      let kodOrAd = parts[0] ? parts[0].trim() : str.trim();
+      let capStr = parts[1] ? parts[1].trim() : '';
+
+      if (!capStr) {
+        const m = str.match(/Ø\s*([0-9]+(?:[\.,][0-9]+)?)\s*(?:mm)?/i);
+        if (m && m[1]) capStr = `Ø${m[1]} mm`;
+      }
+
+      let safAd = temizSafUrunAdi(kodOrAd);
+      return {
+        kod: kodOrAd,
+        safAd: safAd || kodOrAd,
+        cap: capStr
+      };
+    }
+
     function fcwStokTablosuListele() {
       const tbody = document.getElementById('fcwStokTableBody');
       if (!tbody) return;
 
       const ara = document.getElementById('fcwStokAra') ? document.getElementById('fcwStokAra').value.toLowerCase().trim() : '';
 
-      // Tüm ürün tanımları ve üretim kayıtlarındaki ürünleri birleştir
       const urunMap = {};
 
+      // 1. Tanımlı ürünleri standart çaplarıyla urunMap'e ekle
       (DB.urunler || []).forEach(u => {
-        const key = `${u.kod}___${u.cap || '-'}`;
+        const safAd = temizSafUrunAdi(u.ad || u.kod || '');
+        const capFmt = standartCapFormat(u.cap, 'bidon');
+        const key = `${safAd || u.kod}___${capFmt}`;
         urunMap[key] = {
           kod: u.kod,
-          cap: u.cap || '-',
-          ad: u.ad || u.kod,
+          cap: capFmt,
+          ad: safAd || u.ad || u.kod,
           bidonUretim: 0,
           hassasUretim: 0,
           bidonCikis: 0,
-          hassasCikis: 0
+          hassasCikis: 0,
+          isKatalog: true
         };
       });
 
-      // Manuel üretimleri ekle (Sadece Bidon Sarma ve Hassas / Makara Sarma eklenir, Kaba eklenmez!)
-      (DB.uretimTakip || []).forEach(u => {
-        if (u.isExcelImport) return;
+      // Yardımcı eşleştirme fonksiyonu: Bidon sarma her zaman Ø2.8 mm, Hassas/Makara sarma her zaman Ø1.6 mm
+      function getUrunMapKey(rawName, asamaTur) {
+        const parsed = urunAdiKodAyristir(rawName);
+        const hedefCap = standartCapFormat(parsed.cap, asamaTur);
+        const searchKod = (parsed.kod || '').toLowerCase();
+        const searchSafAd = (parsed.safAd || '').toLowerCase();
 
-        const processU = (uAd, miktar, tur) => {
-          if (!uAd || !miktar) return;
-          let parts = uAd.split(' - ');
-          let kod = parts[0] ? parts[0].trim() : uAd.trim();
-          let cap = parts[1] ? parts[1].trim() : '-';
+        // urunMap içinde kod/ad ve çapı eşleşeni ara
+        let matchKey = Object.keys(urunMap).find(k => {
+          const item = urunMap[k];
+          const kKod = (item.kod || '').toLowerCase();
+          const kAd = (item.ad || '').toLowerCase();
+          const kodMatch = kKod === searchKod || kAd === searchSafAd || kKod === searchSafAd ||
+                           searchKod.includes(kKod) || kKod.includes(searchKod) || searchSafAd.includes(kAd);
+          const capMatch = capEsit(item.cap, hedefCap);
+          return kodMatch && capMatch;
+        });
 
-          // Eşleşen ürün ara
-          let matchKey = Object.keys(urunMap).find(k => {
-            let item = urunMap[k];
-            return item.kod.toLowerCase() === kod.toLowerCase() || (item.kod + ' - ' + item.cap).toLowerCase() === uAd.toLowerCase();
-          });
+        if (matchKey) return matchKey;
 
-          if (!matchKey) {
-            matchKey = `${kod}___${cap}`;
-            urunMap[matchKey] = {
-              kod: kod,
-              cap: cap,
-              ad: kod,
+        // DB.urunler içinde tanımlı olan var mı?
+        const dbUrun = (DB.urunler || []).find(u => {
+          const uSaf = temizSafUrunAdi(u.ad || u.kod || '').toLowerCase();
+          const uKod = (u.kod || '').toLowerCase();
+          const kodMatch = uKod === searchKod || uSaf === searchSafAd || searchKod.includes(uKod) || uKod.includes(searchKod);
+          const capMatch = capEsit(u.cap, hedefCap);
+          return kodMatch && capMatch;
+        });
+
+        if (dbUrun) {
+          const capFmt = standartCapFormat(dbUrun.cap || hedefCap, asamaTur);
+          const saf = temizSafUrunAdi(dbUrun.ad || dbUrun.kod);
+          const k = `${saf || dbUrun.kod}___${capFmt}`;
+          if (!urunMap[k]) {
+            urunMap[k] = {
+              kod: dbUrun.kod,
+              cap: capFmt,
+              ad: saf || dbUrun.ad || dbUrun.kod,
               bidonUretim: 0,
               hassasUretim: 0,
               bidonCikis: 0,
-              hassasCikis: 0
+              hassasCikis: 0,
+              isKatalog: true
             };
           }
+          return k;
+        }
 
-          if (tur === 'bidon') urunMap[matchKey].bidonUretim += parseFloat(miktar) || 0;
-          else if (tur === 'hassas') urunMap[matchKey].hassasUretim += parseFloat(miktar) || 0;
+        // Yeni anahtar oluştur
+        const fallbackSafAd = parsed.safAd || parsed.kod;
+        const fallbackKey = `${fallbackSafAd}___${hedefCap}`;
+        if (!urunMap[fallbackKey]) {
+          urunMap[fallbackKey] = {
+            kod: parsed.kod,
+            cap: hedefCap,
+            ad: fallbackSafAd,
+            bidonUretim: 0,
+            hassasUretim: 0,
+            bidonCikis: 0,
+            hassasCikis: 0,
+            isKatalog: false
+          };
+        }
+        return fallbackKey;
+      }
+
+      // 2. Manuel üretimleri ekle (Bidon Sarma -> Ø2.8 mm, Hassas/Makara Sarma -> Ø1.6 mm)
+      (DB.uretimTakip || []).forEach(u => {
+        if (u.isExcelImport) return;
+
+        const processU = (uAd, miktar, asamaTur) => {
+          if (!uAd || !miktar) return;
+          const k = getUrunMapKey(uAd, asamaTur);
+          if (k && urunMap[k]) {
+            if (asamaTur === 'bidon') urunMap[k].bidonUretim += parseFloat(miktar) || 0;
+            else if (asamaTur === 'hassas') urunMap[k].hassasUretim += parseFloat(miktar) || 0;
+          }
         };
 
         if (Array.isArray(u.items) && u.items.length > 0) {
@@ -14781,35 +14874,24 @@
         }
       });
 
-      // Tel çıkışlarını düş
+      // 3. Tel çıkışlarını düş
       (DB.telCikislari || []).forEach(tc => {
         const tcTel = (tc.telAdi || '').trim();
-        const tcCap = (tc.cap || '-').trim();
         const miktar = parseFloat(tc.miktar) || 0;
+        const tur = tc.tur === 'Hassas' ? 'hassas' : 'bidon';
+        const parsed = urunAdiKodAyristir(tcTel);
+        const hedefCap = standartCapFormat(tc.cap || parsed.cap, tur);
 
-        let matchKey = Object.keys(urunMap).find(k => {
-          let item = urunMap[k];
-          return (item.kod.toLowerCase() === tcTel.toLowerCase() || (item.kod + ' - ' + item.cap).toLowerCase() === tcTel.toLowerCase() || tcTel.toLowerCase().includes(item.kod.toLowerCase()));
-        });
-
-        if (!matchKey) {
-          matchKey = `${tcTel}___${tcCap}`;
-          urunMap[matchKey] = {
-            kod: tcTel,
-            cap: tcCap,
-            ad: tcTel,
-            bidonUretim: 0,
-            hassasUretim: 0,
-            bidonCikis: 0,
-            hassasCikis: 0
-          };
+        const k = getUrunMapKey(parsed.safAd + (hedefCap ? ' - ' + hedefCap : ''), tur);
+        if (k && urunMap[k]) {
+          if (tur === 'hassas') urunMap[k].hassasCikis += miktar;
+          else urunMap[k].bidonCikis += miktar;
         }
-
-        if (tc.tur === 'Hassas') urunMap[matchKey].hassasCikis += miktar;
-        else urunMap[matchKey].bidonCikis += miktar;
       });
 
       let items = Object.values(urunMap);
+
+      // Arama filtresi
       if (ara) {
         items = items.filter(x => x.kod.toLowerCase().includes(ara) || x.ad.toLowerCase().includes(ara) || x.cap.toLowerCase().includes(ara));
       }
@@ -14820,7 +14902,7 @@
       }
 
       let html = '';
-      items.sort((a, b) => a.kod.localeCompare(b.kod)).forEach(item => {
+      items.sort((a, b) => a.ad.localeCompare(b.ad) || a.cap.localeCompare(b.cap)).forEach(item => {
         const bStok = Math.max(0, item.bidonUretim - item.bidonCikis);
         const hStok = Math.max(0, item.hassasUretim - item.hassasCikis);
         const topStok = bStok + hStok;
@@ -14832,16 +14914,16 @@
         html += `
           <tr class="hover:bg-slate-50 transition-colors">
             <td class="p-3 font-bold text-slate-800">
-              <span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-mono mr-1">${item.kod}</span>
-              ${item.ad && item.ad !== item.kod ? `<span class="text-slate-500 font-normal text-xs">(${item.ad})</span>` : ''}
+              <span class="text-slate-900">${item.ad}</span>
+              ${item.kod && item.kod !== item.ad ? `<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono text-xs ml-1">${item.kod}</span>` : ''}
             </td>
-            <td class="p-3 font-bold text-slate-600">${item.cap}</td>
+            <td class="p-3 font-bold text-indigo-700 font-mono">${item.cap}</td>
             <td class="p-3 text-right font-black text-emerald-700 bg-emerald-50/20">${bStok > 0 ? bStok.toFixed(2) + ' kg' : '<span class="text-slate-300 font-normal">-</span>'}</td>
             <td class="p-3 text-right font-black text-blue-700 bg-blue-50/20">${hStok > 0 ? hStok.toFixed(2) + ' kg' : '<span class="text-slate-300 font-normal">-</span>'}</td>
             <td class="p-3 text-right font-black text-indigo-900 bg-indigo-50/40 text-sm">${topStok.toFixed(2)} kg</td>
             <td class="p-3 text-center">${durumBadge}</td>
             <td class="p-3 text-right">
-              <button onclick="fcwTelCikisModalAc('${item.kod.replace(/'/g, "\\'")}', '${(item.cap || '-').replace(/'/g, "\\'")}', ${bStok}, ${hStok}, '${(item.ad || item.kod).replace(/'/g, "\\'")}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-xs flex items-center gap-1 ml-auto">
+              <button onclick="fcwTelCikisModalAc('${(item.ad || item.kod).replace(/'/g, "\\'")}', '${(item.cap || '-').replace(/'/g, "\\'")}', ${bStok}, ${hStok}, '${(item.ad || item.kod).replace(/'/g, "\\'")}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-xs flex items-center gap-1 ml-auto">
                 <span>📤</span> Çıkış Yap
               </button>
             </td>
@@ -14870,17 +14952,23 @@
       });
 
       if (telKod) {
-        const urun = (DB.urunler || []).find(u => u.kod === telKod || u.ad === telKod);
+        const urun = (DB.urunler || []).find(u => (u.kod === telKod || u.ad === telKod) && (!cap || capEsit(u.cap, cap)));
         const safAd = temizSafUrunAdi(telAd || (urun ? (urun.ad || urun.kod) : telKod));
-        const capVal = cap && cap !== '-' ? cap : (urun && urun.cap ? urun.cap : 'Ø2,80 mm');
-        const tamTelAd = safAd + (capVal && capVal !== '-' ? ` - ${capVal}` : '');
+        const capVal = standartCapFormat(cap && cap !== '-' ? cap : (urun && urun.cap ? urun.cap : 'Ø2.8 mm'), 'bidon');
+        const tamTelAd = safAd + (capVal ? ` - ${capVal}` : '');
 
         document.getElementById('fcwModalTelInput').value = tamTelAd;
         document.getElementById('fcwModalCap').value = capVal;
-        document.getElementById('fcwModalTur').value = (bStok !== undefined && bStok === 0 && hStok > 0) ? 'Hassas' : 'Bidon';
+        
+        // Çap 1.6 ise varsayılan sarma türü Hassas/Makara, 2.8 ise Bidon
+        if (capEsit(capVal, 'Ø1.6 mm') || (bStok === 0 && hStok > 0)) {
+          document.getElementById('fcwModalTur').value = 'Hassas';
+        } else {
+          document.getElementById('fcwModalTur').value = 'Bidon';
+        }
       } else {
         document.getElementById('fcwModalTelInput').value = '';
-        document.getElementById('fcwModalCap').value = 'Ø2,80 mm';
+        document.getElementById('fcwModalCap').value = 'Ø2.8 mm';
         document.getElementById('fcwModalTur').value = 'Bidon';
       }
 
@@ -14918,40 +15006,59 @@
         return;
       }
 
-      let parts = telVal.split(' - ');
-      let kod = parts[0] ? parts[0].trim() : telVal;
-      let cap = capVal || (parts[1] ? parts[1].trim() : '-');
-      let safAd = temizSafUrunAdi(kod);
+      const parsed = urunAdiKodAyristir(telVal);
+      const safAd = parsed.safAd || parsed.kod;
+      const hedefCap = standartCapFormat(capVal || parsed.cap, turVal === 'Hassas' ? 'hassas' : 'bidon');
 
-      if (baslikEl) baslikEl.innerText = safAd || kod;
-      if (capBadgeEl) capBadgeEl.innerText = cap && cap !== '-' ? cap : 'Standart';
+      if (baslikEl) baslikEl.innerText = safAd;
+      if (capBadgeEl) capBadgeEl.innerText = hedefCap;
 
       // Stok hesapla
       let bidonUretim = 0, hassasUretim = 0, bidonCikis = 0, hassasCikis = 0;
-      const telKodLow = kod.toLowerCase();
+      const searchKod = (parsed.kod || '').toLowerCase();
+      const searchSafAd = safAd.toLowerCase();
 
       (DB.uretimTakip || []).forEach(u => {
         if (u.isExcelImport) return;
-        const matchU = (str) => {
-          if (!str) return false;
-          const s = str.trim().toLowerCase();
-          return s === telKodLow || s.includes(telKodLow) || telKodLow.includes(s);
+        const checkItem = (itemUrun, itemMiktar, asamaTur) => {
+          if (!itemUrun || !itemMiktar) return;
+          const p = urunAdiKodAyristir(itemUrun);
+          const iKod = (p.kod || '').toLowerCase();
+          const iSaf = (p.safAd || '').toLowerCase();
+          const kodMatch = iKod === searchKod || iSaf === searchSafAd || iKod === searchSafAd ||
+                           searchKod.includes(iKod) || iKod.includes(searchKod);
+          const iCap = standartCapFormat(p.cap, asamaTur);
+          const capMatch = capEsit(iCap, hedefCap);
+
+          if (kodMatch && capMatch) {
+            const m = parseFloat(itemMiktar) || 0;
+            if (asamaTur === 'bidon') bidonUretim += m;
+            else if (asamaTur === 'hassas') hassasUretim += m;
+          }
         };
 
         if (Array.isArray(u.items) && u.items.length > 0) {
           u.items.forEach(it => {
-            if (it.asama === 'bidon' && matchU(it.urun)) bidonUretim += parseFloat(it.miktar) || 0;
-            else if (it.asama === 'hassas' && matchU(it.urun)) hassasUretim += parseFloat(it.miktar) || 0;
+            if (it.asama === 'bidon') checkItem(it.urun, it.miktar, 'bidon');
+            else if (it.asama === 'hassas') checkItem(it.urun, it.miktar, 'hassas');
           });
         } else {
-          if (matchU(u.bidonUrun)) bidonUretim += parseFloat(u.bidon) || 0;
-          if (matchU(u.hassasUrun)) hassasUretim += parseFloat(u.hassas) || 0;
+          checkItem(u.bidonUrun, u.bidon, 'bidon');
+          checkItem(u.hassasUrun, u.hassas, 'hassas');
         }
       });
 
       (DB.telCikislari || []).forEach(tc => {
-        const tcTel = (tc.telAdi || '').trim().toLowerCase();
-        if (tcTel === telKodLow || tcTel.includes(telKodLow) || telKodLow.includes(tcTel)) {
+        const p = urunAdiKodAyristir(tc.telAdi || '');
+        const tcKod = (p.kod || '').toLowerCase();
+        const tcSaf = (p.safAd || '').toLowerCase();
+        const kodMatch = tcKod === searchKod || tcSaf === searchSafAd || tcKod === searchSafAd ||
+                         searchKod.includes(tcKod) || tcKod.includes(searchKod);
+        const tcTur = tc.tur === 'Hassas' ? 'hassas' : 'bidon';
+        const tcCap = standartCapFormat(tc.cap || p.cap, tcTur);
+        const capMatch = capEsit(tcCap, hedefCap);
+
+        if (kodMatch && capMatch) {
           const m = parseFloat(tc.miktar) || 0;
           if (tc.tur === 'Hassas') hassasCikis += m;
           else bidonCikis += m;
@@ -14971,11 +15078,11 @@
         if (aktifStok === 0) {
           uyariEl.classList.remove('hidden');
           uyariEl.className = 'md:col-span-12 text-xs p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-medium';
-          uyariEl.innerHTML = `⚠️ <b>Dikkat:</b> ${safAd} için seçilen ${turEtiket} türünde sistemde kayıtlı mevcut stok bulunmuyor. Yine de çıkış yapabilirsiniz.`;
+          uyariEl.innerHTML = `⚠️ <b>Dikkat:</b> ${safAd} (${hedefCap}) için seçilen ${turEtiket} türünde sistemde kayıtlı mevcut stok bulunmuyor.`;
         } else {
           uyariEl.classList.remove('hidden');
           uyariEl.className = 'md:col-span-12 text-xs p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 font-medium';
-          uyariEl.innerHTML = `ℹ️ <b>${safAd}</b> (${turEtiket} Sarma) için FCW Çıkılabilir Net Stok: <b>${aktifStok.toFixed(2)} kg</b>`;
+          uyariEl.innerHTML = `ℹ️ <b>${safAd}</b> (${hedefCap} - ${turEtiket} Sarma) için FCW Çıkılabilir Net Stok: <b>${aktifStok.toFixed(2)} kg</b>`;
         }
       }
     }
