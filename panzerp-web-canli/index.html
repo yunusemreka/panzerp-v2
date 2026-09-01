@@ -6017,6 +6017,21 @@
         }
         tcTelStokBilgisiGoster();
       }
+
+      // KTM Sipariş Kalem inputu ise
+      if (inputId.startsWith('ktmSipUrunInput_')) {
+        const parts = inputId.split('_');
+        const idx = parseInt(parts[1]);
+        if (!isNaN(idx)) {
+          const kodVal = element.dataset.kod || '';
+          const urun = (DB.ktmUrunler || []).find(u => (u.kod === kodVal || u.ad === selectedName) && (!capVal || u.cap === capVal)) || (typeof findKtmUrunByInput === 'function' ? findKtmUrunByInput(selectedName) : null);
+          if (urun && typeof selectKtmKalemDropdownVal === 'function') {
+            selectKtmKalemDropdownVal(idx, urun.id, urun.kod, urun.ad, urun.cap, urun.paket);
+          } else if (typeof ktmSiparisKalemUrunYazildi === 'function') {
+            ktmSiparisKalemUrunYazildi(idx, selectedName);
+          }
+        }
+      }
     }
 
     // Inputlarda TAB veya ENTER'a basıldığında filtrelenen ilk seçeneği otomatik seç
@@ -13209,35 +13224,54 @@
     }
 
     function ktmSiparisKalemUrunSecildi(idx, urunId) {
-      const u = (DB.ktmUrunler || []).find(x => x.id == urunId);
+      const u = (DB.ktmUrunler || []).find(x => String(x.id) === String(urunId));
       if (u && ktmSiparisFormDraftKalemler[idx]) {
         ktmSiparisFormDraftKalemler[idx].urunId = u.id;
         ktmSiparisFormDraftKalemler[idx].urunKod = u.kod;
-        ktmSiparisFormDraftKalemler[idx].urunAd = `${u.ad} (Çap: ${u.cap || '-'} | ${u.paket || '-'})`;
+        ktmSiparisFormDraftKalemler[idx].urunAd = `${u.ad || u.kod} (Çap: ${u.cap || '-'} | ${u.paket || '-'})`;
+        ktmSiparisFormDraftKalemler[idx].cap = u.cap || '';
+        ktmSiparisFormDraftKalemler[idx].paket = u.paket || '';
       }
       ktmSiparisToplamHesaplaUI();
     }
 
     function ktmSiparisKalemUrunYazildi(idx, text) {
       if (!ktmSiparisFormDraftKalemler[idx]) return;
-      const temiz = (text || '').trim().toLowerCase();
-      const urunler = DB.ktmUrunler || [];
-      const eslesen = urunler.find(u => 
-        (u.kod && u.kod.toLowerCase() === temiz) ||
-        (u.ad && u.ad.toLowerCase() === temiz) ||
-        (`${u.kod} - ${u.ad}`.toLowerCase() === temiz) ||
-        (`${u.ad} (${u.kod})`.toLowerCase().includes(temiz))
-      );
+      const temiz = (text || '').trim();
+      if (!temiz) {
+        ktmSiparisFormDraftKalemler[idx].urunId = '';
+        ktmSiparisFormDraftKalemler[idx].urunKod = '';
+        ktmSiparisFormDraftKalemler[idx].urunAd = '';
+        ktmSiparisToplamHesaplaUI();
+        return;
+      }
+      const eslesen = typeof findKtmUrunByInput === 'function' ? findKtmUrunByInput(temiz) : null;
 
       if (eslesen) {
         ktmSiparisFormDraftKalemler[idx].urunId = eslesen.id;
         ktmSiparisFormDraftKalemler[idx].urunKod = eslesen.kod;
-        ktmSiparisFormDraftKalemler[idx].urunAd = `${eslesen.ad} (Çap: ${eslesen.cap || '-'} | ${eslesen.paket || '-'})`;
+        ktmSiparisFormDraftKalemler[idx].urunAd = `${eslesen.ad || eslesen.kod} (Çap: ${eslesen.cap || '-'} | ${eslesen.paket || '-'})`;
+        ktmSiparisFormDraftKalemler[idx].cap = eslesen.cap || '';
+        ktmSiparisFormDraftKalemler[idx].paket = eslesen.paket || '';
       } else {
-        ktmSiparisFormDraftKalemler[idx].urunKod = text.trim();
-        ktmSiparisFormDraftKalemler[idx].urunAd = text.trim();
+        ktmSiparisFormDraftKalemler[idx].urunId = '';
+        ktmSiparisFormDraftKalemler[idx].urunKod = temiz;
+        ktmSiparisFormDraftKalemler[idx].urunAd = temiz;
       }
       ktmSiparisToplamHesaplaUI();
+    }
+
+    function ktmSiparisKalemMiktarDegisti(idx, val) {
+      if (ktmSiparisFormDraftKalemler[idx]) {
+        ktmSiparisFormDraftKalemler[idx].miktar = parseFloat(val) || 0;
+      }
+      ktmSiparisToplamHesaplaUI();
+    }
+
+    function ktmSiparisKalemNotDegisti(idx, val) {
+      if (ktmSiparisFormDraftKalemler[idx]) {
+        ktmSiparisFormDraftKalemler[idx].not = val || '';
+      }
     }
 
     function ktmSiparisKalemleriRender() {
@@ -13248,12 +13282,11 @@
       let html = '';
 
       ktmSiparisFormDraftKalemler.forEach((k, idx) => {
-        const urunGosterim = k.urunKod ? `${k.urunKod} - ${k.urunAd || ''}` : '';
         const listId = `ktmSipUrunInput_${idx}-list`;
 
         const urunlerDropdownHtml = urunler.map(u => {
           const itemText = `${u.ad || u.kod} (Kod: ${u.kod} | Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'})`;
-          return `<div class="dropdown-item flex items-center justify-between py-2 px-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${u.ad || u.kod}" data-kod="${u.kod}" data-cap="${u.cap || ''}" onclick="selectKtmKalemDropdownVal(${idx}, '${u.id}', '${u.kod}', '${(u.ad || u.kod).replace(/'/g, "\\'")}', '${u.cap || ''}', '${u.paket || ''}')">
+          return `<div class="dropdown-item flex items-center justify-between py-2 px-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${u.ad || u.kod}" data-kod="${u.kod}" data-cap="${u.cap || ''}" onmousedown="event.preventDefault()" onclick="selectKtmKalemDropdownVal(${idx}, '${u.id}', '${u.kod}', '${(u.ad || u.kod).replace(/'/g, "\\'")}', '${u.cap || ''}', '${u.paket || ''}')">
             <div>
               <div class="font-bold text-slate-800 text-xs">${u.ad || u.kod}</div>
               <div class="text-[11px] text-slate-500 font-medium">Kod: <b>${u.kod}</b> | Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'}</div>
@@ -13300,8 +13333,10 @@
         ktmSiparisFormDraftKalemler[idx].urunKod = uKod;
         const tamAd = uAd || uKod;
         ktmSiparisFormDraftKalemler[idx].urunAd = tamAd;
+        ktmSiparisFormDraftKalemler[idx].cap = uCap || '';
+        ktmSiparisFormDraftKalemler[idx].paket = uPaket || '';
         const inputEl = document.getElementById(`ktmSipUrunInput_${idx}`);
-        if (inputEl) inputEl.value = tamAd;
+        if (inputEl) inputEl.value = tamAd + (uCap && uCap !== '-' ? ` (${uCap})` : '');
       }
       closeDropdown(`ktmSipUrunInput_${idx}`);
       ktmSiparisToplamHesaplaUI();
@@ -13334,6 +13369,36 @@
         alert('Lütfen Sipariş No ve Müşteri alanlarını doldurunuz!');
         return;
       }
+
+      // DOM'daki anlık değerleri draft kalemlerine senkronize et
+      ktmSiparisFormDraftKalemler.forEach((k, idx) => {
+        const urunInput = document.getElementById(`ktmSipUrunInput_${idx}`);
+        if (urunInput && urunInput.value.trim()) {
+          const val = urunInput.value.trim();
+          if (!k.urunId && !k.urunKod) {
+            const eslesen = typeof findKtmUrunByInput === 'function' ? findKtmUrunByInput(val) : null;
+            if (eslesen) {
+              k.urunId = eslesen.id;
+              k.urunKod = eslesen.kod;
+              k.urunAd = `${eslesen.ad || eslesen.kod} (Çap: ${eslesen.cap || '-'} | ${eslesen.paket || '-'})`;
+            } else {
+              k.urunKod = val;
+              k.urunAd = val;
+            }
+          }
+        }
+        const row = document.getElementById('ktmSiparisKalemlerBody')?.children[idx];
+        if (row) {
+          const miktarInput = row.querySelector('input[type="number"]');
+          if (miktarInput && parseFloat(miktarInput.value) > 0) {
+            k.miktar = parseFloat(miktarInput.value);
+          }
+          const notInput = row.querySelector('input[type="text"]:not([id^="ktmSipUrunInput_"])');
+          if (notInput) {
+            k.not = notInput.value;
+          }
+        }
+      });
 
       // Kalemleri doğrula
       const gecerliKalemler = ktmSiparisFormDraftKalemler.filter(k => (k.urunId || k.urunKod) && k.miktar > 0);
