@@ -14716,9 +14716,9 @@
     }
 
     /* ÇAP VE ÜRÜN FORMATLAYICI YARDIMCILARI */
-    function standartCapFormat(rawCap, defaultTur) {
-      if (!rawCap || rawCap === '-') {
-        return defaultTur === 'hassas' ? 'Ø1.6 mm' : 'Ø2.8 mm';
+    function standartCapFormat(rawCap) {
+      if (!rawCap || rawCap === '-' || String(rawCap).trim() === '') {
+        return '';
       }
       let c = String(rawCap).trim().replace(/Ø/g, '').replace(/mm/gi, '').trim().replace(',', '.');
       let n = parseFloat(c);
@@ -14759,6 +14759,74 @@
       };
     }
 
+    function resolveUrunVeCap(rawName, asamaTur, explicitCap) {
+      const parsed = urunAdiKodAyristir(rawName);
+      const searchKod = (parsed.kod || '').toLowerCase();
+      const searchSafAd = (parsed.safAd || '').toLowerCase();
+      const givenCap = standartCapFormat(explicitCap || parsed.cap);
+
+      // 1. DB.urunler içinde bu ürün adına/koduna uyan kayıtları bul
+      const matchingDbList = (DB.urunler || []).filter(u => {
+        const uSaf = temizSafUrunAdi(u.ad || u.kod || '').toLowerCase();
+        const uKod = (u.kod || '').toLowerCase();
+        return uKod === searchKod || uSaf === searchSafAd || uKod === searchSafAd ||
+               searchKod.includes(uKod) || uKod.includes(searchKod) || (uSaf && searchSafAd.includes(uSaf));
+      });
+
+      // Eğer açıkça bir çap verilmişse:
+      if (givenCap) {
+        const exact = matchingDbList.find(u => capEsit(u.cap, givenCap));
+        if (exact) {
+          return {
+            kod: exact.kod,
+            ad: temizSafUrunAdi(exact.ad || exact.kod),
+            cap: standartCapFormat(exact.cap) || givenCap
+          };
+        }
+        return {
+          kod: parsed.kod,
+          ad: parsed.safAd || parsed.kod,
+          cap: givenCap
+        };
+      }
+
+      // Açıkça bir çap verilmemişse:
+      if (matchingDbList.length === 1) {
+        // Ürünün katalogda tek bir tanımlı çapı var (Örn: RollHARD 414 sadece Ø2.4 mm)
+        const tekUrun = matchingDbList[0];
+        const tekCap = standartCapFormat(tekUrun.cap) || tekUrun.cap || '';
+        return {
+          kod: tekUrun.kod,
+          ad: temizSafUrunAdi(tekUrun.ad || tekUrun.kod),
+          cap: tekCap || (asamaTur === 'hassas' ? 'Ø1.6 mm' : 'Ø2.8 mm')
+        };
+      } else if (matchingDbList.length > 1) {
+        // Ürünün birden fazla tanımlı çapı var (Örn: AbraHARD 9200 hem 2.8 hem 1.6)
+        if (asamaTur === 'hassas') {
+          const hassasUrun = matchingDbList.find(u => capEsit(u.cap, '1.6') || capEsit(u.cap, '1.2')) || matchingDbList[0];
+          return {
+            kod: hassasUrun.kod,
+            ad: temizSafUrunAdi(hassasUrun.ad || hassasUrun.kod),
+            cap: standartCapFormat(hassasUrun.cap) || 'Ø1.6 mm'
+          };
+        } else {
+          const bidonUrun = matchingDbList.find(u => capEsit(u.cap, '2.8') || capEsit(u.cap, '2.4') || capEsit(u.cap, '3.2')) || matchingDbList[0];
+          return {
+            kod: bidonUrun.kod,
+            ad: temizSafUrunAdi(bidonUrun.ad || bidonUrun.kod),
+            cap: standartCapFormat(bidonUrun.cap) || 'Ø2.8 mm'
+          };
+        }
+      }
+
+      // DB'de hiç kayıt yoksa aşamaya göre varsayılan ata
+      return {
+        kod: parsed.kod,
+        ad: parsed.safAd || parsed.kod,
+        cap: asamaTur === 'hassas' ? 'Ø1.6 mm' : 'Ø2.8 mm'
+      };
+    }
+
     function fcwStokTablosuListele() {
       const tbody = document.getElementById('fcwStokTableBody');
       if (!tbody) return;
@@ -14767,10 +14835,10 @@
 
       const urunMap = {};
 
-      // 1. Tanımlı ürünleri standart çaplarıyla urunMap'e ekle
+      // 1. Tanımlı ürünleri urunMap'e ekle
       (DB.urunler || []).forEach(u => {
         const safAd = temizSafUrunAdi(u.ad || u.kod || '');
-        const capFmt = standartCapFormat(u.cap, 'bidon');
+        const capFmt = standartCapFormat(u.cap) || (u.cap || '-');
         const key = `${safAd || u.kod}___${capFmt}`;
         urunMap[key] = {
           kod: u.kod,
@@ -14784,62 +14852,14 @@
         };
       });
 
-      // Yardımcı eşleştirme fonksiyonu: Bidon sarma her zaman Ø2.8 mm, Hassas/Makara sarma her zaman Ø1.6 mm
-      function getUrunMapKey(rawName, asamaTur) {
-        const parsed = urunAdiKodAyristir(rawName);
-        const hedefCap = standartCapFormat(parsed.cap, asamaTur);
-        const searchKod = (parsed.kod || '').toLowerCase();
-        const searchSafAd = (parsed.safAd || '').toLowerCase();
-
-        // urunMap içinde kod/ad ve çapı eşleşeni ara
-        let matchKey = Object.keys(urunMap).find(k => {
-          const item = urunMap[k];
-          const kKod = (item.kod || '').toLowerCase();
-          const kAd = (item.ad || '').toLowerCase();
-          const kodMatch = kKod === searchKod || kAd === searchSafAd || kKod === searchSafAd ||
-                           searchKod.includes(kKod) || kKod.includes(searchKod) || searchSafAd.includes(kAd);
-          const capMatch = capEsit(item.cap, hedefCap);
-          return kodMatch && capMatch;
-        });
-
-        if (matchKey) return matchKey;
-
-        // DB.urunler içinde tanımlı olan var mı?
-        const dbUrun = (DB.urunler || []).find(u => {
-          const uSaf = temizSafUrunAdi(u.ad || u.kod || '').toLowerCase();
-          const uKod = (u.kod || '').toLowerCase();
-          const kodMatch = uKod === searchKod || uSaf === searchSafAd || searchKod.includes(uKod) || uKod.includes(searchKod);
-          const capMatch = capEsit(u.cap, hedefCap);
-          return kodMatch && capMatch;
-        });
-
-        if (dbUrun) {
-          const capFmt = standartCapFormat(dbUrun.cap || hedefCap, asamaTur);
-          const saf = temizSafUrunAdi(dbUrun.ad || dbUrun.kod);
-          const k = `${saf || dbUrun.kod}___${capFmt}`;
-          if (!urunMap[k]) {
-            urunMap[k] = {
-              kod: dbUrun.kod,
-              cap: capFmt,
-              ad: saf || dbUrun.ad || dbUrun.kod,
-              bidonUretim: 0,
-              hassasUretim: 0,
-              bidonCikis: 0,
-              hassasCikis: 0,
-              isKatalog: true
-            };
-          }
-          return k;
-        }
-
-        // Yeni anahtar oluştur
-        const fallbackSafAd = parsed.safAd || parsed.kod;
-        const fallbackKey = `${fallbackSafAd}___${hedefCap}`;
-        if (!urunMap[fallbackKey]) {
-          urunMap[fallbackKey] = {
-            kod: parsed.kod,
-            cap: hedefCap,
-            ad: fallbackSafAd,
+      function getMapKey(rawName, asamaTur, explicitCap) {
+        const resolved = resolveUrunVeCap(rawName, asamaTur, explicitCap);
+        const k = `${resolved.ad || resolved.kod}___${resolved.cap}`;
+        if (!urunMap[k]) {
+          urunMap[k] = {
+            kod: resolved.kod,
+            cap: resolved.cap,
+            ad: resolved.ad,
             bidonUretim: 0,
             hassasUretim: 0,
             bidonCikis: 0,
@@ -14847,16 +14867,16 @@
             isKatalog: false
           };
         }
-        return fallbackKey;
+        return k;
       }
 
-      // 2. Manuel üretimleri ekle (Bidon Sarma -> Ø2.8 mm, Hassas/Makara Sarma -> Ø1.6 mm)
+      // 2. Manuel üretimleri ekle
       (DB.uretimTakip || []).forEach(u => {
         if (u.isExcelImport) return;
 
         const processU = (uAd, miktar, asamaTur) => {
           if (!uAd || !miktar) return;
-          const k = getUrunMapKey(uAd, asamaTur);
+          const k = getMapKey(uAd, asamaTur);
           if (k && urunMap[k]) {
             if (asamaTur === 'bidon') urunMap[k].bidonUretim += parseFloat(miktar) || 0;
             else if (asamaTur === 'hassas') urunMap[k].hassasUretim += parseFloat(miktar) || 0;
@@ -14879,10 +14899,7 @@
         const tcTel = (tc.telAdi || '').trim();
         const miktar = parseFloat(tc.miktar) || 0;
         const tur = tc.tur === 'Hassas' ? 'hassas' : 'bidon';
-        const parsed = urunAdiKodAyristir(tcTel);
-        const hedefCap = standartCapFormat(tc.cap || parsed.cap, tur);
-
-        const k = getUrunMapKey(parsed.safAd + (hedefCap ? ' - ' + hedefCap : ''), tur);
+        const k = getMapKey(tcTel, tur, tc.cap);
         if (k && urunMap[k]) {
           if (tur === 'hassas') urunMap[k].hassasCikis += miktar;
           else urunMap[k].bidonCikis += miktar;
@@ -14952,16 +14969,14 @@
       });
 
       if (telKod) {
-        const urun = (DB.urunler || []).find(u => (u.kod === telKod || u.ad === telKod) && (!cap || capEsit(u.cap, cap)));
-        const safAd = temizSafUrunAdi(telAd || (urun ? (urun.ad || urun.kod) : telKod));
-        const capVal = standartCapFormat(cap && cap !== '-' ? cap : (urun && urun.cap ? urun.cap : 'Ø2.8 mm'), 'bidon');
-        const tamTelAd = safAd + (capVal ? ` - ${capVal}` : '');
+        const resolved = resolveUrunVeCap(telAd || telKod, 'bidon', cap);
+        const tamTelAd = resolved.ad + (resolved.cap && resolved.cap !== '-' ? ` - ${resolved.cap}` : '');
 
         document.getElementById('fcwModalTelInput').value = tamTelAd;
-        document.getElementById('fcwModalCap').value = capVal;
+        document.getElementById('fcwModalCap').value = resolved.cap || 'Ø2.8 mm';
         
-        // Çap 1.6 ise varsayılan sarma türü Hassas/Makara, 2.8 ise Bidon
-        if (capEsit(capVal, 'Ø1.6 mm') || (bStok === 0 && hStok > 0)) {
+        // Çap 1.6 ise varsayılan sarma türü Hassas/Makara, diğerlerinde Bidon (veya sadece hassas stok varsa hassas)
+        if (capEsit(resolved.cap, '1.6') || (bStok === 0 && hStok > 0)) {
           document.getElementById('fcwModalTur').value = 'Hassas';
         } else {
           document.getElementById('fcwModalTur').value = 'Bidon';
@@ -15006,34 +15021,26 @@
         return;
       }
 
-      const parsed = urunAdiKodAyristir(telVal);
-      const safAd = parsed.safAd || parsed.kod;
-      const hedefCap = standartCapFormat(capVal || parsed.cap, turVal === 'Hassas' ? 'hassas' : 'bidon');
+      const asamaTur = turVal === 'Hassas' ? 'hassas' : 'bidon';
+      const resolved = resolveUrunVeCap(telVal, asamaTur, capVal);
+      const safAd = resolved.ad;
+      const hedefCap = resolved.cap;
 
       if (baslikEl) baslikEl.innerText = safAd;
-      if (capBadgeEl) capBadgeEl.innerText = hedefCap;
+      if (capBadgeEl) capBadgeEl.innerText = hedefCap || 'Standart';
 
       // Stok hesapla
       let bidonUretim = 0, hassasUretim = 0, bidonCikis = 0, hassasCikis = 0;
-      const searchKod = (parsed.kod || '').toLowerCase();
-      const searchSafAd = safAd.toLowerCase();
 
       (DB.uretimTakip || []).forEach(u => {
         if (u.isExcelImport) return;
-        const checkItem = (itemUrun, itemMiktar, asamaTur) => {
+        const checkItem = (itemUrun, itemMiktar, aTur) => {
           if (!itemUrun || !itemMiktar) return;
-          const p = urunAdiKodAyristir(itemUrun);
-          const iKod = (p.kod || '').toLowerCase();
-          const iSaf = (p.safAd || '').toLowerCase();
-          const kodMatch = iKod === searchKod || iSaf === searchSafAd || iKod === searchSafAd ||
-                           searchKod.includes(iKod) || iKod.includes(searchKod);
-          const iCap = standartCapFormat(p.cap, asamaTur);
-          const capMatch = capEsit(iCap, hedefCap);
-
-          if (kodMatch && capMatch) {
+          const r = resolveUrunVeCap(itemUrun, aTur);
+          if (r.ad.toLowerCase() === resolved.ad.toLowerCase() && capEsit(r.cap, hedefCap)) {
             const m = parseFloat(itemMiktar) || 0;
-            if (asamaTur === 'bidon') bidonUretim += m;
-            else if (asamaTur === 'hassas') hassasUretim += m;
+            if (aTur === 'bidon') bidonUretim += m;
+            else if (aTur === 'hassas') hassasUretim += m;
           }
         };
 
@@ -15049,16 +15056,9 @@
       });
 
       (DB.telCikislari || []).forEach(tc => {
-        const p = urunAdiKodAyristir(tc.telAdi || '');
-        const tcKod = (p.kod || '').toLowerCase();
-        const tcSaf = (p.safAd || '').toLowerCase();
-        const kodMatch = tcKod === searchKod || tcSaf === searchSafAd || tcKod === searchSafAd ||
-                         searchKod.includes(tcKod) || tcKod.includes(searchKod);
         const tcTur = tc.tur === 'Hassas' ? 'hassas' : 'bidon';
-        const tcCap = standartCapFormat(tc.cap || p.cap, tcTur);
-        const capMatch = capEsit(tcCap, hedefCap);
-
-        if (kodMatch && capMatch) {
+        const r = resolveUrunVeCap(tc.telAdi || '', tcTur, tc.cap);
+        if (r.ad.toLowerCase() === resolved.ad.toLowerCase() && capEsit(r.cap, hedefCap)) {
           const m = parseFloat(tc.miktar) || 0;
           if (tc.tur === 'Hassas') hassasCikis += m;
           else bidonCikis += m;
