@@ -1724,7 +1724,7 @@
                   class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1 flex items-center gap-1.5">
                   <span>🎯</span> Üretim Kaynağı / İş Emri Bağlantısı
                 </label>
-                <select id="utIsEmriSecici" onchange="utIsEmriSecildi(this.value)"
+                <select id="utIsEmriSecici" onfocus="utIsEmriSeciciDoldur()" onchange="utIsEmriSecildi(this.value)"
                   class="border border-blue-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-blue-300 outline-none text-sm">
                   <option value="">⚙️ Serbest / Standart Stok Üretimi (İş Emrinden Bağımsız)</option>
                   <!-- JavaScript ile dinamik aktif iş emirleri doldurulacak -->
@@ -7882,7 +7882,7 @@
       const seciliDeger = sel.value;
       let html = `<option value="">⚙️ Serbest / Standart Stok Üretimi (İş Emrinden Bağımsız)</option>`;
 
-      const emirler = (DB.isEmirleri || []).filter(i => i.durum !== 'İptal');
+      const emirler = (DB.isEmirleri || []).filter(i => i && i.durum !== 'İptal');
       const devamEdenler = emirler.filter(i => i.durum !== 'Tamamlandı');
       const tamamlananlar = emirler.filter(i => i.durum === 'Tamamlandı');
 
@@ -7890,30 +7890,36 @@
       tamamlananlar.sort((a, b) => (b.id || 0) - (a.id || 0));
 
       if (devamEdenler.length > 0) {
-        html += `<optgroup label="⏳ Devam Eden & Planlanan İş Emirleri">`;
+        html += `<optgroup label="⏳ Devam Eden & Planlanan İş Emirleri (${devamEdenler.length})">`;
         devamEdenler.forEach(i => {
           const urun = (DB.urunler || []).find(u => u.id == i.urunId);
-          const urunAd = urun ? `${urun.kod} (${urun.cap})` : (i.urunAdi || 'Ürün');
+          const safAd = i.safUrunAdi || (urun ? (urun.ad || urun.kod) : (i.urunAdi || '').split(' - ')[0] || 'Ürün');
+          const capGosterim = (i.cap || (urun ? urun.cap : (i.urunAdi || '').split(' - ')[1] || '')).trim();
+          const urunAd = `${safAd}${capGosterim && capGosterim !== '-' ? ` (${capGosterim})` : ''}`;
           const ozet = getIsEmriUretimOzet(i.id);
           const hedef = parseFloat(i.hedef) || 0;
           const durumIcon = i.durum === 'Üretimde' ? '⚙️' : '⏳';
-          const fazlaText = ozet.fazlaStokMiktari > 0 ? ` +${ozet.fazlaStokMiktari} kg Fazla Stok` : '';
+          const musteriStr = i.musteri ? ` · ${i.musteri}` : '';
+          const fazlaText = ozet.fazlaStokMiktari > 0 ? ` +${ozet.fazlaStokMiktari} kg Stok` : '';
 
-          html += `<option value="${i.id}">${durumIcon} ${i.no} | ${urunAd} (İş Emri: ${ozet.isEmrineAyrilanPaket} kg / Hedef: ${hedef} kg${fazlaText})</option>`;
+          html += `<option value="${i.id}">${durumIcon} ${i.no || 'İE'} | ${urunAd}${musteriStr} (İş Emri: ${ozet.isEmrineAyrilanPaket} / ${hedef} kg${fazlaText})</option>`;
         });
         html += `</optgroup>`;
       }
 
       if (tamamlananlar.length > 0) {
-        html += `<optgroup label="✅ Tamamlanan / Hedefe Ulaşan İş Emirleri (Ek Veri Girişi İçin)">`;
+        html += `<optgroup label="✅ Tamamlanan İş Emirleri (${tamamlananlar.length})">`;
         tamamlananlar.forEach(i => {
           const urun = (DB.urunler || []).find(u => u.id == i.urunId);
-          const urunAd = urun ? `${urun.kod} (${urun.cap})` : (i.urunAdi || 'Ürün');
+          const safAd = i.safUrunAdi || (urun ? (urun.ad || urun.kod) : (i.urunAdi || '').split(' - ')[0] || 'Ürün');
+          const capGosterim = (i.cap || (urun ? urun.cap : (i.urunAdi || '').split(' - ')[1] || '')).trim();
+          const urunAd = `${safAd}${capGosterim && capGosterim !== '-' ? ` (${capGosterim})` : ''}`;
           const ozet = getIsEmriUretimOzet(i.id);
           const hedef = parseFloat(i.hedef) || 0;
-          const fazlaText = ozet.fazlaStokMiktari > 0 ? ` +${ozet.fazlaStokMiktari} kg Fazla Stok` : '';
+          const musteriStr = i.musteri ? ` · ${i.musteri}` : '';
+          const fazlaText = ozet.fazlaStokMiktari > 0 ? ` +${ozet.fazlaStokMiktari} kg Stok` : '';
 
-          html += `<option value="${i.id}">✅ ${i.no} | ${urunAd} (İş Emri: ${ozet.isEmrineAyrilanPaket} kg / Hedef: ${hedef} kg${fazlaText})</option>`;
+          html += `<option value="${i.id}">✅ ${i.no || 'İE'} | ${urunAd}${musteriStr} (İş Emri: ${ozet.isEmrineAyrilanPaket} / ${hedef} kg${fazlaText})</option>`;
         });
         html += `</optgroup>`;
       }
@@ -8301,6 +8307,8 @@
     }
 
     function utFiltreDoldur() {
+      if (typeof utIsEmriSeciciDoldur === 'function') utIsEmriSeciciDoldur();
+
       const select = document.getElementById('utFiltreUrun');
       if (!select) return;
       const currentVal = select.value;
@@ -9548,6 +9556,7 @@
       </tr>`;
       });
       container.innerHTML = html + '</tbody></table></div>';
+      if (typeof utIsEmriSeciciDoldur === 'function') utIsEmriSeciciDoldur();
     }
 
     function ieSil(id) {
@@ -16229,6 +16238,7 @@
       apmUretimListele();
       receteListesiGoster();
       receteUrunSelectDoldur();
+      if (typeof utIsEmriSeciciDoldur === 'function') utIsEmriSeciciDoldur();
       utFiltreDoldur();
       if (typeof renderGantt === 'function') renderGantt();
       if (typeof utTumKalemleriRender === 'function') utTumKalemleriRender();
