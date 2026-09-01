@@ -1313,6 +1313,7 @@
 
         <div class="ngrp">APM</div>
         <div class="nav-item" data-target="apmisemri">🛡️ <span>APM Üretim Verileri</span></div>
+        <div class="nav-item" data-target="apmplakalar">📋 <span>APM Plaka Listesi</span><em class="nbdg" id="bApmPlaka"></em></div>
 
         <div class="ngrp">İletişim & Ekip</div>
         <div class="nav-item" data-target="mesajlar">💬 <span>Mesajlaşma & Sohbet</span><em class="nbdg"
@@ -3107,10 +3108,7 @@
         </div>
 
         <div class="flex gap-2 border-b border-slate-200 mb-6 overflow-x-auto pt-1 px-1">
-          <div class="tab-btn active whitespace-nowrap text-sm font-bold text-indigo-700 flex items-center gap-1.5" data-tab="apmPlakaListesiTab">
-            <span>📋</span> Plaka Listesi (APM 1 - 6)
-          </div>
-          <div class="tab-btn whitespace-nowrap text-sm font-bold flex items-center gap-1.5" data-tab="apmVeriGiris">
+          <div class="tab-btn active whitespace-nowrap text-sm font-bold flex items-center gap-1.5" data-tab="apmVeriGiris">
             <span>➕</span> Yeni Vardiya / Kafa Girişi
           </div>
           <div class="tab-btn whitespace-nowrap text-sm font-bold flex items-center gap-1.5" data-tab="apmGecmis">
@@ -3118,121 +3116,6 @@
           </div>
         </div>
 
-        <!-- PLAKA LİSTESİ (APM 1 - APM 6) SEKME İÇERİĞİ -->
-        <div id="apmPlakaListesiTab" class="tab-content active">
-          <!-- 6 APM Makine Alt Sekmeleri & Araç Çubuğu -->
-          <div class="flex flex-wrap items-center justify-between gap-3 mb-5 bg-gradient-to-r from-slate-50 via-indigo-50/40 to-blue-50/50 p-3.5 rounded-2xl border border-indigo-100 shadow-xs">
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full" id="apmMakineSubtabs">
-              <button type="button" onclick="apmPlakaMakineSec('APM-1')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-1">
-                <span>🛡️</span> APM-1 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-1">0</span>
-              </button>
-              <button type="button" onclick="apmPlakaMakineSec('APM-2')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-2">
-                <span>🛡️</span> APM-2 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-2">0</span>
-              </button>
-              <button type="button" onclick="apmPlakaMakineSec('APM-3')" class="apmMakineBtn active px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-indigo-600 text-white shadow-md border border-indigo-600 cursor-pointer" data-makine="APM-3">
-                <span>🛡️</span> APM-3 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-500 text-white font-bold" id="badge_APM-3">0</span>
-              </button>
-              <button type="button" onclick="apmPlakaMakineSec('APM-4')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-4">
-                <span>🛡️</span> APM-4 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-4">0</span>
-              </button>
-              <button type="button" onclick="apmPlakaMakineSec('APM-5')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-5">
-                <span>🛡️</span> APM-5 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-5">0</span>
-              </button>
-              <button type="button" onclick="apmPlakaMakineSec('APM-6')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-6">
-                <span>🛡️</span> APM-6 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-6">0</span>
-              </button>
-            </div>
-
-            <div class="flex items-center gap-2 flex-wrap">
-              <input type="file" id="apmPlakaExcelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="importApmPlakalarExcel(event)">
-              <button type="button" onclick="document.getElementById('apmPlakaExcelFileInput').click()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer" title="Excel veya CSV dosyasından toplu plaka aktar">
-                <span>📁</span> Excel İçe Aktar
-              </button>
-              <button type="button" onclick="exportApmPlakalarExcel()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer" title="Listeyi Excel'e İndir">
-                <span>📥</span> Excel İndir
-              </button>
-              <button type="button" onclick="apmGoogleETabloYukle()" class="bg-amber-50 border border-amber-300 hover:bg-amber-100 text-amber-900 px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer" title="Google E-Tablosundaki APM-3 Verilerini Yenile / Yükle">
-                <span>🔄</span> E-Tablo Verilerini Yenile
-              </button>
-              <button type="button" onclick="apmPlakaModalAc()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-4 py-2 rounded-xl text-xs font-extrabold shadow-sm transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer">
-                <span>➕</span> Yeni Plaka Ekle
-              </button>
-            </div>
-          </div>
-
-          <!-- Seçili Makine KPI Özet Kartları -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-5">
-            <div class="card p-4 border-l-4 border-l-indigo-600 bg-white">
-              <div class="text-[11px] font-bold text-slate-400 uppercase">Toplam Plaka</div>
-              <div class="text-xl md:text-2xl font-black text-indigo-950 mt-1" id="apmKpi_plakaSayisi">0 <span class="text-xs font-normal text-slate-400">Adet</span></div>
-            </div>
-            <div class="card p-4 border-l-4 border-l-emerald-500 bg-white">
-              <div class="text-[11px] font-bold text-slate-400 uppercase">Toplam Kaynak Alanı</div>
-              <div class="text-xl md:text-2xl font-black text-emerald-700 mt-1" id="apmKpi_toplamM2">0.00 <span class="text-xs font-normal text-slate-400">m²</span></div>
-            </div>
-            <div class="card p-4 border-l-4 border-l-amber-500 bg-white">
-              <div class="text-[11px] font-bold text-slate-400 uppercase">Öngörülen Tel</div>
-              <div class="text-xl md:text-2xl font-black text-amber-800 mt-1" id="apmKpi_telKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
-            </div>
-            <div class="card p-4 border-l-4 border-l-blue-500 bg-white">
-              <div class="text-[11px] font-bold text-slate-400 uppercase">Toplam Sac Ağırlığı</div>
-              <div class="text-xl md:text-2xl font-black text-blue-800 mt-1" id="apmKpi_sacKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
-            </div>
-            <div class="card p-4 border-l-4 border-l-purple-500 bg-white col-span-2 sm:col-span-1">
-              <div class="text-[11px] font-bold text-slate-400 uppercase">Sac + Kaplama Toplam</div>
-              <div class="text-xl md:text-2xl font-black text-purple-900 mt-1" id="apmKpi_toplamKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
-            </div>
-          </div>
-
-          <!-- Filtreleme & Arama Barı -->
-          <div class="card p-4 mb-5 bg-white border border-slate-200">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-center">
-              <div class="relative md:col-span-2">
-                <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
-                <input type="text" id="apmPlakaFiltreArama" oninput="apmPlakaListele()" placeholder="Plaka No, TT / Sipariş No, Sac Cinsi, Tel Kodu Ara..." class="border border-slate-300 p-2 pl-9 rounded-xl w-full text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-100 bg-slate-50 focus:bg-white">
-              </div>
-              <div>
-                <select id="apmPlakaFiltreAy" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 bg-white text-slate-700">
-                  <option value="">📅 Tüm Aylar</option>
-                  <option value="OCAK">Ocak</option>
-                  <option value="ŞUBAT">Şubat</option>
-                  <option value="MART">Mart</option>
-                  <option value="NİSAN">Nisan</option>
-                  <option value="MAYIS">Mayıs</option>
-                  <option value="HAZİRAN">Haziran</option>
-                  <option value="TEMMUZ">Temmuz</option>
-                  <option value="AĞUSTOS">Ağustos</option>
-                  <option value="EYLÜL">Eylül</option>
-                  <option value="EKİM">Ekim</option>
-                  <option value="KASIM">Kasım</option>
-                  <option value="ARALIK">Aralık</option>
-                </select>
-              </div>
-              <div>
-                <select id="apmPlakaFiltreMasa" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 bg-white text-slate-700">
-                  <option value="">📐 Tüm Masalar</option>
-                  <option value="Arka">Arka</option>
-                  <option value="Ön">Ön</option>
-                </select>
-              </div>
-              <div>
-                <select id="apmPlakaFiltreDurum" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 bg-white text-slate-700">
-                  <option value="">⚡ Tüm Durumlar</option>
-                  <option value="Planlandı">⏳ Planlandı</option>
-                  <option value="Kaynakta">⚙️ Kaynakta</option>
-                  <option value="Tamamlandı">✅ Tamamlandı</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Plakalar Tablosu -->
-          <div class="card p-0 overflow-hidden border border-slate-200 shadow-sm mb-6">
-            <div class="table-responsive">
-              <table class="w-full text-xs text-left divide-y divide-slate-200">
-                <thead class="bg-slate-100/80 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
-                  <tr>
-                    <th class="py-3 px-3">Ay / Masa</th>
                     <th class="py-3 px-3">Plaka No & TT No</th>
                     <th class="py-3 px-3">Sac Cinsi & Ölçü</th>
                     <th class="py-3 px-3">Kaynak Ölçüsü & m²</th>
@@ -3382,6 +3265,257 @@
         </div>
       </section>
 
+
+
+      
+      <!-- APM PLAKA LİSTESİ MODÜLÜ -->
+      <section id="apmplakalar" class="module-section">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-6">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+              📋 APM Aşınma Plakaları Yönetimi
+            </h2>
+            <p class="text-sm text-slate-500 mt-1">APM-1'den APM-6'ya kadar aktif üretim ve tamamlanan plaka kayıtları.</p>
+          </div>
+        </div>
+
+        <!-- ANA SEKMELER: AKTİF & PLANLANAN PLAKALAR / TAMAMLANAN PLAKALAR -->
+        <div class="flex gap-2 border-b border-slate-200 mb-6 overflow-x-auto pt-1 px-1">
+          <div class="tab-btn active whitespace-nowrap text-sm font-bold text-indigo-700 flex items-center gap-2 cursor-pointer" data-tab="apmplkAktifTab">
+            <span>⏳</span> Aktif & Planlanan Plakalar <span id="badge_toplamAktif" class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-black">0</span>
+          </div>
+          <div class="tab-btn whitespace-nowrap text-sm font-bold text-emerald-700 flex items-center gap-2 cursor-pointer" data-tab="apmplkTamamlananTab">
+            <span>✅</span> Tamamlanan Plakalar <span id="badge_toplamTamamlanan" class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-black">0</span>
+          </div>
+        </div>
+
+        <!-- 6 APM Makine Alt Sekmeleri & Araç Çubuğu (Ortak Header) -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5 bg-gradient-to-r from-slate-50 via-indigo-50/40 to-blue-50/50 p-3.5 rounded-2xl border border-indigo-100 shadow-xs">
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full" id="apmMakineSubtabs">
+            <button type="button" onclick="apmPlakaMakineSec('APM-1')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-1">
+              <span>🛡️</span> APM-1 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-1">0</span>
+            </button>
+            <button type="button" onclick="apmPlakaMakineSec('APM-2')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-2">
+              <span>🛡️</span> APM-2 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-2">0</span>
+            </button>
+            <button type="button" onclick="apmPlakaMakineSec('APM-3')" class="apmMakineBtn active px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-indigo-600 text-white shadow-md border border-indigo-600 cursor-pointer" data-makine="APM-3">
+              <span>🛡️</span> APM-3 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-500 text-white font-bold" id="badge_APM-3">0</span>
+            </button>
+            <button type="button" onclick="apmPlakaMakineSec('APM-4')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-4">
+              <span>🛡️</span> APM-4 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-4">0</span>
+            </button>
+            <button type="button" onclick="apmPlakaMakineSec('APM-5')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-5">
+              <span>🛡️</span> APM-5 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-5">0</span>
+            </button>
+            <button type="button" onclick="apmPlakaMakineSec('APM-6')" class="apmMakineBtn px-4 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer" data-makine="APM-6">
+              <span>🛡️</span> APM-6 <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold" id="badge_APM-6">0</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <input type="file" id="apmPlakaExcelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="importApmPlakalarExcel(event)">
+            <button type="button" onclick="document.getElementById('apmPlakaExcelFileInput').click()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer" title="Excel veya CSV dosyasından toplu plaka aktar">
+              <span>📁</span> Excel İçe Aktar
+            </button>
+            <button type="button" onclick="exportApmPlakalarExcel()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer" title="Listeyi Excel'e İndir">
+              <span>📥</span> Excel İndir
+            </button>
+            <button type="button" onclick="apmGoogleETabloYukle()" class="bg-amber-50 border border-amber-300 hover:bg-amber-100 text-amber-900 px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer" title="Google E-Tablosundaki APM-3 Verilerini Yenile / Yükle">
+              <span>🔄</span> E-Tablo Verilerini Yenile
+            </button>
+            <button type="button" onclick="apmPlakaModalAc()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-4 py-2 rounded-xl text-xs font-extrabold shadow-sm transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <span>➕</span> Yeni Plaka Ekle
+            </button>
+          </div>
+        </div>
+
+        <!-- 1. SEKME: AKTİF & PLANLANAN PLAKALAR -->
+        <div id="apmplkAktifTab" class="tab-content active">
+          <!-- Aktif KPI Kartları -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-5">
+            <div class="card p-4 border-l-4 border-l-indigo-600 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Aktif Plaka</div>
+              <div class="text-xl md:text-2xl font-black text-indigo-950 mt-1" id="apmKpi_plakaSayisi">0 <span class="text-xs font-normal text-slate-400">Adet</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-emerald-500 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Toplam Kaynak Alanı</div>
+              <div class="text-xl md:text-2xl font-black text-emerald-700 mt-1" id="apmKpi_toplamM2">0.00 <span class="text-xs font-normal text-slate-400">m²</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-amber-500 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Öngörülen Tel</div>
+              <div class="text-xl md:text-2xl font-black text-amber-800 mt-1" id="apmKpi_telKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-blue-500 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Toplam Sac Ağırlığı</div>
+              <div class="text-xl md:text-2xl font-black text-blue-800 mt-1" id="apmKpi_sacKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-purple-500 bg-white col-span-2 sm:col-span-1">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Sac + Kaplama Toplam</div>
+              <div class="text-xl md:text-2xl font-black text-purple-900 mt-1" id="apmKpi_toplamKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
+            </div>
+          </div>
+
+          <!-- Filtreleme & Arama Barı -->
+          <div class="card p-4 mb-5 bg-white border border-slate-200">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-center">
+              <div class="relative md:col-span-2">
+                <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
+                <input type="text" id="apmPlakaFiltreArama" oninput="apmPlakaListele()" placeholder="Plaka No, TT / Sipariş No, Sac Cinsi, Tel Kodu Ara..." class="border border-slate-300 p-2 pl-9 rounded-xl w-full text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-100 bg-slate-50 focus:bg-white">
+              </div>
+              <div>
+                <select id="apmPlakaFiltreAy" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 bg-white text-slate-700">
+                  <option value="">📅 Tüm Aylar</option>
+                  <option value="OCAK">Ocak</option>
+                  <option value="ŞUBAT">Şubat</option>
+                  <option value="MART">Mart</option>
+                  <option value="NİSAN">Nisan</option>
+                  <option value="MAYIS">Mayıs</option>
+                  <option value="HAZİRAN">Haziran</option>
+                  <option value="TEMMUZ">Temmuz</option>
+                  <option value="AĞUSTOS">Ağustos</option>
+                  <option value="EYLÜL">Eylül</option>
+                  <option value="EKİM">Ekim</option>
+                  <option value="KASIM">Kasım</option>
+                  <option value="ARALIK">Aralık</option>
+                </select>
+              </div>
+              <div>
+                <select id="apmPlakaFiltreMasa" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 bg-white text-slate-700">
+                  <option value="">📐 Tüm Masalar</option>
+                  <option value="Arka">Arka</option>
+                  <option value="Ön">Ön</option>
+                </select>
+              </div>
+              <div>
+                <select id="apmPlakaFiltreDurum" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 bg-white text-slate-700">
+                  <option value="">⚡ Tüm Aktif Durumlar</option>
+                  <option value="Planlandı">⏳ Planlandı</option>
+                  <option value="Kaynakta">⚙️ Kaynakta</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aktif Plakalar Tablosu -->
+          <div class="card p-0 overflow-hidden border border-slate-200 shadow-sm mb-6">
+            <div class="table-responsive">
+              <table class="w-full text-xs text-left divide-y divide-slate-200">
+                <thead class="bg-slate-100/80 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th class="py-3 px-3">Ay / Masa</th>
+                    <th class="py-3 px-3">Plaka No & TT No</th>
+                    <th class="py-3 px-3">Sac Cinsi & Ölçü</th>
+                    <th class="py-3 px-3">Kaynak Ölçüsü & m²</th>
+                    <th class="py-3 px-3">Kalınlık (Ana/Kap/Top)</th>
+                    <th class="py-3 px-3">Tel & Kaynak Cinsi</th>
+                    <th class="py-3 px-3">Tarih Aralığı</th>
+                    <th class="py-3 px-3">Ağırlıklar (Tel / Sac / Top)</th>
+                    <th class="py-3 px-3">Durum</th>
+                    <th class="py-3 px-3 text-right">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="apmPlakaTableBody" class="divide-y divide-slate-100 bg-white">
+                  <!-- JS ile apmPlakaListele dolduracak -->
+                </tbody>
+              </table>
+            </div>
+            <div class="p-3 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 font-medium">
+              <span id="apmPlakaKayitSayisiInfo" class="font-bold text-slate-700">0 plaka listeleniyor</span>
+              <span class="text-[11px] text-slate-400">💡 Kaynak m² dolgu alanı, sac ve tel tüketimleri otomatik hesaplanır.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. SEKME: TAMAMLANAN PLAKALAR (ARŞİV) -->
+        <div id="apmplkTamamlananTab" class="tab-content">
+          <!-- Tamamlanan KPI Kartları -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-5">
+            <div class="card p-4 border-l-4 border-l-emerald-600 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Tamamlanan Plaka</div>
+              <div class="text-xl md:text-2xl font-black text-emerald-950 mt-1" id="apmTamamKpi_plakaSayisi">0 <span class="text-xs font-normal text-slate-400">Adet</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-emerald-500 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Üretilen Toplam Alan</div>
+              <div class="text-xl md:text-2xl font-black text-emerald-700 mt-1" id="apmTamamKpi_toplamM2">0.00 <span class="text-xs font-normal text-slate-400">m²</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-amber-500 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Harcanan Tel</div>
+              <div class="text-xl md:text-2xl font-black text-amber-800 mt-1" id="apmTamamKpi_telKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-blue-500 bg-white">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Toplam Sac Ağırlığı</div>
+              <div class="text-xl md:text-2xl font-black text-blue-800 mt-1" id="apmTamamKpi_sacKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
+            </div>
+            <div class="card p-4 border-l-4 border-l-purple-500 bg-white col-span-2 sm:col-span-1">
+              <div class="text-[11px] font-bold text-slate-400 uppercase">Toplam Brüt Ağırlık</div>
+              <div class="text-xl md:text-2xl font-black text-purple-900 mt-1" id="apmTamamKpi_toplamKg">0 <span class="text-xs font-normal text-slate-400">kg</span></div>
+            </div>
+          </div>
+
+          <!-- Filtreleme & Arama Barı (Tamamlananlar) -->
+          <div class="card p-4 mb-5 bg-white border border-slate-200">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-center">
+              <div class="relative md:col-span-2">
+                <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
+                <input type="text" id="apmTamamFiltreArama" oninput="apmPlakaListele()" placeholder="Tamamlanan Plakalarda Ara..." class="border border-slate-300 p-2 pl-9 rounded-xl w-full text-xs font-semibold outline-none focus:ring-2 focus:ring-emerald-100 bg-slate-50 focus:bg-white">
+              </div>
+              <div>
+                <select id="apmTamamFiltreAy" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-100 bg-white text-slate-700">
+                  <option value="">📅 Tüm Aylar</option>
+                  <option value="OCAK">Ocak</option>
+                  <option value="ŞUBAT">Şubat</option>
+                  <option value="MART">Mart</option>
+                  <option value="NİSAN">Nisan</option>
+                  <option value="MAYIS">Mayıs</option>
+                  <option value="HAZİRAN">Haziran</option>
+                  <option value="TEMMUZ">Temmuz</option>
+                  <option value="AĞUSTOS">Ağustos</option>
+                  <option value="EYLÜL">Eylül</option>
+                  <option value="EKİM">Ekim</option>
+                  <option value="KASIM">Kasım</option>
+                  <option value="ARALIK">Aralık</option>
+                </select>
+              </div>
+              <div>
+                <select id="apmTamamFiltreMasa" onchange="apmPlakaListele()" class="border border-slate-300 p-2 rounded-xl w-full text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-100 bg-white text-slate-700">
+                  <option value="">📐 Tüm Masalar</option>
+                  <option value="Arka">Arka</option>
+                  <option value="Ön">Ön</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tamamlanan Plakalar Tablosu -->
+          <div class="card p-0 overflow-hidden border border-emerald-200 shadow-sm mb-6">
+            <div class="table-responsive">
+              <table class="w-full text-xs text-left divide-y divide-slate-200">
+                <thead class="bg-emerald-50 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th class="py-3 px-3">Ay / Masa</th>
+                    <th class="py-3 px-3">Plaka No & TT No</th>
+                    <th class="py-3 px-3">Sac Cinsi & Ölçü</th>
+                    <th class="py-3 px-3">Kaynak Ölçüsü & m²</th>
+                    <th class="py-3 px-3">Kalınlık (Ana/Kap/Top)</th>
+                    <th class="py-3 px-3">Tel & Kaynak Cinsi</th>
+                    <th class="py-3 px-3">Tarih Aralığı</th>
+                    <th class="py-3 px-3">Ağırlıklar (Tel / Sac / Top)</th>
+                    <th class="py-3 px-3">Durum</th>
+                    <th class="py-3 px-3 text-right">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="apmTamamPlakaTableBody" class="divide-y divide-slate-100 bg-white">
+                  <!-- JS ile apmPlakaListele dolduracak -->
+                </tbody>
+              </table>
+            </div>
+            <div class="p-3 bg-emerald-50/50 border-t border-emerald-100 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-emerald-800 font-medium">
+              <span id="apmTamamPlakaKayitSayisiInfo" class="font-bold text-emerald-900">0 tamamlanan plaka listeleniyor</span>
+              <span class="text-[11px] text-emerald-700">✅ Üretimi tamamlanmış tüm arşiv kayıtları burada saklanır.</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
 
       <!-- RAPORLAR (ÜRETİM VERİLERİ ODAKLI) -->
@@ -15131,81 +15265,28 @@
         }
       }
 
-      // Her makinenin plaka sayısı rozetini güncelle
+      // Genel Rozetler
+      const tumAktifler = (DB.apmPlakalar || []).filter(p => (p.durum || 'Planlandı') !== 'Tamamlandı');
+      const tumTamamlananlar = (DB.apmPlakalar || []).filter(p => (p.durum || 'Planlandı') === 'Tamamlandı');
+
+      const bApmPlaka = document.getElementById('bApmPlaka');
+      if (bApmPlaka) bApmPlaka.innerText = tumAktifler.length > 0 ? tumAktifler.length : '';
+
+      const badgeAktif = document.getElementById('badge_toplamAktif');
+      if (badgeAktif) badgeAktif.innerText = tumAktifler.length;
+
+      const badgeTamam = document.getElementById('badge_toplamTamamlanan');
+      if (badgeTamam) badgeTamam.innerText = tumTamamlananlar.length;
+
+      // Her makinenin toplam plaka sayısı rozetini güncelle
       ['APM-1', 'APM-2', 'APM-3', 'APM-4', 'APM-5', 'APM-6'].forEach(m => {
         const count = (DB.apmPlakalar || []).filter(p => (p.makine || 'APM-3') === m).length;
         const badge = document.getElementById('badge_' + m);
         if (badge) badge.innerText = count;
       });
 
-      const arama = (document.getElementById('apmPlakaFiltreArama')?.value || '').toLowerCase().trim();
-      const filtreAy = (document.getElementById('apmPlakaFiltreAy')?.value || '').toUpperCase().trim();
-      const filtreMasa = (document.getElementById('apmPlakaFiltreMasa')?.value || '').trim();
-      const filtreDurum = (document.getElementById('apmPlakaFiltreDurum')?.value || '').trim();
-
-      // Seçili makineye ait plakalar
-      let makinePlakalari = (DB.apmPlakalar || []).filter(p => (p.makine || 'APM-3') === seciliApmMakine);
-
-      // Filtreleme
-      let filtrelenmis = makinePlakalari.filter(p => {
-        if (filtreAy && (p.ay || '').toUpperCase() !== filtreAy) return false;
-        if (filtreMasa && (p.masa || '') !== filtreMasa) return false;
-        if (filtreDurum && (p.durum || 'Planlandı') !== filtreDurum) return false;
-        if (arama) {
-          const match = (p.plaka || '').toLowerCase().includes(arama) ||
-                        (p.ttNo || '').toLowerCase().includes(arama) ||
-                        (p.sacCinsi || '').toLowerCase().includes(arama) ||
-                        (p.telKodu || '').toLowerCase().includes(arama) ||
-                        (p.kaynakCinsi || '').toLowerCase().includes(arama);
-          if (!match) return false;
-        }
-        return true;
-      });
-
-      // KPI Hesaplamaları
-      let toplamM2 = 0;
-      let toplamTelKg = 0;
-      let toplamSacKg = 0;
-      let toplamBrutKg = 0;
-
-      filtrelenmis.forEach(p => {
-        toplamM2 += parseFloat(p.m2) || 0;
-        toplamTelKg += parseFloat(p.telKg) || 0;
-        toplamSacKg += parseFloat(p.sacKg) || 0;
-        toplamBrutKg += parseFloat(p.topKg) || (parseFloat(p.sacKg||0) + parseFloat(p.kaplamaKg||0));
-      });
-
-      const kpiSayisi = document.getElementById('apmKpi_plakaSayisi');
-      const kpiM2 = document.getElementById('apmKpi_toplamM2');
-      const kpiTel = document.getElementById('apmKpi_telKg');
-      const kpiSac = document.getElementById('apmKpi_sacKg');
-      const kpiTop = document.getElementById('apmKpi_toplamKg');
-
-      if (kpiSayisi) kpiSayisi.innerHTML = `${filtrelenmis.length} <span class="text-xs font-normal text-slate-400">Adet</span>`;
-      if (kpiM2) kpiM2.innerHTML = `${toplamM2.toFixed(2)} <span class="text-xs font-normal text-slate-400">m²</span>`;
-      if (kpiTel) kpiTel.innerHTML = `${Math.round(toplamTelKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
-      if (kpiSac) kpiSac.innerHTML = `${Math.round(toplamSacKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
-      if (kpiTop) kpiTop.innerHTML = `${Math.round(toplamBrutKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
-
-      // Tablo Render
-      const tbody = document.getElementById('apmPlakaTableBody');
-      if (!tbody) return;
-
-      if (filtrelenmis.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400">
-          <div class="flex flex-col items-center justify-center gap-2">
-            <span class="text-3xl">🛡️</span>
-            <span class="font-bold text-sm text-slate-600">${seciliApmMakine} makinesinde henüz kayıtlı plaka bulunamadı.</span>
-            <span class="text-xs text-slate-400">Yukarıdaki '➕ Yeni Plaka Ekle' veya '📁 Excel İçe Aktar' butonunu kullanarak plaka yükleyebilirsiniz.</span>
-          </div>
-        </td></tr>`;
-        const infoEl = document.getElementById('apmPlakaKayitSayisiInfo');
-        if (infoEl) infoEl.innerText = '0 plaka listeleniyor';
-        return;
-      }
-
-      let html = '';
-      filtrelenmis.forEach(p => {
+      // Ortak Satır Oluşturucu
+      const renderPlakaRow = (p) => {
         const durum = p.durum || 'Planlandı';
         let durumBadgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
         if (durum === 'Kaynakta') durumBadgeClass = 'bg-amber-50 text-amber-800 border-amber-300';
@@ -15215,7 +15296,7 @@
         const basTarihStr = p.basTarih || '-';
         const bitTarihStr = p.bitTarih || '-';
 
-        html += `<tr class="hover:bg-indigo-50/30 transition-colors">
+        return `<tr class="hover:bg-indigo-50/30 transition-colors">
           <td class="py-2.5 px-3">
             <div class="font-bold text-slate-800">${p.ay || '-'}</div>
             <div class="text-[10px] text-slate-400 font-semibold mt-0.5">Masa: <b class="text-slate-600">${p.masa || 'Arka'}</b></div>
@@ -15260,11 +15341,131 @@
             <button type="button" onclick="apmPlakaSil(${p.id})" class="text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white p-1.5 rounded-lg font-bold text-xs transition-colors shadow-2xs" title="Sil">🗑️</button>
           </td>
         </tr>`;
+      };
+
+      // ==========================================
+      // 1. AKTİF & PLANLANAN PLAKALAR
+      // ==========================================
+      const aramaAktif = (document.getElementById('apmPlakaFiltreArama')?.value || '').toLowerCase().trim();
+      const filtreAyAktif = (document.getElementById('apmPlakaFiltreAy')?.value || '').toUpperCase().trim();
+      const filtreMasaAktif = (document.getElementById('apmPlakaFiltreMasa')?.value || '').trim();
+      const filtreDurumAktif = (document.getElementById('apmPlakaFiltreDurum')?.value || '').trim();
+
+      let makineAktifPlakalar = (DB.apmPlakalar || []).filter(p => (p.makine || 'APM-3') === seciliApmMakine && (p.durum || 'Planlandı') !== 'Tamamlandı');
+
+      let filtrelenmisAktif = makineAktifPlakalar.filter(p => {
+        if (filtreAyAktif && (p.ay || '').toUpperCase() !== filtreAyAktif) return false;
+        if (filtreMasaAktif && (p.masa || '') !== filtreMasaAktif) return false;
+        if (filtreDurumAktif && (p.durum || 'Planlandı') !== filtreDurumAktif) return false;
+        if (aramaAktif) {
+          const match = (p.plaka || '').toLowerCase().includes(aramaAktif) ||
+                        (p.ttNo || '').toLowerCase().includes(aramaAktif) ||
+                        (p.sacCinsi || '').toLowerCase().includes(aramaAktif) ||
+                        (p.telKodu || '').toLowerCase().includes(aramaAktif) ||
+                        (p.kaynakCinsi || '').toLowerCase().includes(aramaAktif);
+          if (!match) return false;
+        }
+        return true;
       });
 
-      tbody.innerHTML = html;
-      const infoEl = document.getElementById('apmPlakaKayitSayisiInfo');
-      if (infoEl) infoEl.innerText = `${filtrelenmis.length} plaka listeleniyor (${seciliApmMakine})`;
+      // Aktif KPI Hesaplamaları
+      let aktifM2 = 0, aktifTelKg = 0, aktifSacKg = 0, aktifTopKg = 0;
+      filtrelenmisAktif.forEach(p => {
+        aktifM2 += parseFloat(p.m2) || 0;
+        aktifTelKg += parseFloat(p.telKg) || 0;
+        aktifSacKg += parseFloat(p.sacKg) || 0;
+        aktifTopKg += parseFloat(p.topKg) || (parseFloat(p.sacKg||0) + parseFloat(p.kaplamaKg||0));
+      });
+
+      const kpiAktifSayisi = document.getElementById('apmKpi_plakaSayisi');
+      const kpiAktifM2 = document.getElementById('apmKpi_toplamM2');
+      const kpiAktifTel = document.getElementById('apmKpi_telKg');
+      const kpiAktifSac = document.getElementById('apmKpi_sacKg');
+      const kpiAktifTop = document.getElementById('apmKpi_toplamKg');
+
+      if (kpiAktifSayisi) kpiAktifSayisi.innerHTML = `${filtrelenmisAktif.length} <span class="text-xs font-normal text-slate-400">Adet</span>`;
+      if (kpiAktifM2) kpiAktifM2.innerHTML = `${aktifM2.toFixed(2)} <span class="text-xs font-normal text-slate-400">m²</span>`;
+      if (kpiAktifTel) kpiAktifTel.innerHTML = `${Math.round(aktifTelKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
+      if (kpiAktifSac) kpiAktifSac.innerHTML = `${Math.round(aktifSacKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
+      if (kpiAktifTop) kpiAktifTop.innerHTML = `${Math.round(aktifTopKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
+
+      const tbodyAktif = document.getElementById('apmPlakaTableBody');
+      if (tbodyAktif) {
+        if (filtrelenmisAktif.length === 0) {
+          tbodyAktif.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400">
+            <div class="flex flex-col items-center justify-center gap-2">
+              <span class="text-3xl">⏳</span>
+              <span class="font-bold text-sm text-slate-600">${seciliApmMakine} makinesinde aktif/planlanan plaka bulunamadı.</span>
+              <span class="text-xs text-slate-400">Yukarıdaki '➕ Yeni Plaka Ekle' veya '📁 Excel İçe Aktar' butonunu kullanarak plaka ekleyebilirsiniz.</span>
+            </div>
+          </td></tr>`;
+        } else {
+          tbodyAktif.innerHTML = filtrelenmisAktif.map(p => renderPlakaRow(p)).join('');
+        }
+      }
+      const infoAktif = document.getElementById('apmPlakaKayitSayisiInfo');
+      if (infoAktif) infoAktif.innerText = `${filtrelenmisAktif.length} aktif plaka listeleniyor (${seciliApmMakine})`;
+
+      // ==========================================
+      // 2. TAMAMLANAN PLAKALAR
+      // ==========================================
+      const aramaTamam = (document.getElementById('apmTamamFiltreArama')?.value || '').toLowerCase().trim();
+      const filtreAyTamam = (document.getElementById('apmTamamFiltreAy')?.value || '').toUpperCase().trim();
+      const filtreMasaTamam = (document.getElementById('apmTamamFiltreMasa')?.value || '').trim();
+
+      let makineTamamPlakalar = (DB.apmPlakalar || []).filter(p => (p.makine || 'APM-3') === seciliApmMakine && (p.durum || 'Planlandı') === 'Tamamlandı');
+
+      let filtrelenmisTamam = makineTamamPlakalar.filter(p => {
+        if (filtreAyTamam && (p.ay || '').toUpperCase() !== filtreAyTamam) return false;
+        if (filtreMasaTamam && (p.masa || '') !== filtreMasaTamam) return false;
+        if (aramaTamam) {
+          const match = (p.plaka || '').toLowerCase().includes(aramaTamam) ||
+                        (p.ttNo || '').toLowerCase().includes(aramaTamam) ||
+                        (p.sacCinsi || '').toLowerCase().includes(aramaTamam) ||
+                        (p.telKodu || '').toLowerCase().includes(aramaTamam) ||
+                        (p.kaynakCinsi || '').toLowerCase().includes(aramaTamam);
+          if (!match) return false;
+        }
+        return true;
+      });
+
+      // Tamamlanan KPI Hesaplamaları
+      let tamamM2 = 0, tamamTelKg = 0, tamamSacKg = 0, tamamTopKg = 0;
+      filtrelenmisTamam.forEach(p => {
+        tamamM2 += parseFloat(p.m2) || 0;
+        tamamTelKg += parseFloat(p.telKg) || 0;
+        tamamSacKg += parseFloat(p.sacKg) || 0;
+        tamamTopKg += parseFloat(p.topKg) || (parseFloat(p.sacKg||0) + parseFloat(p.kaplamaKg||0));
+      });
+
+      const kpiTamamSayisi = document.getElementById('apmTamamKpi_plakaSayisi');
+      const kpiTamamM2 = document.getElementById('apmTamamKpi_toplamM2');
+      const kpiTamamTel = document.getElementById('apmTamamKpi_telKg');
+      const kpiTamamSac = document.getElementById('apmTamamKpi_sacKg');
+      const kpiTamamTop = document.getElementById('apmTamamKpi_toplamKg');
+
+      if (kpiTamamSayisi) kpiTamamSayisi.innerHTML = `${filtrelenmisTamam.length} <span class="text-xs font-normal text-slate-400">Adet</span>`;
+      if (kpiTamamM2) kpiTamamM2.innerHTML = `${tamamM2.toFixed(2)} <span class="text-xs font-normal text-slate-400">m²</span>`;
+      if (kpiTamamTel) kpiTamamTel.innerHTML = `${Math.round(tamamTelKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
+      if (kpiTamamSac) kpiTamamSac.innerHTML = `${Math.round(tamamSacKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
+      if (kpiTamamTop) kpiTamamTop.innerHTML = `${Math.round(tamamTopKg).toLocaleString('tr-TR')} <span class="text-xs font-normal text-slate-400">kg</span>`;
+
+      const tbodyTamam = document.getElementById('apmTamamPlakaTableBody');
+      if (tbodyTamam) {
+        if (filtrelenmisTamam.length === 0) {
+          tbodyTamam.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400">
+            <div class="flex flex-col items-center justify-center gap-2">
+              <span class="text-3xl">✅</span>
+              <span class="font-bold text-sm text-slate-600">${seciliApmMakine} makinesinde henüz tamamlanan plaka kaydı bulunmuyor.</span>
+              <span class="text-xs text-slate-400">Aktif listedeki plakaların durumunu '✅ Tamamlandı' yaptığınızda otomatik olarak bu arşiv sekmesine taşınırlar.</span>
+            </div>
+          </td></tr>`;
+        } else {
+          tbodyTamam.innerHTML = filtrelenmisTamam.map(p => renderPlakaRow(p)).join('');
+        }
+      }
+      const infoTamam = document.getElementById('apmTamamPlakaKayitSayisiInfo');
+      if (infoTamam) infoTamam.innerText = `${filtrelenmisTamam.length} tamamlanan plaka listeleniyor (${seciliApmMakine})`;
     }
 
     function apmPlakaModalAc(id) {
@@ -17071,6 +17272,7 @@
       if (typeof cizHaftalikTablo === 'function') cizHaftalikTablo();
       if (typeof renderCustomDropdowns === 'function') renderCustomDropdowns();
       if (typeof renderApmKafaGrid === 'function') renderApmKafaGrid();
+      if (typeof apmPlakaListele === 'function') try { apmPlakaListele(); } catch (e) { }
       if (typeof apmPlakaTablolariGuncelle === 'function') try { apmPlakaTablolariGuncelle(); } catch (e) { }
       if (typeof apmUeGosterimleriGuncelle === 'function') try { apmUeGosterimleriGuncelle(); } catch (e) { }
 
