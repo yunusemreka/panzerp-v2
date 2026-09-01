@@ -2300,8 +2300,12 @@
               tüketim transferi ve sevkiyat.</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="hizliApmTelCikisDoldur()"
+            <button onclick="fcwTelCikisModalAc()"
               class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow-sm transition-transform active:scale-95 flex items-center gap-1.5 border border-amber-400">
+              <span>➕</span> Manuel Tel Çıkışı Yap
+            </button>
+            <button onclick="hizliApmTelCikisDoldur()"
+              class="bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-black px-4 py-2.5 rounded-xl shadow-sm transition-transform active:scale-95 flex items-center gap-1.5 border border-slate-700">
               <span>⚡</span> APM'ye Hızlı Tel Çık (AbraHARD 9200)
             </button>
             <button onclick="exportTelCikisExcel()"
@@ -2337,113 +2341,6 @@
             <div class="text-xl md:text-2xl font-black text-amber-800 mt-1" id="tcApmAyCikis">0 <span
                 class="text-xs font-normal text-slate-500">kg</span></div>
             <div class="text-[11px] text-slate-500 mt-1">Aşınma plakası üretimi için sevk</div>
-          </div>
-        </div>
-
-        <!-- YENİ TEL ÇIKIŞ FORMU -->
-        <div
-          class="card p-6 mb-6 border-t-4 border-amber-500 bg-gradient-to-r from-amber-50/30 via-white to-slate-50 shadow-md">
-          <div
-            class="flex flex-col md:flex-row justify-between items-start md:items-center mb-5 gap-3 border-b border-amber-100 pb-3">
-            <div>
-              <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                <span class="bg-amber-100 text-amber-700 p-2 rounded-xl text-base shadow-sm">📤</span> Yeni FCW Tel
-                Çıkış Formu
-              </h3>
-              <p class="text-xs text-slate-500 mt-0.5">FCW Bidon, Kaba veya Hassas tel stoklarından APM fabrikasına, KTM
-                mamül deposuna veya atölyelere tel çıkışı yapınız.</p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-            <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Çıkış Tarihi *</label>
-              <input id="tcTarih" type="date"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-sm shadow-sm focus:ring-2 focus:ring-amber-200 outline-none">
-            </div>
-
-            <div class="md:col-span-5 relative">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Tel Adı / Kodu Seçimi
-                *</label>
-              <input type="text" id="tcTelInput"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-inner focus:ring-2 focus:ring-amber-200 focus:border-amber-500 outline-none"
-                placeholder="Tel Ara veya Seç..." onfocus="openDropdown('tcTelInput')"
-                onkeyup="filterDropdown('tcTelInput')" onblur="setTimeout(()=>closeDropdown('tcTelInput'), 200)">
-              <div id="tcTelInput-list" class="custom-dropdown-list"></div>
-            </div>
-
-            <div class="md:col-span-4">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Ambalaj / Sarma Türü
-                *</label>
-              <select id="tcAmbalajTuru" onchange="tcTelStokBilgisiGoster()"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm font-semibold text-slate-700">
-                <option value="Bidon">🛢️ Bidon Sarma (250 kg Drum / Bidon)</option>
-                <option value="Hassas">🎯 Makara / Hassas Sarma (Spool / Makara)</option>
-              </select>
-            </div>
-
-            <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Çap Bilgisi</label>
-              <select id="tcCap"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm font-bold text-slate-700">
-                <option value="Ø1,60 mm">Ø1,60 mm</option>
-                <option value="Ø2,40 mm">Ø2,40 mm</option>
-                <option value="Ø2,80 mm">Ø2,80 mm</option>
-                <option value="Ø3,20 mm">Ø3,20 mm</option>
-                <option value="Ø4,00 mm">Ø4,00 mm</option>
-                <option value="Diğer">Diğer</option>
-              </select>
-            </div>
-
-            <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Çıkış Miktarı (kg)
-                *</label>
-              <input id="tcMiktar" type="number" step="0.01"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-black text-rose-600 text-base shadow-sm"
-                placeholder="Örn: 250">
-            </div>
-
-            <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Teslim Alan Birim /
-                Depo *</label>
-              <select id="tcTeslimBirim"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm font-bold text-blue-800">
-                <option value="APM Fabrikası (Aşınma Plakası Üretim)">🛡️ APM Fabrikası (Aşınma Plakası)</option>
-                <option value="KTM Mamül Deposu">🏢 KTM Mamül Deposu (Satış & Sevk)</option>
-                <option value="Kaynak Atölyesi / İmalat">⚙️ Kaynak Atölyesi / İmalat</option>
-                <option value="Müşteri Sevkiyatı">🚚 Müşteri Sevkiyatı (Doğrudan)</option>
-                <option value="Diğer">Diğer Birim</option>
-              </select>
-            </div>
-
-            <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Teslim Alan Kişi (Ad
-                Soyad)</label>
-              <input id="tcTeslimAlanKisi" type="text"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm font-semibold"
-                placeholder="Örn: Mehmet Usta">
-            </div>
-
-            <div class="md:col-span-12">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">İrsaliye / Lot No /
-                Notlar</label>
-              <input id="tcNot" type="text" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm"
-                placeholder="Örn: APM 2 Makinesine verildi / Lot: LOT-9800-20260817">
-            </div>
-
-            <div id="tcStokUyarisi"
-              class="md:col-span-12 hidden text-xs p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 font-medium">
-            </div>
-          </div>
-
-          <div class="mt-5 flex justify-end gap-3 border-t border-amber-100 pt-4">
-            <button onclick="telCikisFormTemizle()"
-              class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-colors">🔄
-              Formu Temizle</button>
-            <button onclick="telCikisKaydet()"
-              class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-8 py-2.5 rounded-xl font-bold text-sm shadow-md transition-transform active:scale-95 flex items-center gap-2">
-              💾 Tel Çıkışını Onayla ve Kaydet
-            </button>
           </div>
         </div>
 
@@ -4677,6 +4574,143 @@
     </div>
   </div>
 
+  <!-- FCW TEL ÇIKIŞI MODALI (POP-UP) -->
+  <div id="fcwTelCikisModal" class="modal">
+    <div class="modal-content" style="max-width: 620px;">
+      <div class="flex justify-between items-center mb-5 no-print border-b border-amber-200 pb-3 bg-gradient-to-r from-amber-50 to-white -mx-6 -mt-6 p-6 rounded-t-2xl">
+        <div>
+          <h3 class="font-black text-xl text-slate-800 flex items-center gap-2">
+            <span class="bg-amber-100 text-amber-800 p-1.5 rounded-xl text-lg shadow-xs">📤</span> FCW Tel Çıkışı & Sevkiyat
+          </h3>
+          <p class="text-xs text-slate-500 mt-1">Seçilen tel için çıkış ve teslimat kaydı oluşturun.</p>
+        </div>
+        <button onclick="closeModal('fcwTelCikisModal')"
+          class="text-slate-400 bg-slate-100 p-2 rounded-xl hover:bg-slate-200 hover:text-slate-700 transition-colors font-bold text-base">✕</button>
+      </div>
+
+      <!-- SEÇİLEN TEL VE STOK BİLGİ KARTI -->
+      <div class="mb-4 p-4 rounded-xl bg-gradient-to-r from-blue-50/80 via-indigo-50/50 to-slate-50 border border-blue-200 shadow-2xs">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Seçilen Tel & Çap</div>
+            <div class="text-base font-extrabold text-slate-900 flex items-center gap-2 mt-0.5">
+              <span id="fcwModalTelBaslik">Lütfen Tel Seçiniz</span>
+              <span id="fcwModalCapBadge" class="text-xs text-indigo-700 font-mono font-bold bg-white px-2 py-0.5 rounded border border-indigo-200 shadow-2xs">-</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <div class="bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg text-right">
+              <div class="text-[9px] font-bold text-emerald-700 uppercase">Bidon Stok</div>
+              <div class="font-black text-emerald-800" id="fcwModalBidonStok">0 kg</div>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-right">
+              <div class="text-[9px] font-bold text-blue-700 uppercase">Hassas Stok</div>
+              <div class="font-black text-blue-800" id="fcwModalHassasStok">0 kg</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+        <!-- Tel Seçimi -->
+        <div class="md:col-span-8 relative">
+          <label class="block font-bold text-slate-700 mb-1">Tel Adı / Kodu <span class="text-rose-500 font-bold">*</span></label>
+          <input type="text" id="fcwModalTelInput"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-inner font-bold text-slate-800 outline-none focus:ring-2 focus:ring-amber-300"
+            placeholder="Tel seçin veya arayın..." onfocus="openDropdown('fcwModalTelInput')"
+            onkeyup="filterDropdown('fcwModalTelInput'); fcwModalStokGuncelle()" onblur="setTimeout(()=>closeDropdown('fcwModalTelInput'), 200)">
+          <div id="fcwModalTelInput-list" class="custom-dropdown-list"></div>
+        </div>
+
+        <!-- Çap Seçimi -->
+        <div class="md:col-span-4">
+          <label class="block font-bold text-slate-700 mb-1">Tel Çapı</label>
+          <select id="fcwModalCap" onchange="fcwModalStokGuncelle()"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 shadow-sm outline-none">
+            <option value="Ø1,00 mm">Ø1,00 mm</option>
+            <option value="Ø1,20 mm">Ø1,20 mm</option>
+            <option value="Ø1,60 mm">Ø1,60 mm</option>
+            <option value="Ø2,00 mm">Ø2,00 mm</option>
+            <option value="Ø2,40 mm">Ø2,40 mm</option>
+            <option value="Ø2,80 mm" selected>Ø2,80 mm</option>
+            <option value="Ø3,20 mm">Ø3,20 mm</option>
+            <option value="Ø4,00 mm">Ø4,00 mm</option>
+            <option value="-">-</option>
+          </select>
+        </div>
+
+        <!-- Sarma / Ambalaj Türü -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Ambalaj / Sarma Türü <span class="text-rose-500 font-bold">*</span></label>
+          <select id="fcwModalTur" onchange="fcwModalStokGuncelle()"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 shadow-sm outline-none">
+            <option value="Bidon">🛢️ Bidon Sarma (250 kg Drum / Bidon)</option>
+            <option value="Hassas">🎯 Makara / Hassas Sarma (Spool / Makara)</option>
+          </select>
+        </div>
+
+        <!-- Çıkış Miktarı (kg) - Zorunlu -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+            <span>Çıkış Miktarı (kg) <span class="text-rose-500 font-bold">* (Zorunlu)</span></span>
+            <span id="fcwModalAnlikKalanStok" class="text-[10px] text-slate-500 font-normal">Kalan: -</span>
+          </label>
+          <input id="fcwModalMiktar" type="number" step="0.01" required
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-black text-rose-600 text-sm shadow-sm outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"
+            placeholder="Örn: 250">
+        </div>
+
+        <!-- Teslim Tarihi - Zorunlu -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Teslim / Çıkış Tarihi <span class="text-rose-500 font-bold">* (Zorunlu)</span></label>
+          <input id="fcwModalTarih" type="date" required
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-semibold text-slate-800 shadow-sm outline-none focus:ring-2 focus:ring-amber-200">
+        </div>
+
+        <!-- Teslim Alan Kişi - Zorunlu -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Teslim Alan Kişi <span class="text-rose-500 font-bold">* (Zorunlu)</span></label>
+          <input id="fcwModalTeslimKisi" type="text" required
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-800 shadow-sm outline-none focus:ring-2 focus:ring-amber-200"
+            placeholder="Ad Soyad giriniz (Örn: Mehmet Usta)">
+        </div>
+
+        <!-- Teslim Alan Birim -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">Teslim Alan Birim / Depo</label>
+          <select id="fcwModalTeslimBirim"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-blue-900 shadow-sm outline-none">
+            <option value="APM Fabrikası (Aşınma Plakası Üretim)">🛡️ APM Fabrikası (Aşınma Plakası)</option>
+            <option value="KTM Mamül Deposu">🏢 KTM Mamül Deposu (Satış & Sevk)</option>
+            <option value="Kaynak Atölyesi / İmalat">⚙️ Kaynak Atölyesi / İmalat</option>
+            <option value="Müşteri Sevkiyatı">🚚 Müşteri Sevkiyatı (Doğrudan)</option>
+            <option value="Diğer">Diğer Birim</option>
+          </select>
+        </div>
+
+        <!-- İrsaliye / Not / Lot -->
+        <div class="md:col-span-6">
+          <label class="block font-bold text-slate-700 mb-1">İrsaliye / Lot No / Açıklama</label>
+          <input id="fcwModalNot" type="text"
+            class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-xs shadow-sm outline-none focus:ring-2 focus:ring-amber-200"
+            placeholder="Örn: APM 2 Makinesine verildi / Lot No...">
+        </div>
+
+        <!-- Uyarı Alanı -->
+        <div id="fcwModalUyari" class="md:col-span-12 hidden text-xs p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-medium"></div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4">
+        <button type="button" onclick="closeModal('fcwTelCikisModal')"
+          class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-xs transition-colors">İptal</button>
+        <button type="button" onclick="fcwTelCikisModalKaydet()"
+          class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-7 py-2.5 rounded-xl font-bold text-xs shadow-md transition-transform active:scale-95 flex items-center gap-2">
+          <span>💾</span> Çıkışı Onayla ve Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TEL ÇIKIŞI DÜZENLEME MODALI -->
   <div id="telCikisDuzenleModal" class="modal">
     <div class="modal-content" style="max-width: 550px;">
@@ -5726,6 +5760,9 @@
       const tcTelListEl = document.getElementById('tcTelInput-list');
       if (tcTelListEl) tcTelListEl.innerHTML = urunlerHtml;
 
+      const fcwModalTelListEl = document.getElementById('fcwModalTelInput-list');
+      if (fcwModalTelListEl) fcwModalTelListEl.innerHTML = urunlerHtml;
+
       // Müşteri Açılır Listesi (İş Emri & Müşteri Siparişleri için)
       const musterilerHtml = (DB.musteriler || []).map(m => {
         const adStr = (m.ad || '').trim();
@@ -5810,6 +5847,17 @@
           capInput.value = capVal;
         }
         ieUrunSecildi(selectedName, capVal);
+      }
+
+      // FCW Tel Çıkışı Modalı ise çapı ve başlığı otomatik doldur ve stoğu güncelle
+      if (inputId === 'fcwModalTelInput') {
+        if (capVal) {
+          const capEl = document.getElementById('fcwModalCap');
+          if (capEl) capEl.value = capVal;
+        }
+        if (typeof fcwModalStokGuncelle === 'function') {
+          fcwModalStokGuncelle();
+        }
       }
 
       // FCW Tel Çıkışı ise çapı otomatik doldur
@@ -7498,12 +7546,18 @@
 
         let dropdownItems = '';
         urunler.forEach(u => {
-          const safAd = temizSafUrunAdi(u.ad || u.kod || '');
+          const adGosterim = (u.ad || u.kod || '').trim();
+          const safAd = temizSafUrunAdi(adGosterim);
+          const kodGosterim = (u.kod || '').trim();
           const capGosterim = (u.cap || '').trim();
-          const gosterim = safAd + (capGosterim ? ` (${capGosterim})` : '');
-          dropdownItems += `<div class="dropdown-item flex items-center justify-between" onclick="utKalemDropdownSec('${asama}', ${k.id}, '${safAd}')">
-            <span class="font-bold text-slate-800">${safAd}</span>
-            ${capGosterim ? `<span class="text-xs text-slate-400 font-mono bg-slate-100 px-1.5 py-0.5 rounded">${capGosterim}</span>` : ''}
+          const tamUrunAdi = safAd + (capGosterim && capGosterim !== '-' ? ` - ${capGosterim}` : '');
+
+          dropdownItems += `<div class="dropdown-item flex items-center justify-between py-2 px-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${safAd}" data-kod="${kodGosterim}" data-cap="${capGosterim}" onclick="utKalemDropdownSec('${asama}', ${k.id}, '${tamUrunAdi.replace(/'/g, "\\'")}')">
+            <div>
+              <span class="font-bold text-slate-800 text-xs block">${safAd}</span>
+              ${kodGosterim && kodGosterim !== safAd ? `<span class="text-[10px] text-slate-400 font-mono">Kod: ${kodGosterim}</span>` : ''}
+            </div>
+            ${capGosterim && capGosterim !== '-' ? `<span class="text-xs text-indigo-700 font-mono font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">${capGosterim}</span>` : ''}
           </div>`;
         });
 
@@ -7632,7 +7686,7 @@
           const yuzde = hedef > 0 ? Math.min(100, Math.round((ozet.paketlenenToplam / hedef) * 100)) : 0;
           const durumIcon = i.durum === 'Üretimde' ? '⚙️' : '⏳';
 
-          html += `<option value="${i.id}">${durumIcon} ${i.no} | ${urunAd} | Hedef: ${hedef} kg (Paket: ${ozet.paketlenenToplam} kg / %${yuzde})</option>`;
+          html += `<option value="${i.id}">${durumIcon} ${i.no} | ${urunAd} (Toplam Paket: ${ozet.paketlenenToplam} kg / Hedef: ${hedef} kg)</option>`;
         });
         html += `</optgroup>`;
       }
@@ -7645,7 +7699,7 @@
           const ozet = getIsEmriUretimOzet(i.id);
           const hedef = parseFloat(i.hedef) || 0;
 
-          html += `<option value="${i.id}">✅ ${i.no} | ${urunAd} | Paketlenen: ${ozet.paketlenenToplam} / ${hedef} kg [Tamamlandı]</option>`;
+          html += `<option value="${i.id}">✅ ${i.no} | ${urunAd} (Toplam Paket: ${ozet.paketlenenToplam} kg / Hedef: ${hedef} kg)</option>`;
         });
         html += `</optgroup>`;
       }
@@ -7670,7 +7724,7 @@
       const urun = (DB.urunler || []).find(u => u.id == ie.urunId);
       const safAd = temizSafUrunAdi(urun ? (urun.ad || urun.kod) : (ie.safUrunAdi || ie.urunAdi || 'Ürün'));
       const capGosterim = (ie.cap || (urun ? urun.cap : '')).trim();
-      const urunAd = safAd;
+      const urunAd = capGosterim && capGosterim !== '-' ? `${safAd} - ${capGosterim}` : safAd;
       const hedef = parseFloat(ie.hedef) || 0;
       const ozet = getIsEmriUretimOzet(ie.id);
       const yuzde = hedef > 0 ? Math.min(100, Math.round((ozet.paketlenenToplam / hedef) * 100)) : 0;
@@ -14787,8 +14841,8 @@
             <td class="p-3 text-right font-black text-indigo-900 bg-indigo-50/40 text-sm">${topStok.toFixed(2)} kg</td>
             <td class="p-3 text-center">${durumBadge}</td>
             <td class="p-3 text-right">
-              <button onclick="fcwStokCikisinaAktar('${item.kod} - ${item.cap}', '${item.cap}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 px-2.5 py-1 rounded-lg font-bold text-xs transition-colors shadow-xs">
-                📤 Çıkış Yap
+              <button onclick="fcwTelCikisModalAc('${item.kod.replace(/'/g, "\\'")}', '${(item.cap || '-').replace(/'/g, "\\'")}', ${bStok}, ${hStok}, '${(item.ad || item.kod).replace(/'/g, "\\'")}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-xs flex items-center gap-1 ml-auto">
+                <span>📤</span> Çıkış Yap
               </button>
             </td>
           </tr>
@@ -14797,122 +14851,207 @@
       tbody.innerHTML = html;
     }
 
-    function fcwStokCikisinaAktar(telTamAd, cap) {
-      const telInput = document.getElementById('tcTelInput');
-      const capSelect = document.getElementById('tcCap');
-      if (telInput) telInput.value = telTamAd;
-      if (capSelect && cap) capSelect.value = cap;
-      tcTelStokBilgisiGoster();
-      window.scrollTo({ top: 300, behavior: 'smooth' });
+    function fcwTelCikisModalAc(telKod, cap, bStok, hStok, telAd) {
+      renderCustomDropdowns();
+      const modal = document.getElementById('fcwTelCikisModal');
+      if (!modal) return;
+
+      const bugun = new Date().toISOString().slice(0, 10);
+      document.getElementById('fcwModalTarih').value = bugun;
+      document.getElementById('fcwModalTeslimKisi').value = '';
+      document.getElementById('fcwModalMiktar').value = '';
+      document.getElementById('fcwModalNot').value = '';
+      document.getElementById('fcwModalTeslimBirim').value = 'APM Fabrikası (Aşınma Plakası Üretim)';
+
+      // Doğrulama vurgularını temizle
+      ['fcwModalTarih', 'fcwModalTeslimKisi', 'fcwModalMiktar', 'fcwModalTelInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+      });
+
+      if (telKod) {
+        const urun = (DB.urunler || []).find(u => u.kod === telKod || u.ad === telKod);
+        const safAd = temizSafUrunAdi(telAd || (urun ? (urun.ad || urun.kod) : telKod));
+        const capVal = cap && cap !== '-' ? cap : (urun && urun.cap ? urun.cap : 'Ø2,80 mm');
+        const tamTelAd = safAd + (capVal && capVal !== '-' ? ` - ${capVal}` : '');
+
+        document.getElementById('fcwModalTelInput').value = tamTelAd;
+        document.getElementById('fcwModalCap').value = capVal;
+        document.getElementById('fcwModalTur').value = (bStok !== undefined && bStok === 0 && hStok > 0) ? 'Hassas' : 'Bidon';
+      } else {
+        document.getElementById('fcwModalTelInput').value = '';
+        document.getElementById('fcwModalCap').value = 'Ø2,80 mm';
+        document.getElementById('fcwModalTur').value = 'Bidon';
+      }
+
+      fcwModalStokGuncelle();
+      openModal('fcwTelCikisModal');
+
+      setTimeout(() => {
+        if (!document.getElementById('fcwModalTelInput').value) {
+          document.getElementById('fcwModalTelInput').focus();
+        } else {
+          document.getElementById('fcwModalTeslimKisi').focus();
+        }
+      }, 100);
     }
 
-    function tcTelStokBilgisiGoster() {
-      const telInput = document.getElementById('tcTelInput');
-      const turSelect = document.getElementById('tcAmbalajTuru');
-      const uyariEl = document.getElementById('tcStokUyarisi');
-      if (!telInput || !turSelect || !uyariEl) return;
+    function fcwModalStokGuncelle() {
+      const telVal = (document.getElementById('fcwModalTelInput')?.value || '').trim();
+      const capVal = (document.getElementById('fcwModalCap')?.value || '').trim();
+      const turVal = document.getElementById('fcwModalTur')?.value || 'Bidon';
 
-      const telVal = telInput.value.trim();
-      const tur = turSelect.value;
-      if (!telVal) { uyariEl.classList.add('hidden'); return; }
+      const baslikEl = document.getElementById('fcwModalTelBaslik');
+      const capBadgeEl = document.getElementById('fcwModalCapBadge');
+      const bStokEl = document.getElementById('fcwModalBidonStok');
+      const hStokEl = document.getElementById('fcwModalHassasStok');
+      const kalanEl = document.getElementById('fcwModalAnlikKalanStok');
+      const uyariEl = document.getElementById('fcwModalUyari');
 
-      const telKod = telVal.split(' - ')[0].trim().toLowerCase();
+      if (!telVal) {
+        if (baslikEl) baslikEl.innerText = 'Lütfen Tel Seçiniz';
+        if (capBadgeEl) capBadgeEl.innerText = '-';
+        if (bStokEl) bStokEl.innerText = '0 kg';
+        if (hStokEl) hStokEl.innerText = '0 kg';
+        if (kalanEl) kalanEl.innerText = 'Kalan: -';
+        if (uyariEl) uyariEl.classList.add('hidden');
+        return;
+      }
 
-      let telUretimToplam = 0;
+      let parts = telVal.split(' - ');
+      let kod = parts[0] ? parts[0].trim() : telVal;
+      let cap = capVal || (parts[1] ? parts[1].trim() : '-');
+      let safAd = temizSafUrunAdi(kod);
+
+      if (baslikEl) baslikEl.innerText = safAd || kod;
+      if (capBadgeEl) capBadgeEl.innerText = cap && cap !== '-' ? cap : 'Standart';
+
+      // Stok hesapla
+      let bidonUretim = 0, hassasUretim = 0, bidonCikis = 0, hassasCikis = 0;
+      const telKodLow = kod.toLowerCase();
+
       (DB.uretimTakip || []).forEach(u => {
-        if (u.isExcelImport) return; // İçe aktarılanları hariç tut
-
-        const matchUrun = (str) => {
+        if (u.isExcelImport) return;
+        const matchU = (str) => {
           if (!str) return false;
           const s = str.trim().toLowerCase();
-          return s === telKod || s.includes(telKod) || telKod.includes(s);
+          return s === telKodLow || s.includes(telKodLow) || telKodLow.includes(s);
         };
 
         if (Array.isArray(u.items) && u.items.length > 0) {
           u.items.forEach(it => {
-            if (tur === 'Hassas' && it.asama === 'hassas' && matchUrun(it.urun)) {
-              telUretimToplam += parseFloat(it.miktar) || 0;
-            } else if (tur === 'Bidon' && it.asama === 'bidon' && matchUrun(it.urun)) {
-              telUretimToplam += parseFloat(it.miktar) || 0;
-            }
+            if (it.asama === 'bidon' && matchU(it.urun)) bidonUretim += parseFloat(it.miktar) || 0;
+            else if (it.asama === 'hassas' && matchU(it.urun)) hassasUretim += parseFloat(it.miktar) || 0;
           });
         } else {
-          if (tur === 'Hassas' && matchUrun(u.hassasUrun)) {
-            telUretimToplam += parseFloat(u.hassas) || 0;
-          } else if (tur === 'Bidon' && matchUrun(u.bidonUrun)) {
-            telUretimToplam += parseFloat(u.bidon) || 0;
-          }
+          if (matchU(u.bidonUrun)) bidonUretim += parseFloat(u.bidon) || 0;
+          if (matchU(u.hassasUrun)) hassasUretim += parseFloat(u.hassas) || 0;
         }
       });
 
-      let telCikisToplam = 0;
       (DB.telCikislari || []).forEach(tc => {
         const tcTel = (tc.telAdi || '').trim().toLowerCase();
-        const matches = tcTel === telKod || tcTel.includes(telKod) || telKod.includes(tcTel);
-        if (matches && tc.tur === tur) {
-          telCikisToplam += parseFloat(tc.miktar) || 0;
+        if (tcTel === telKodLow || tcTel.includes(telKodLow) || telKodLow.includes(tcTel)) {
+          const m = parseFloat(tc.miktar) || 0;
+          if (tc.tur === 'Hassas') hassasCikis += m;
+          else bidonCikis += m;
         }
       });
 
-      const mevcutStok = Math.max(0, telUretimToplam - telCikisToplam);
-      const turEtiket = tur === 'Hassas' ? 'Makara (Hassas) Sarma' : 'Bidon Sarma';
-      uyariEl.classList.remove('hidden');
-      uyariEl.innerHTML = `ℹ️ <b>${telVal}</b> (${turEtiket}) için FCW Net Çıkılabilir Stok: <b>${mevcutStok.toFixed(2)} kg</b>`;
-    }
+      const netBidon = Math.max(0, bidonUretim - bidonCikis);
+      const netHassas = Math.max(0, hassasUretim - hassasCikis);
+      const aktifStok = turVal === 'Hassas' ? netHassas : netBidon;
+      const turEtiket = turVal === 'Hassas' ? 'Makara (Hassas)' : 'Bidon';
 
-    function hizliApmTelCikisDoldur() {
-      const urunler = DB.urunler || [];
-      let abraUrun = urunler.find(u => (u.kod || '').toLowerCase().includes('abrahard') && (u.cap || '').includes('2,8') || (u.cap || '').includes('2.8'));
-      if (!abraUrun) {
-        abraUrun = urunler.find(u => (u.kod || '').toLowerCase().includes('9200') || (u.kod || '').toLowerCase().includes('abrahard'));
+      if (bStokEl) bStokEl.innerText = `${netBidon.toFixed(2)} kg`;
+      if (hStokEl) hStokEl.innerText = `${netHassas.toFixed(2)} kg`;
+      if (kalanEl) kalanEl.innerHTML = `<span class="font-bold ${aktifStok > 0 ? 'text-emerald-700' : 'text-rose-600'}">Mevcut ${turEtiket}: ${aktifStok.toFixed(2)} kg</span>`;
+
+      if (uyariEl) {
+        if (aktifStok === 0) {
+          uyariEl.classList.remove('hidden');
+          uyariEl.className = 'md:col-span-12 text-xs p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-medium';
+          uyariEl.innerHTML = `⚠️ <b>Dikkat:</b> ${safAd} için seçilen ${turEtiket} türünde sistemde kayıtlı mevcut stok bulunmuyor. Yine de çıkış yapabilirsiniz.`;
+        } else {
+          uyariEl.classList.remove('hidden');
+          uyariEl.className = 'md:col-span-12 text-xs p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 font-medium';
+          uyariEl.innerHTML = `ℹ️ <b>${safAd}</b> (${turEtiket} Sarma) için FCW Çıkılabilir Net Stok: <b>${aktifStok.toFixed(2)} kg</b>`;
+        }
       }
-      const telStr = abraUrun ? `${abraUrun.kod} - ${abraUrun.cap}` : 'AbraHARD 9200 - Ø2,80 mm';
-      const capStr = abraUrun ? abraUrun.cap : 'Ø2.8 mm';
-
-      const telInp = document.getElementById('tcTelInput');
-      if (telInp) telInp.value = telStr;
-
-      const capEl = document.getElementById('tcCap');
-      if (capEl) capEl.value = capStr;
-
-      const turEl = document.getElementById('tcAmbalajTuru');
-      if (turEl) turEl.value = 'Bidon';
-
-      const birimEl = document.getElementById('tcTeslimBirim');
-      if (birimEl) birimEl.value = 'APM Fabrikası (İç Kullanım / Kaynak)';
-
-      const miktarEl = document.getElementById('tcMiktar');
-      if (miktarEl && !miktarEl.value) miktarEl.value = '250'; // 1 Bidon (250 kg)
-
-      const notEl = document.getElementById('tcNot');
-      if (notEl) notEl.value = 'APM Aşınma Plakası Kaynak Hattı Dahili Besleme';
-
-      tcTelStokBilgisiGoster();
-      showToast('⚡ APM Dahili Tel Çıkış formu (AbraHARD 9200 - 250 kg) hazırlandı!', 'success');
-      document.getElementById('tcMiktar')?.focus();
     }
 
-    function telCikisKaydet() {
-      const tarih = document.getElementById('tcTarih').value || new Date().toISOString().slice(0, 10);
-      const telInput = document.getElementById('tcTelInput').value.trim();
-      if (!telInput) { alert('Lütfen tel seçimi yapınız!'); return; }
+    function fcwTelCikisModalKaydet() {
+      const tarihInput = document.getElementById('fcwModalTarih');
+      const telInput = document.getElementById('fcwModalTelInput');
+      const miktarInput = document.getElementById('fcwModalMiktar');
+      const teslimKisiInput = document.getElementById('fcwModalTeslimKisi');
+      const turSelect = document.getElementById('fcwModalTur');
+      const capSelect = document.getElementById('fcwModalCap');
+      const birimSelect = document.getElementById('fcwModalTeslimBirim');
+      const notInput = document.getElementById('fcwModalNot');
 
-      const tur = document.getElementById('tcAmbalajTuru').value;
-      const cap = document.getElementById('tcCap').value;
-      const miktar = parseFloat(document.getElementById('tcMiktar').value) || 0;
-      if (miktar <= 0) { alert('Lütfen geçerli bir çıkış miktarı giriniz!'); return; }
+      const tarih = tarihInput ? tarihInput.value.trim() : '';
+      const telVal = telInput ? telInput.value.trim() : '';
+      const miktar = miktarInput ? parseFloat(miktarInput.value) || 0 : 0;
+      const teslimKisi = teslimKisiInput ? teslimKisiInput.value.trim() : '';
+      const tur = turSelect ? turSelect.value : 'Bidon';
+      const cap = capSelect ? capSelect.value : 'Ø2,80 mm';
+      const teslimBirim = birimSelect ? birimSelect.value : 'APM Fabrikası (Aşınma Plakası Üretim)';
+      const notlar = notInput ? notInput.value.trim() : '';
 
-      const teslimBirim = document.getElementById('tcTeslimBirim').value;
-      const teslimKisi = document.getElementById('tcTeslimAlanKisi').value.trim();
-      const notlar = document.getElementById('tcNot').value.trim();
+      // Sıfırla
+      [tarihInput, telInput, miktarInput, teslimKisiInput].forEach(el => {
+        if (el) el.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+      });
+
+      // ZORUNLU ALAN KONTROLLERİ
+      if (!telVal) {
+        if (telInput) {
+          telInput.focus();
+          telInput.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: Tel seçimi yapılması zorunludur!');
+        showToast('Lütfen tel seçimi yapınız!', 'error');
+        return;
+      }
+
+      if (!tarih) {
+        if (tarihInput) {
+          tarihInput.focus();
+          tarihInput.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: Teslim / Çıkış Tarihi girilmesi zorunludur!');
+        showToast('Teslim / Çıkış Tarihi zorunludur!', 'error');
+        return;
+      }
+
+      if (!teslimKisi) {
+        if (teslimKisiInput) {
+          teslimKisiInput.focus();
+          teslimKisiInput.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: Teslim Alan Kişi bilgisi girilmesi zorunludur!');
+        showToast('Teslim Alan Kişi zorunludur!', 'error');
+        return;
+      }
+
+      if (miktar <= 0) {
+        if (miktarInput) {
+          miktarInput.focus();
+          miktarInput.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        alert('LÜTFEN DİKKAT: Çıkış Miktarı (kg) 0\'dan büyük ve zorunludur!');
+        showToast('Geçerli bir çıkış miktarı (kg) giriniz!', 'error');
+        return;
+      }
 
       ensureDBArrays();
       const yeniCikis = {
         id: Date.now(),
         tarih,
-        telAdi: telInput,
+        telAdi: telVal,
         cap,
-        tur, // 'Bidon', 'Kaba' or 'Hassas'
+        tur, // 'Bidon' or 'Hassas'
         miktar,
         teslimBirim,
         teslimKisi,
@@ -14922,10 +15061,10 @@
 
       DB.telCikislari.push(yeniCikis);
 
-      // EĞER teslim birimi KTM Mamül Deposu ise KTM stoğuna otomatik giriş hareketi olarak ekle!
+      // EĞER teslim birimi KTM Mamül Deposu ise KTM stoğuna otomatik giriş hareketi olarak ekle
       if (teslimBirim.includes('KTM')) {
-        let parts = telInput.split(' - ');
-        let extKod = parts[0] ? parts[0].trim() : telInput;
+        let parts = telVal.split(' - ');
+        let extKod = parts[0] ? parts[0].trim() : telVal;
         let extCap = cap || (parts[1] ? parts[1].trim() : '-');
 
         let ktmUrun = (DB.ktmUrunler || []).find(u => u.kod === extKod && u.cap === extCap);
@@ -14957,29 +15096,38 @@
           miktar: miktar,
           kaynakTip: 'FCW Tel Çıkışından',
           proje: 'FCW Sevkiyat',
-          aciklama: `FCW Tel Çıkışı: ${telInput} (${tur}) - Teslim Alan: ${teslimKisi || '-'}`,
+          aciklama: `FCW Tel Çıkışı: ${telVal} (${tur}) - Teslim Alan: ${teslimKisi}`,
           tarih: new Date().toISOString()
         });
 
-        bildirimGonder("KTM Deposuna Tel Girişi", `${telInput} (${miktar} kg) FCW çıkışından KTM Mamül deposuna eklendi.`, 'success');
+        bildirimGonder("KTM Deposuna Tel Girişi", `${telVal} (${miktar} kg) FCW çıkışından KTM Mamül deposuna eklendi.`, 'success');
       } else {
-        bildirimGonder("FCW Tel Çıkışı Yapıldı", `${telInput} (${tur}) - ${miktar} kg -> ${teslimBirim} (${teslimKisi || '-'})`, 'info');
+        bildirimGonder("FCW Tel Çıkışı Yapıldı", `${telVal} (${tur}) - ${miktar} kg -> ${teslimBirim} (${teslimKisi})`, 'info');
       }
 
-      telCikisFormTemizle();
+      closeModal('fcwTelCikisModal');
       saveDB();
       renderAll();
-      alert(`Tel çıkışı başarıyla kaydedildi!\n${miktar} kg tel çıkışı ${teslimBirim} için işlendi.`);
+      telCikisListele();
+      showToast(`✅ ${telVal} (${miktar} kg) tel çıkışı başarıyla kaydedildi!`, 'success');
     }
 
-    function telCikisFormTemizle() {
-      document.getElementById('tcTarih').value = new Date().toISOString().slice(0, 10);
-      document.getElementById('tcTelInput').value = '';
-      document.getElementById('tcMiktar').value = '';
-      document.getElementById('tcTeslimAlanKisi').value = '';
-      document.getElementById('tcNot').value = '';
-      const uyariEl = document.getElementById('tcStokUyarisi');
-      if (uyariEl) uyariEl.classList.add('hidden');
+    function hizliApmTelCikisDoldur() {
+      const urunler = DB.urunler || [];
+      let abraUrun = urunler.find(u => (u.kod || '').toLowerCase().includes('abrahard') && ((u.cap || '').includes('2,8') || (u.cap || '').includes('2.8')));
+      if (!abraUrun) {
+        abraUrun = urunler.find(u => (u.kod || '').toLowerCase().includes('9200') || (u.kod || '').toLowerCase().includes('abrahard'));
+      }
+      const telStr = abraUrun ? (abraUrun.ad || abraUrun.kod) : 'AbraHARD 9200';
+      const capStr = abraUrun ? (abraUrun.cap || 'Ø2.8 mm') : 'Ø2,80 mm';
+
+      fcwTelCikisModalAc(telStr, capStr, 0, 0, telStr);
+      document.getElementById('fcwModalTur').value = 'Bidon';
+      document.getElementById('fcwModalTeslimBirim').value = 'APM Fabrikası (Aşınma Plakası Üretim)';
+      document.getElementById('fcwModalMiktar').value = '250';
+      document.getElementById('fcwModalNot').value = 'APM Aşınma Plakası Kaynak Hattı Dahili Besleme';
+      fcwModalStokGuncelle();
+      showToast('⚡ APM Dahili Tel Çıkış modalı (AbraHARD 9200 - 250 kg) hazırlandı!', 'info');
     }
 
     function telCikisListele() {
