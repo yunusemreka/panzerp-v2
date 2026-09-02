@@ -3947,6 +3947,7 @@
             class="border border-slate-300 p-2.5 rounded-xl w-full text-sm font-bold bg-white">
             <option value="bekliyor">⏳ Bekliyor</option>
             <option value="hazirlandi" selected>📦 Hazırlandı (Depoda Paketlendi)</option>
+            <option value="kismi_sevk">🔄 Kısmi Sevk Edildi</option>
             <option value="sevk_edildi">✅ Sevk Edildi (Müşteriye Gönderildi)</option>
           </select>
         </div>
@@ -12659,7 +12660,10 @@
       }
 
       document.getElementById('ktmPaket_hazirlandiTarihi').value = sip.hazirlandiTarihi || new Date().toISOString().slice(0, 10);
-      document.getElementById('ktmPaket_durum').value = sip.durum === 'sevk_edildi' ? 'sevk_edildi' : 'hazirlandi';
+      const durumSel = document.getElementById('ktmPaket_durum');
+      if (durumSel) {
+        durumSel.value = sip.durum || 'hazirlandi';
+      }
 
       // Standart palet tipleri dropdown doldur
       const paletSelect = document.getElementById('ktmPaket_paletTipi');
@@ -12961,14 +12965,31 @@
       if (!sip) return;
 
       const hazirlandiTarihi = document.getElementById('ktmPaket_hazirlandiTarihi').value || new Date().toISOString().slice(0, 10);
-      const durum = document.getElementById('ktmPaket_durum').value;
+      const durumSecilen = document.getElementById('ktmPaket_durum')?.value || 'hazirlandi';
 
       sip.paketler = JSON.parse(JSON.stringify(ktmPaketDraftListe));
       sip.hazirlandiTarihi = hazirlandiTarihi;
-      sip.durum = durum;
 
-      // Kalemleri de hazır olarak işaretle
-      if (durum === 'hazirlandi' || durum === 'sevk_edildi') {
+      const kalemler = Array.isArray(sip.kalemler) && sip.kalemler.length > 0 ? sip.kalemler : [];
+      const toplamSipKg = kalemler.reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0);
+      const toplamSevkKg = kalemler.reduce((acc, k) => acc + (parseFloat(k.sevkEdilen) || 0), 0) || (parseFloat(sip.sevkEdilenMiktar) || 0);
+      const kalanKg = Math.max(0, toplamSipKg - toplamSevkKg);
+
+      // KISMİ SEVK KORUMASI: Sevk edilen miktar varsa ve henüz tamamı sevk edilmediyse sipariş KESİNLİKLE kısmi sevk sekmesinde kalmalıdır
+      if (toplamSevkKg > 0 && kalanKg > 0) {
+        sip.durum = 'kismi_sevk';
+      } else if (toplamSevkKg >= toplamSipKg && toplamSipKg > 0) {
+        sip.durum = 'sevk_edildi';
+      } else {
+        if (sip.paketler && sip.paketler.length > 0) {
+          sip.durum = 'hazirlandi';
+        } else {
+          sip.durum = durumSecilen;
+        }
+      }
+
+      // Kalemleri hazırla
+      if (sip.durum === 'hazirlandi' || sip.durum === 'sevk_edildi' || sip.durum === 'kismi_sevk') {
         if (Array.isArray(sip.kalemler)) {
           sip.kalemler.forEach(k => { k.hazir = true; });
         }
@@ -14057,10 +14078,10 @@
         }
 
         const toplamSipKg = kalemler.reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0);
-        const toplamSevkKg = kalemler.reduce((acc, k) => acc + (parseFloat(k.sevkEdilen) || 0), 0);
+        const toplamSevkKg = kalemler.reduce((acc, k) => acc + (parseFloat(k.sevkEdilen) || 0), 0) || (parseFloat(s.sevkEdilenMiktar) || 0);
         const kalanKg = Math.max(0, toplamSipKg - toplamSevkKg);
 
-        const paketCount = (s.paketler || []).length;
+        const paketCount = Array.isArray(s.paketler) ? s.paketler.length : 0;
         let paketOzet = '-';
         if (paketCount > 0) {
           let toplamNet = 0, toplamBrut = 0;
@@ -14069,8 +14090,10 @@
             toplamNet += (parseFloat(p.netAgirlik || p.agirlik || 0) * adt);
             toplamBrut += (parseFloat(p.brutAgirlik || p.agirlik || 0) * adt);
           });
-          paketOzet = `<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-200">${paketCount} Palet</span> 
-            ${toplamNet > 0 ? `<div class="text-[10px] text-slate-600 mt-0.5">Net: <b>${toplamNet}</b> kg | Brüt: <b>${toplamBrut}</b> kg</div>` : ''}`;
+          paketOzet = `<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-200">${paketCount} Palet / Ambalaj</span> 
+            ${toplamNet > 0 ? `<div class="text-[10px] text-slate-600 mt-0.5">Net: <b>${toplamNet.toFixed(1)}</b> kg | Brüt: <b>${toplamBrut.toFixed(1)}</b> kg</div>` : ''}`;
+        } else {
+          paketOzet = `<span class="text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px] font-semibold">⚠️ Paketleme Bekliyor</span>`;
         }
 
         // Kalemler özet görünümü
@@ -14091,6 +14114,22 @@
 
         const depoNotuHtml = s.depoNotu ? `<div class="text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-200 font-medium my-1">📝 ${s.depoNotu}</div>` : '';
         const waBadgeHtml = s.whatsapp ? `<span class="text-[11px] text-emerald-700 font-bold flex items-center gap-1 mt-0.5"><span>💬</span> ${s.whatsapp}</span>` : '';
+
+        // SEVK BUTONU: Paketleme olmadan sevk yapılamaz kontrolü
+        let sevkButonuHtml = '';
+        if (s.durum !== 'sevk_edildi') {
+          if (paketCount === 0) {
+            sevkButonuHtml = `<button onclick="alert('⚠️ Paketleme bilgisi olmadan sevk yapılamaz!\n\nLütfen önce 📦 Paket butonuna tıklayarak ambalaj/palet bilgilerini kaydediniz.'); ktmPaketlemeModalAc(${s.id});" title="Önce Paketleme Bilgisi Girilmelidir" class="bg-slate-200 hover:bg-slate-300 text-slate-600 border border-slate-300 px-2.5 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-2xs transition-colors">
+              🚚 Sevk Et
+            </button>`;
+          } else {
+            sevkButonuHtml = `<button onclick="ktmKismiSevkModalAc(${s.id})" title="Sevkiyat Yap" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
+              🚚 Sevk Et
+            </button>`;
+          }
+        } else {
+          sevkButonuHtml = `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">✅ Sevk Edildi</span>`;
+        }
 
         const row = `<tr class="hover:bg-slate-50 transition-colors">
           <td class="p-2.5">
@@ -14139,26 +14178,32 @@
               <button onclick="ktmPackingListModalAc(${s.id})" title="Çeki Listesi / Packing List Önizle ve Yazdır" class="bg-slate-800 text-amber-400 hover:bg-slate-700 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm">
                 📄 Çeki Listesi
               </button>` : ''}
-            ${s.durum !== 'sevk_edildi' ? `
-              <button onclick="ktmKismiSevkModalAc(${s.id})" title="Kısmi Sevkiyat Yap" class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm">
-                🚚 Sevk Et
-              </button>` : `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">✅ Sevk Edildi</span>`}
+            ${sevkButonuHtml}
             <button onclick="ktmSipSil(${s.id})" class="text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white px-2 py-1.5 rounded-lg font-bold text-xs transition-colors">🗑️</button>
           </td>
         </tr>`;
 
-        if (s.durum === 'bekliyor') {
-          bekleyenCount++;
-          bekleyenHtml += row;
-        } else if (s.durum === 'hazirlandi') {
-          hazirlananCount++;
-          hazirlananHtml += row;
-        } else if (s.durum === 'kismi_sevk') {
+        // DOĞRU VE TUTARLI SEKME SINIFLANDIRMASI
+        if (toplamSevkKg > 0 && kalanKg > 0) {
+          // Kısmi Sevk: Herhangi bir sevk gerçekleşmiş ama tamamı bitmemişse kesinlikle Kısmi Sevk sekmesindedir
+          s.durum = 'kismi_sevk';
           kismiCount++;
           kismiHtml += row;
-        } else {
+        } else if (toplamSevkKg >= toplamSipKg && toplamSipKg > 0) {
+          // Tamamlanan / Sevk Edilen
+          s.durum = 'sevk_edildi';
           tamamlananCount++;
           tamamlananHtml += row;
+        } else if (s.durum === 'hazirlandi' || paketCount > 0 || kalemler.every(k => k.hazir)) {
+          // Hazırlanan / Paketlenen
+          s.durum = 'hazirlandi';
+          hazirlananCount++;
+          hazirlananHtml += row;
+        } else {
+          // Bekleyen
+          s.durum = 'bekliyor';
+          bekleyenCount++;
+          bekleyenHtml += row;
         }
       });
 
@@ -14327,6 +14372,12 @@
       const sip = (DB.ktmSiparisler || []).find(s => s.id === sipId);
       if (!sip) return;
 
+      const paketCount = Array.isArray(sip.paketler) ? sip.paketler.length : 0;
+      if (paketCount === 0) {
+        alert('⚠️ Bu sipariş için henüz PAKETLEME / PALETLEME bilgisi girilmemiştir!\n\nSevk işlemi yapabilmek için lütfen önce "📦 Paket" butonuna basarak ambalaj/palet detaylarını kaydediniz.');
+        return;
+      }
+
       document.getElementById('ktmKismi_sipId').value = sip.id;
       document.getElementById('ktmKismi_sipNo').innerText = `${sip.siparisNo || ('SIP-' + sip.id)} - ${sip.musteri}`;
       document.getElementById('ktmKismi_sevkTarihi').value = new Date().toISOString().slice(0, 10);
@@ -14364,6 +14415,12 @@
       const sipId = parseInt(document.getElementById('ktmKismi_sipId').value);
       const sip = (DB.ktmSiparisler || []).find(s => s.id === sipId);
       if (!sip) return;
+
+      const paketCount = Array.isArray(sip.paketler) ? sip.paketler.length : 0;
+      if (paketCount === 0) {
+        alert('⚠️ Paketleme / Paletleme bilgisi girilmeden sevk işlemi yapılamaz! Lütfen önce paketleme bilgilerini kaydediniz.');
+        return;
+      }
 
       const sevkTarihi = document.getElementById('ktmKismi_sevkTarihi').value || new Date().toISOString().slice(0, 10);
       const sevkNotu = document.getElementById('ktmKismi_not').value.trim();
