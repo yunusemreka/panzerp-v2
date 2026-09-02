@@ -2669,7 +2669,10 @@
           <div
             class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4 bg-slate-50/70 p-4 rounded-xl border border-slate-200">
             <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Sipariş No *</label>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Sipariş No *</label>
+                <button type="button" onclick="ktmSiparisOtomatikNoOlustur(true)" title="Yeni Otomatik Sipariş No Üret" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5"><span>🔄</span> Yeni No Üret</button>
+              </div>
               <input id="ktmSipNo" type="text"
                 class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-mono font-bold text-blue-700 focus:bg-white"
                 placeholder="Örn: SIP-2026-0001">
@@ -13848,14 +13851,19 @@
       return isoStr;
     }
 
-    function ktmSiparisOtomatikNoOlustur() {
-      const el = document.getElementById('ktmSipNo');
-      if (!el || el.value) return;
+    function getNextKtmSiparisNo() {
       const yil = new Date().getFullYear();
       let maxSeq = 0;
+      const existingNumbers = new Set();
 
       (DB.ktmSiparisler || []).forEach(s => {
-        const noStr = s.siparisNo || '';
+        const noStr = (s.siparisNo || '').trim();
+        if (noStr) {
+          existingNumbers.add(noStr.toUpperCase());
+          existingNumbers.add(noStr.replace(/\s+/g, '').toUpperCase());
+        }
+
+        // Format: SIP-2026-0001 veya SIP-2026-1 vb.
         const parts = noStr.split('-');
         if (parts.length >= 3) {
           const sYear = parseInt(parts[1]);
@@ -13864,16 +13872,33 @@
             if (sSeq > maxSeq) maxSeq = sSeq;
           }
         } else {
-          const match = noStr.match(/(\d+)$/);
-          if (match) {
-            const val = parseInt(match[1]);
-            if (val > maxSeq && val < 90000) maxSeq = val;
+          const match = noStr.match(/(\d+)/g);
+          if (match && match.length > 0) {
+            match.forEach(m => {
+              const val = parseInt(m);
+              if (val > maxSeq && val < 90000 && val !== yil) {
+                maxSeq = val;
+              }
+            });
           }
         }
       });
 
-      const nextSeq = maxSeq + 1;
-      el.value = `SIP-${yil}-${String(nextSeq).padStart(4, '0')}`;
+      let nextSeq = maxSeq + 1;
+      let candidate = `SIP-${yil}-${String(nextSeq).padStart(4, '0')}`;
+      while (existingNumbers.has(candidate.toUpperCase())) {
+        nextSeq++;
+        candidate = `SIP-${yil}-${String(nextSeq).padStart(4, '0')}`;
+      }
+
+      return candidate;
+    }
+
+    function ktmSiparisOtomatikNoOlustur(force = false) {
+      const el = document.getElementById('ktmSipNo');
+      if (!el) return;
+      if (!force && el.value && el.value.trim() !== '') return;
+      el.value = getNextKtmSiparisNo();
     }
 
     let ktmDuzenlenenSiparisId = null;
@@ -13902,7 +13927,7 @@
 
       // Başlangıçta 1 boş satır ekle
       ktmSiparisKalemEkleSatiri();
-      ktmSiparisOtomatikNoOlustur();
+      ktmSiparisOtomatikNoOlustur(true);
     }
 
     function ktmSiparisDuzenleIptal() {
@@ -14219,7 +14244,11 @@
     }
 
     function ktmSiparisEkle() {
-      const siparisNo = document.getElementById('ktmSipNo').value.trim();
+      let siparisNo = (document.getElementById('ktmSipNo')?.value || '').trim();
+      if (!siparisNo && !ktmDuzenlenenSiparisId) {
+        siparisNo = getNextKtmSiparisNo();
+        if (document.getElementById('ktmSipNo')) document.getElementById('ktmSipNo').value = siparisNo;
+      }
       const musteri = document.getElementById('ktmSipMusteri').value.trim();
       const tarih = document.getElementById('ktmSipTarih').value || new Date().toISOString().slice(0, 10);
       const teslimTarihi = (document.getElementById('ktmSipTeslimTarihi') ? document.getElementById('ktmSipTeslimTarihi').value : '') || null;
