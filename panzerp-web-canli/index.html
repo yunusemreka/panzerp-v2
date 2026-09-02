@@ -3379,6 +3379,7 @@
               <table class="w-full text-xs text-left divide-y divide-slate-200">
                 <thead class="bg-slate-100/80 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
                   <tr>
+                    <th class="py-3 px-3 w-10 text-center"><input type="checkbox" onchange="toggleSelectAllTable(this, 'apmPlakaTableBody')" class="bulk-master-cb cursor-pointer"></th>
                     <th class="py-3 px-3">Ay / Masa</th>
                     <th class="py-3 px-3">Plaka No & TT No</th>
                     <th class="py-3 px-3">Sac Cinsi & Ölçü</th>
@@ -3469,6 +3470,7 @@
               <table class="w-full text-xs text-left divide-y divide-slate-200">
                 <thead class="bg-emerald-50 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
                   <tr>
+                    <th class="py-3 px-3 w-10 text-center"><input type="checkbox" onchange="toggleSelectAllTable(this, 'apmTamamPlakaTableBody')" class="bulk-master-cb cursor-pointer"></th>
                     <th class="py-3 px-3">Ay / Masa</th>
                     <th class="py-3 px-3">Plaka No & TT No</th>
                     <th class="py-3 px-3">Sac Cinsi & Ölçü</th>
@@ -15339,6 +15341,9 @@
         const bitTarihStr = p.bitTarih || '-';
 
         return `<tr class="hover:bg-indigo-50/30 transition-colors">
+          <td class="py-2.5 px-3 text-center">
+            <input type="checkbox" data-id="${p.id}" data-type="apmplaka" onchange="updateBulkActionState()" class="bulk-row-cb cursor-pointer">
+          </td>
           <td class="py-2.5 px-3">
             <div class="font-bold text-slate-800">${p.ay || '-'}</div>
             <div class="text-[10px] text-slate-400 font-semibold mt-0.5">Masa: <b class="text-slate-600">${p.masa || 'Arka'}</b></div>
@@ -15434,7 +15439,7 @@
       const tbodyAktif = document.getElementById('apmPlakaTableBody');
       if (tbodyAktif) {
         if (filtrelenmisAktif.length === 0) {
-          tbodyAktif.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400">
+          tbodyAktif.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400">
             <div class="flex flex-col items-center justify-center gap-2">
               <span class="text-3xl">⏳</span>
               <span class="font-bold text-sm text-slate-600">${seciliApmMakine} makinesinde aktif/planlanan plaka bulunamadı.</span>
@@ -15495,7 +15500,7 @@
       const tbodyTamam = document.getElementById('apmTamamPlakaTableBody');
       if (tbodyTamam) {
         if (filtrelenmisTamam.length === 0) {
-          tbodyTamam.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400">
+          tbodyTamam.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400">
             <div class="flex flex-col items-center justify-center gap-2">
               <span class="text-3xl">✅</span>
               <span class="font-bold text-sm text-slate-600">${seciliApmMakine} makinesinde henüz tamamlanan plaka kaydı bulunmuyor.</span>
@@ -17034,6 +17039,34 @@
       updateBulkActionState();
     }
 
+    function apmPlakaTopluDurumGuncelle(yeniDurum) {
+      const selectedPlakaIds = selectedBulkItems
+        .filter(x => x.type === 'apmplaka')
+        .map(x => String(x.id));
+
+      if (selectedPlakaIds.length === 0) {
+        alert('Lütfen durumunu değiştirmek istediğiniz plakaları tablodan seçiniz.');
+        return;
+      }
+
+      let guncellenenSayisi = 0;
+      (DB.apmPlakalar || []).forEach(p => {
+        if (selectedPlakaIds.includes(String(p.id))) {
+          p.durum = yeniDurum;
+          if (yeniDurum === 'Tamamlandı' && !p.bitTarih) {
+            const bugunTR = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            p.bitTarih = bugunTR;
+          }
+          guncellenenSayisi++;
+        }
+      });
+
+      clearAllBulkSelections();
+      saveDB();
+      apmPlakaListele();
+      showToast(`${guncellenenSayisi} adet plaka başarıyla '${yeniDurum}' durumuna güncellendi.`, 'success');
+    }
+
     function updateBulkActionState() {
       selectedBulkItems = [];
       const checkedBoxes = document.querySelectorAll('.bulk-row-cb:checked');
@@ -17053,11 +17086,31 @@
 
       if (selectedBulkItems.length > 0) {
         bulkBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-        btnContainer.innerHTML = `
-          <button onclick="executeBulkDelete()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow transition-colors flex items-center gap-1">
-            🗑️ Toplu Sil (${selectedBulkItems.length})
-          </button>
-        `;
+        
+        const hasApmPlaka = selectedBulkItems.some(x => x.type === 'apmplaka');
+        
+        if (hasApmPlaka) {
+          btnContainer.innerHTML = `
+            <button onclick="apmPlakaTopluDurumGuncelle('Tamamlandı')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow transition-all flex items-center gap-1.5 cursor-pointer">
+              <span>✅</span> Tamamlandı Yap (${selectedBulkItems.length})
+            </button>
+            <button onclick="apmPlakaTopluDurumGuncelle('Kaynakta')" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow transition-all flex items-center gap-1 cursor-pointer">
+              <span>⚙️</span> Kaynakta Yap
+            </button>
+            <button onclick="apmPlakaTopluDurumGuncelle('Planlandı')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow transition-all flex items-center gap-1 cursor-pointer">
+              <span>⏳</span> Planlandı Yap
+            </button>
+            <button onclick="executeBulkDelete()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow transition-all flex items-center gap-1 cursor-pointer">
+              <span>🗑️</span> Sil
+            </button>
+          `;
+        } else {
+          btnContainer.innerHTML = `
+            <button onclick="executeBulkDelete()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow transition-colors flex items-center gap-1 cursor-pointer">
+              🗑️ Toplu Sil (${selectedBulkItems.length})
+            </button>
+          `;
+        }
       } else {
         bulkBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
       }
@@ -17087,6 +17140,8 @@
             }
           }
           DB.hmHareketler = (DB.hmHareketler || []).filter(x => x.id != item.id);
+        } else if (item.type === 'apmplaka') {
+          DB.apmPlakalar = (DB.apmPlakalar || []).filter(x => x.id != item.id);
         } else if (item.type === 'harmanparti') {
           // Format: isEmriId___batchNo
           const [ieIdStr, batchStr] = (item.id || '').split('___');
