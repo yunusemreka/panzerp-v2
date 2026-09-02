@@ -2053,6 +2053,10 @@
               <option>0.4 (Ø1,60 / Ø2,40 için)</option>
             </select>
 
+            <input id="urunStok" type="number" step="0.01"
+              class="border border-slate-300 p-2.5 rounded-lg w-full bg-emerald-50/60 focus:bg-white text-sm font-bold text-emerald-800"
+              placeholder="Mevcut Stok (kg)" value="0">
+
             <input id="urunMinStok" type="number"
               class="border border-slate-300 p-2.5 rounded-lg w-full bg-slate-50 focus:bg-white text-sm"
               placeholder="Min. Stok (kg)" value="10">
@@ -4581,6 +4585,11 @@
           </select>
         </div>
         <div>
+          <label class="block font-bold text-emerald-800 mb-1">Mevcut KTM Stoğu (kg) 📦</label>
+          <input id="urunEd_stok" type="number" step="0.01"
+            class="border border-emerald-300 p-2.5 rounded-lg w-full bg-emerald-50/50 font-black text-emerald-900">
+        </div>
+        <div>
           <label class="block font-bold text-slate-700 mb-1">Min. Stok (kg)</label>
           <input id="urunEd_minStok" type="number" step="0.01"
             class="border border-slate-300 p-2.5 rounded-lg w-full bg-white font-bold">
@@ -7034,6 +7043,7 @@
       }
 
       ensureDBArrays();
+      syncKtmAndUrunlerDatabase();
       isDbLoaded = true;
 
       // Realtime Database Canlı Değişiklik Dinleyicisi
@@ -10575,6 +10585,82 @@
       }
     }
 
+    
+    /* ========================================================================= */
+    /* AKILLI KTM MAMÜL & ÜRÜN STOK EŞLEŞTİRME VE SENKRONİZASYON MOTORU          */
+    /* ========================================================================= */
+    function findKtmKartiForUrun(u) {
+      if (!u) return null;
+      const list = DB.ktmUrunler || [];
+      const targetKod = (u.kod || '').trim().toLowerCase();
+      const targetSafAd = (temizSafUrunAdi(u.ad || u.kod || '') || '').toLowerCase();
+      const targetCap = typeof standartCapFormat === 'function' ? standartCapFormat(u.cap) : (u.cap || '');
+
+      // 1. Doğrudan ID eşleşmesi
+      let found = list.find(k => k.id && u.id && String(k.id) === String(u.id));
+      if (found) return found;
+
+      // 2. Kod ve Çap tam eşleşmesi (normalize edilmiş çap ile)
+      found = list.find(k => {
+        const kKod = (k.kod || '').trim().toLowerCase();
+        const kCap = typeof standartCapFormat === 'function' ? standartCapFormat(k.cap) : (k.cap || '');
+        const kodEq = kKod === targetKod || kKod === targetSafAd;
+        const capEq = typeof capEsit === 'function' ? capEsit(kCap, targetCap) : (kCap === targetCap);
+        return kodEq && capEq;
+      });
+      if (found) return found;
+
+      // 3. Ürün Adı ve Çap tam eşleşmesi
+      found = list.find(k => {
+        const kSafAd = (temizSafUrunAdi(k.ad || k.kod || '') || '').toLowerCase();
+        const kCap = typeof standartCapFormat === 'function' ? standartCapFormat(k.cap) : (k.cap || '');
+        const adEq = kSafAd === targetSafAd || kSafAd === targetKod;
+        const capEq = typeof capEsit === 'function' ? capEsit(kCap, targetCap) : (kCap === targetCap);
+        return adEq && capEq;
+      });
+      if (found) return found;
+
+      // 4. Eğer hedef ürünün çapı varsa ve listede aynı koda sahip birden fazla çap varsa, çapı eşleşeni bul
+      if (targetCap) {
+        found = list.find(k => {
+          const kKod = (k.kod || '').trim().toLowerCase();
+          const kSafAd = (temizSafUrunAdi(k.ad || k.kod || '') || '').toLowerCase();
+          return (kKod === targetKod || kSafAd === targetSafAd) && (typeof capEsit === 'function' ? capEsit(k.cap, targetCap) : k.cap === targetCap);
+        });
+        if (found) return found;
+      }
+
+      // 5. Kod tekil eşleşmesi (KTM listesinde bu koda sahip tek bir kart varsa)
+      const ayniKodluKartlar = list.filter(k => {
+        const kKod = (k.kod || '').trim().toLowerCase();
+        return kKod === targetKod || (targetSafAd && kKod === targetSafAd);
+      });
+      if (ayniKodluKartlar.length === 1) {
+        return ayniKodluKartlar[0];
+      }
+
+      return null;
+    }
+
+    function syncKtmAndUrunlerDatabase() {
+      DB.urunler = DB.urunler || [];
+      DB.ktmUrunler = DB.ktmUrunler || [];
+
+      // Tüm ürünlerin çaplarını standartlaştır
+      DB.urunler.forEach(u => {
+        if (u.cap && typeof standartCapFormat === 'function') u.cap = standartCapFormat(u.cap);
+      });
+
+      DB.ktmUrunler.forEach(k => {
+        if (k.cap && typeof standartCapFormat === 'function') k.cap = standartCapFormat(k.cap);
+        if (k.stok === undefined || k.stok === null || isNaN(parseFloat(k.stok))) {
+          k.stok = 0;
+        } else {
+          k.stok = parseFloat(k.stok);
+        }
+      });
+    }
+
     /* ============== ÜRÜN & REÇETE YÖNETİMİ ============== */
     function urunEkle() {
       const kod = document.getElementById('urunKod').value.trim();
@@ -10786,7 +10872,7 @@
         return;
       }
 
-      const ktmKarti = (DB.ktmUrunler || []).find(k => k.kod === u.kod && (k.cap === u.cap || !u.cap));
+      const ktmKarti = findKtmKartiForUrun(u);
       const stokKg = ktmKarti ? parseFloat(ktmKarti.stok || 0) : 0;
       const safAd = temizSafUrunAdi(u.ad || u.kod || '');
 
@@ -10844,15 +10930,19 @@
       const u = (DB.urunler || []).find(x => x.id === id);
       if (!u) return;
 
+      const ktmKarti = findKtmKartiForUrun(u);
+      const mevcutStok = ktmKarti ? (parseFloat(ktmKarti.stok) || 0) : 0;
+
       document.getElementById('urunEd_id').value = u.id;
       document.getElementById('urunEd_kod').value = u.kod || '';
       document.getElementById('urunEd_ad').value = u.ad || '';
       document.getElementById('urunEd_seri').value = u.seri || 'AbraHARD';
       document.getElementById('urunEd_tip').value = u.tip || 'Flux Cored Tel';
-      document.getElementById('urunEd_cap').value = u.cap || 'Ø2.8 mm';
+      document.getElementById('urunEd_cap').value = (typeof standartCapFormat === 'function' ? standartCapFormat(u.cap) : '') || u.cap || 'Ø2.8 mm';
       document.getElementById('urunEd_paket').value = u.paket || '250 kg Drum/Bidon';
       document.getElementById('urunEd_harman').value = u.harman || '';
       document.getElementById('urunEd_strip').value = u.strip || '0.25 (Ø2,80 için)';
+      if (document.getElementById('urunEd_stok')) document.getElementById('urunEd_stok').value = mevcutStok;
       document.getElementById('urunEd_minStok').value = u.minStok || 10;
       document.getElementById('urunEd_birimFiyat').value = u.birimFiyat || '';
       document.getElementById('urunEd_kaynak').value = u.kaynak || 'FCW Üretim Hattı';
@@ -10868,19 +10958,18 @@
       if (!u) return;
 
       const yeniAd = (document.getElementById('urunEd_ad').value || '').trim() || u.kod;
-      const yeniSeri = document.getElementById('urunEd_seri').value;
+      const yeniSeri = document.getElementById('urunSeri').value;
       const yeniTip = document.getElementById('urunEd_tip').value;
-      const yeniCap = document.getElementById('urunEd_cap').value;
+      const yeniCap = (typeof standartCapFormat === 'function' ? standartCapFormat(document.getElementById('urunEd_cap').value) : '') || document.getElementById('urunEd_cap').value;
       const yeniPaket = (document.getElementById('urunEd_paket').value || '').trim() || '250 kg Drum/Bidon';
       const yeniHarman = (document.getElementById('urunEd_harman').value || '').trim() || '-';
       const yeniStrip = document.getElementById('urunEd_strip').value;
+      const yeniStok = document.getElementById('urunEd_stok') ? (parseFloat(document.getElementById('urunEd_stok').value) || 0) : null;
       const yeniMinStok = parseFloat(document.getElementById('urunEd_minStok').value) || 0;
       const yeniBirimFiyat = parseFloat(document.getElementById('urunEd_birimFiyat').value) || 0;
       const yeniKaynak = (document.getElementById('urunEd_kaynak').value || '').trim() || 'FCW Üretim Hattı';
       const yeniLokasyon = (document.getElementById('urunEd_lokasyon').value || '').trim();
       const yeniAciklama = (document.getElementById('urunEd_aciklama').value || '').trim();
-
-      const eskiCap = u.cap;
 
       u.ad = yeniAd;
       u.seri = yeniSeri;
@@ -10895,8 +10984,8 @@
       u.lokasyon = yeniLokasyon;
       u.aciklama = yeniAciklama;
 
-      // İlgili KTM Stok Kartını da senkronize güncelle
-      const ktmU = (DB.ktmUrunler || []).find(k => k.kod === u.kod && (k.cap === eskiCap || k.cap === yeniCap));
+      // İlgili KTM Stok Kartını da tam senkronize güncelle
+      let ktmU = findKtmKartiForUrun(u);
       if (ktmU) {
         ktmU.ad = yeniAd;
         ktmU.tip = yeniTip;
@@ -10906,12 +10995,31 @@
         ktmU.kaynak = yeniKaynak;
         ktmU.birimFiyat = yeniBirimFiyat;
         ktmU.lokasyon = yeniLokasyon;
+        if (yeniStok !== null && !isNaN(yeniStok)) {
+          ktmU.stok = yeniStok;
+        }
+      } else {
+        DB.ktmUrunler = DB.ktmUrunler || [];
+        ktmU = {
+          id: u.id || (Date.now() + Math.random()),
+          kod: u.kod,
+          ad: yeniAd,
+          tip: yeniTip,
+          cap: yeniCap,
+          paket: yeniPaket,
+          minStok: yeniMinStok,
+          kaynak: yeniKaynak,
+          birimFiyat: yeniBirimFiyat,
+          lokasyon: yeniLokasyon,
+          stok: (yeniStok !== null && !isNaN(yeniStok)) ? yeniStok : 0
+        };
+        DB.ktmUrunler.push(ktmU);
       }
 
       saveDB();
       closeModal('urunDuzenleModal');
       renderAll();
-      showToast(`✅ "${u.kod} - ${u.cap}" ürün bilgileri başarıyla güncellendi.`, 'success');
+      showToast(`✅ "${u.kod} - ${u.cap}" ürün bilgileri ve KTM stokları (${ktmU.stok} kg) başarıyla eşitlendi.`, 'success');
     }
 
     function urunSil(id) {
@@ -10931,24 +11039,25 @@
       if (!u) return;
 
       DB.ktmUrunler = DB.ktmUrunler || [];
-      let ktmU = DB.ktmUrunler.find(k => k.kod === u.kod && k.cap === u.cap);
+      let ktmU = findKtmKartiForUrun(u);
+      const stdCap = (typeof standartCapFormat === 'function' ? standartCapFormat(u.cap) : '') || u.cap || '-';
       if (ktmU) {
         ktmU.ad = u.ad || u.kod;
         ktmU.tip = u.tip || 'Flux Cored Tel';
-        ktmU.cap = u.cap || '-';
+        ktmU.cap = stdCap;
         ktmU.paket = u.paket || '250 kg Drum/Bidon';
         ktmU.minStok = parseFloat(u.minStok) || 10;
         ktmU.kaynak = u.kaynak || 'FCW Üretim Hattı';
         ktmU.birimFiyat = parseFloat(u.birimFiyat) || 0;
         ktmU.lokasyon = u.lokasyon || '';
-        showToast(`ℹ️ "${u.kod} - ${u.cap}" zaten KTM stoklarında mevcut, kart bilgileri güncellendi.`, 'info');
+        showToast(`ℹ️ "${u.kod} - ${u.cap}" KTM kartı eşitlendi (Mevcut Stok: ${ktmU.stok || 0} kg).`, 'info');
       } else {
         DB.ktmUrunler.push({
-          id: Date.now() + Math.random(),
+          id: u.id || (Date.now() + Math.random()),
           kod: u.kod,
           ad: u.ad || u.kod,
           tip: u.tip || 'Flux Cored Tel',
-          cap: u.cap || '-',
+          cap: stdCap,
           paket: u.paket || '250 kg Drum/Bidon',
           minStok: parseFloat(u.minStok) || 10,
           kaynak: u.kaynak || 'FCW Üretim Hattı',
@@ -10975,14 +11084,15 @@
       let guncellenenSayisi = 0;
 
       urunler.forEach(u => {
-        let ktmU = DB.ktmUrunler.find(k => k.kod === u.kod && k.cap === u.cap);
+        let ktmU = findKtmKartiForUrun(u);
+        const stdCap = (typeof standartCapFormat === 'function' ? standartCapFormat(u.cap) : '') || u.cap || '-';
         if (!ktmU) {
           DB.ktmUrunler.push({
-            id: Date.now() + Math.random() + Math.random(),
+            id: u.id || (Date.now() + Math.random() + Math.random()),
             kod: u.kod,
             ad: u.ad || u.kod,
             tip: u.tip || 'Flux Cored Tel',
-            cap: u.cap || '-',
+            cap: stdCap,
             paket: u.paket || '250 kg Drum/Bidon',
             minStok: parseFloat(u.minStok) || 10,
             kaynak: u.kaynak || 'FCW Üretim Hattı',
@@ -10994,7 +11104,7 @@
         } else {
           ktmU.ad = u.ad || u.kod;
           ktmU.tip = u.tip || 'Flux Cored Tel';
-          ktmU.cap = u.cap || '-';
+          ktmU.cap = stdCap;
           ktmU.paket = u.paket || '250 kg Drum/Bidon';
           ktmU.minStok = parseFloat(u.minStok) || 10;
           ktmU.kaynak = u.kaynak || 'FCW Üretim Hattı';
@@ -11007,9 +11117,9 @@
       saveDB();
       renderAll();
 
-      let mesaj = `Eşitleme Tamamlandı!\n\n✨ ${eklenenSayisi} adet yeni ürün KTM Mamül Stok Kartlarına eklendi.\n🔄 ${guncellenenSayisi} adet mevcut ürün kartı güncellendi.`;
+      let mesaj = `Eşitleme ve Senkronizasyon Tamamlandı!\n\n✨ ${eklenenSayisi} adet yeni ürün KTM Mamül Stok Kartlarına eklendi.\n🔄 ${guncellenenSayisi} adet mevcut ürün kartı ve stokları eşitlendi.`;
       alert(mesaj);
-      showToast(`${eklenenSayisi} yeni ürün KTM kartlarına eklendi.`, 'success');
+      showToast(`${eklenenSayisi} yeni ürün eklendi, ${guncellenenSayisi} kart güncellendi.`, 'success');
     }
 
     function urunListele() {
@@ -11020,7 +11130,7 @@
       (DB.urunler || []).forEach(u => {
         const recete = DB.receteler[u.id] && DB.receteler[u.id].length > 0 ? '<span class="badge badge-success">Reçete Var</span>' : '<span class="badge badge-warning text-yellow-800">Reçete Yok</span>';
 
-        const ktmKarti = (DB.ktmUrunler || []).find(k => k.kod === u.kod && k.cap === u.cap);
+        const ktmKarti = findKtmKartiForUrun(u);
         const ktmBadge = ktmKarti
           ? `<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold text-[11px] flex items-center gap-1 w-max"><span>📦</span> Stok: ${parseFloat(ktmKarti.stok || 0).toFixed(1)} kg</span>`
           : `<button type="button" onclick="tekliKtmStokKartiEkle(${u.id})" class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-bold text-[11px] transition-colors flex items-center gap-1 shadow-xs" title="Bu ürün için tek tıkla KTM Stok Kartı aç"><span>➕</span> Kart Aç</button>`;
@@ -12312,29 +12422,62 @@
 
     function findKtmUrunByInput(str) {
       if (!str) return null;
-      const clean = str.toLowerCase().trim();
       const list = DB.ktmUrunler || [];
+      const clean = String(str).toLowerCase().trim();
 
-      // 1. Doğrudan id veya tam birebir eşleşmeler
-      let found = list.find(u => {
+      // 1. Doğrudan ID eşleşmesi
+      let found = list.find(u => String(u.id) === clean);
+      if (found) return found;
+
+      // Çap tespiti (örn: 1.6, 2.8, 1.2, 2.4, 3.2, 4.0 vb.)
+      const capMatch = str.match(/Ø?\s*([0-9]+(?:[\.,][0-9]+)?)\s*(?:mm)?/i);
+      const inputCap = capMatch ? capMatch[1].replace(',', '.') : '';
+
+      // 2. Tam metin eşleşmesi
+      found = list.find(u => {
         const fullCombo = `${u.ad ? u.ad + ' (' + u.kod + ')' : u.kod} (Çap: ${u.cap || '-'} | Paket: ${u.paket || '-'})`.toLowerCase();
-        const legacyFormat1 = `${u.kod} - ${u.ad} (${u.cap})`.toLowerCase();
-        const legacyFormat2 = `${u.kod} - ${u.ad}`.toLowerCase();
-        return fullCombo === clean || legacyFormat1 === clean || legacyFormat2 === clean;
+        const leg1 = `${u.kod} - ${u.ad} (${u.cap})`.toLowerCase();
+        const leg2 = `${u.kod} - ${u.ad}`.toLowerCase();
+        const leg3 = `${u.kod} - ${u.cap}`.toLowerCase();
+        const leg4 = `${u.ad} - ${u.cap}`.toLowerCase();
+        return fullCombo === clean || leg1 === clean || leg2 === clean || leg3 === clean || leg4 === clean;
       });
       if (found) return found;
 
-      // 2. Kod veya Ad birebir eşleşmesi
-      found = list.find(u => (u.kod && u.kod.toLowerCase() === clean) || (u.ad && u.ad.toLowerCase() === clean));
-      if (found) return found;
+      // 3. Kod/Ad + Çap birlikte eşleşmesi (ÇAP ÖNCELİKLİ!)
+      if (inputCap) {
+        found = list.find(u => {
+          const kodOrAdMatch = (u.kod && clean.includes(u.kod.toLowerCase())) || (u.ad && clean.includes(u.ad.toLowerCase()));
+          const capEq = typeof capEsit === 'function' ? capEsit(u.cap, inputCap) : u.cap === inputCap;
+          return kodOrAdMatch && capEq;
+        });
+        if (found) return found;
+      }
 
-      // 3. String içinde Kod veya Ad barındırma kontrolü (Örn: "AbraHARD 9800 (KTM-03)...")
-      found = list.find(u => {
+      // 4. Birebir Kod veya Ad tam eşitliği
+      const exactCodeMatches = list.filter(u => (u.kod && u.kod.toLowerCase() === clean) || (u.ad && u.ad.toLowerCase() === clean));
+      if (exactCodeMatches.length === 1) return exactCodeMatches[0];
+      if (exactCodeMatches.length > 1 && inputCap) {
+        const matchedByCap = exactCodeMatches.find(u => typeof capEsit === 'function' ? capEsit(u.cap, inputCap) : u.cap === inputCap);
+        if (matchedByCap) return matchedByCap;
+      }
+
+      // 5. Kod veya Ad içeren eşleşme
+      const candidates = list.filter(u => {
         const kodMatch = u.kod && clean.includes(u.kod.toLowerCase());
         const adMatch = u.ad && clean.includes(u.ad.toLowerCase());
         return kodMatch || adMatch;
       });
-      return found || null;
+
+      if (candidates.length > 0) {
+        if (inputCap) {
+          const exactCap = candidates.find(u => typeof capEsit === 'function' ? capEsit(u.cap, inputCap) : u.cap === inputCap);
+          if (exactCap) return exactCap;
+        }
+        return candidates[0];
+      }
+
+      return null;
     }
 
     function ktmHareketEkle() {
@@ -13300,7 +13443,10 @@
             tPaletKg += paletNetToplam;
             const fark = sipKg - paletNetToplam;
             const esit = Math.abs(fark) < 0.1;
-            const u = (DB.ktmUrunler || []).find(x => x.id == k.urunId || x.kod === k.urunKod);
+            let u = null;
+          if (k.urunId) u = (DB.ktmUrunler || []).find(x => String(x.id) === String(k.urunId));
+          if (!u) u = findKtmUrunByInput(`${k.urunKod || ''} ${k.urunCap || ''} ${k.urunAd || ''}`);
+          if (!u) u = (DB.ktmUrunler || []).find(x => x.kod === k.urunKod);
             const capPaketStr = u ? `${u.cap || '-'} / ${u.paket || '-'}` : '-';
 
             kHtml += `
