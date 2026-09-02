@@ -3122,6 +3122,49 @@
 
         <div id="apmVeriGiris" class="tab-content active">
 
+          <!-- ⚡ AKILLI PLAKA SEÇİCİ & OTOMATİK DOLDURUCU -->
+          <div class="card p-4 mb-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 text-white rounded-2xl shadow-lg border border-indigo-700/40 relative overflow-hidden">
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 relative z-10">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black text-2xl shadow-md shrink-0">
+                  ⚡
+                </div>
+                <div>
+                  <h3 class="font-black text-base md:text-lg text-amber-300 flex items-center gap-2">
+                    Plaka Seçerek Hızlı Üretim Verisi Doldur
+                    <span class="text-[10px] uppercase font-bold bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2 py-0.5 rounded-full">Yeni Özellik</span>
+                  </h3>
+                  <p class="text-xs text-blue-200/90 mt-0.5">Plaka kodunu seçtiğinizde Makine, En, Boy, Kalınlık ve Kayma otomatik dolar; <b>yalnızca Sıra Sayılarını</b> yazarsınız.</p>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 lg:max-w-xl">
+                <div class="relative flex-1">
+                  <span class="absolute left-3.5 top-3 text-slate-400 text-sm">🔍</span>
+                  <input type="text" id="apmHizliPlakaSecim" list="apmHizliPlakaDatalist" onchange="apmPlakadanVeriOtomatikDoldur()" placeholder="Plaka Adı / Kodu Yazın veya Listeden Seçin (Örn: NRC4, ST-364...)" class="w-full bg-slate-800/90 text-white border border-indigo-400/40 focus:border-amber-400 pl-9 pr-3.5 py-2.5 rounded-xl text-xs md:text-sm font-bold placeholder:text-slate-400/70 outline-none focus:ring-2 focus:ring-amber-400/30 transition-all shadow-inner">
+                  <datalist id="apmHizliPlakaDatalist"></datalist>
+                </div>
+                <button type="button" onclick="apmPlakadanVeriOtomatikDoldur()" class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs md:text-sm transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 shrink-0">
+                  <span>⚡</span> Bilgileri Doldur
+                </button>
+                <button type="button" onclick="apmHizliPlakaSifirla()" title="Seçimi ve kafaları temizle" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2.5 rounded-xl text-xs font-bold border border-slate-700 transition-colors shrink-0">
+                  Temizle
+                </button>
+              </div>
+            </div>
+
+            <!-- Seçili Plaka Bilgi Kartı (Otomatik Görünür) -->
+            <div id="apmSeciliPlakaBilgiKarti" class="hidden mt-3.5 pt-3 border-t border-white/10 flex flex-wrap items-center gap-2 text-xs">
+              <span class="font-bold text-amber-300 flex items-center gap-1">📌 Seçili Plaka:</span>
+              <span id="apmbg_ad" class="bg-indigo-900/80 text-white font-mono font-bold px-2 py-0.5 rounded border border-indigo-500/40"></span>
+              <span id="apmbg_makine" class="bg-amber-400/20 text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-400/30"></span>
+              <span id="apmbg_boyut" class="bg-blue-900/60 text-blue-200 px-2 py-0.5 rounded border border-blue-400/30"></span>
+              <span id="apmbg_kalinlik" class="bg-emerald-900/60 text-emerald-200 px-2 py-0.5 rounded border border-emerald-400/30"></span>
+              <span id="apmbg_tel" class="bg-purple-900/60 text-purple-200 px-2 py-0.5 rounded border border-purple-400/30"></span>
+              <span class="text-emerald-400 font-bold ml-auto flex items-center gap-1">✅ Kafalar hazırlandı, lütfen sıra sayılarını giriniz.</span>
+            </div>
+          </div>
+
           <div
             class="card p-5 mb-6 border-l-4 border-l-blue-600 bg-gradient-to-r from-slate-50 to-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div class="flex-1 w-full">
@@ -3167,9 +3210,19 @@
           </div>
 
           <div class="card p-5 mb-6 shadow-md">
-            <h3 class="font-bold mb-4 text-slate-800 text-lg flex items-center gap-2">⚙️ Kafa Verileri <span
-                class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded ml-2">(Kalınlık ve En m²
-                hesabına dahil edilmez.)</span></h3>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+              <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                ⚙️ Kafa Verileri 
+                <span class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded ml-2 hidden md:inline">(Kalınlık ve En m² hesabına dahil edilmez.)</span>
+              </h3>
+              <div class="flex items-center gap-2 bg-indigo-50/80 border border-indigo-200 px-3 py-1.5 rounded-xl text-xs w-full sm:w-auto justify-between sm:justify-start">
+                <span class="font-bold text-indigo-900 flex items-center gap-1">⚡ Toplu Sıra Sayısı:</span>
+                <input type="number" id="apmTopluSiraInput" min="1" placeholder="Örn: 30" class="w-16 bg-white border border-indigo-300 rounded-lg px-2 py-1 text-center font-bold text-indigo-950 outline-none focus:ring-2 focus:ring-indigo-400">
+                <button type="button" onclick="apmTumKafalaraSiraUygula()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow-xs transition-colors">
+                  Tümüne Uygula
+                </button>
+              </div>
+            </div>
             <div class="table-responsive rounded-xl border border-slate-200">
               <table class="w-full text-sm text-center">
                 <thead class="bg-slate-100 border-b border-slate-200 text-xs">
@@ -7594,6 +7647,156 @@
 
     /* ============== APM ÜRETİM VERİLERİ MODÜLÜ (GÜNCELLENEN SİSTEM) ============== */
 
+    
+    /* ========================================================================= */
+    /* APM PLAKADAN OTOMATİK VERİ DOLDURMA MOTORU                                 */
+    /* ========================================================================= */
+    function apmHizliPlakaDatalistDoldur() {
+      const datalist = document.getElementById('apmHizliPlakaDatalist');
+      if (!datalist) return;
+
+      const plakalar = DB.apmPlakalar || [];
+      if (plakalar.length === 0) {
+        datalist.innerHTML = '';
+        return;
+      }
+
+      // Aktif (Tamamlanmamış) olanları başa al, tüm plakaları listele
+      let optionsHtml = '';
+      plakalar.forEach(p => {
+        const makine = p.makine || 'APM';
+        const plakaAd = p.plaka || p.plakaNo || p.ttNo || 'Plaka';
+        const boy = p.kaynakBoy || p.sacBoy || '-';
+        const en = p.kaynakEn || p.sacEn || '-';
+        const kal = p.toplamKalinlik || (parseFloat(p.anaMetal || 0) + parseFloat(p.kaplama || 0)) || '-';
+        const tel = p.telKodu || p.kaynakCinsi || '';
+        const durum = p.durum || 'Planlandı';
+
+        const label = `[${makine}] ${plakaAd} - Boy: ${boy}mm, En: ${en}mm, Kal: ${kal}mm ${tel ? '(' + tel + ')' : ''} [${durum}]`;
+        optionsHtml += `<option value="${plakaAd} (${makine})" data-id="${p.id}">${label}</option>`;
+      });
+
+      datalist.innerHTML = optionsHtml;
+    }
+
+    function apmPlakadanVeriOtomatikDoldur() {
+      const inp = document.getElementById('apmHizliPlakaSecim');
+      if (!inp) return;
+      const val = inp.value.trim();
+      if (!val) return;
+
+      const plakalar = DB.apmPlakalar || [];
+      const cleanVal = val.toLowerCase();
+
+      // Plakayı akıllıca bul (tam isim, plaka kodu veya parantez içi makineyle)
+      let p = plakalar.find(x => {
+        const fullKey = `${(x.plaka || '').toLowerCase()} (${(x.makine || '').toLowerCase()})`;
+        return fullKey === cleanVal || (x.plaka && x.plaka.toLowerCase() === cleanVal);
+      });
+
+      if (!p) {
+        p = plakalar.find(x => {
+          const pName = (x.plaka || '').toLowerCase();
+          const pTt = (x.ttNo || '').toLowerCase();
+          return pName.includes(cleanVal) || cleanVal.includes(pName) || (pTt && cleanVal.includes(pTt));
+        });
+      }
+
+      if (!p) {
+        showToast('Girilen plaka kaydı bulunamadı. Lütfen listeden seçiniz.', 'warning');
+        return;
+      }
+
+      // 1. Makine Kodu
+      const makineInput = document.getElementById('apmMakine');
+      if (makineInput) {
+        makineInput.value = p.makine || 'APM-3';
+      }
+
+      // 2. Boyutlar ve Parametreler
+      const en = parseFloat(p.kaynakEn) || parseFloat(p.sacEn) || 1410;
+      const boy = parseFloat(p.kaynakBoy) || parseFloat(p.sacBoy) || 2910;
+      const kalinlik = parseFloat(p.toplamKalinlik) || (parseFloat(p.anaMetal || 0) + parseFloat(p.kaplama || 0)) || 10;
+      const kayma = parseFloat(p.kayma) || 5;
+
+      // 3. Tüm 6 Kafaya bilgileri otomatik aktar
+      for (let i = 1; i <= 6; i++) {
+        const enEl = document.getElementById(`apmKafaEn_${i}`);
+        const kalEl = document.getElementById(`apmKafaKalinlik_${i}`);
+        const kayEl = document.getElementById(`apmKafaKayma_${i}`);
+        const boyEl = document.getElementById(`apmKafaBoy_${i}`);
+
+        if (enEl) enEl.value = en;
+        if (kalEl) kalEl.value = kalinlik;
+        if (kayEl) kayEl.value = kayma;
+        if (boyEl) boyEl.value = boy;
+      }
+
+      // 4. Bilgi Kartını Göster
+      const badgeCard = document.getElementById('apmSeciliPlakaBilgiKarti');
+      if (badgeCard) {
+        badgeCard.classList.remove('hidden');
+        document.getElementById('apmbg_ad').innerText = p.plaka || 'Plaka';
+        document.getElementById('apmbg_makine').innerText = p.makine || '-';
+        document.getElementById('apmbg_boyut').innerText = `Boy: ${boy} mm × En: ${en} mm`;
+        document.getElementById('apmbg_kalinlik').innerText = `Kalınlık: ${kalinlik} mm (Kayma: ${kayma} mm)`;
+        document.getElementById('apmbg_tel').innerText = `Tel: ${p.telKodu || p.kaynakCinsi || '-'}`;
+      }
+
+      // 5. Tarih boşsa bugünün tarihini ver
+      const tarihEl = document.getElementById('apmTarih');
+      if (tarihEl && !tarihEl.value) {
+        tarihEl.value = new Date().toISOString().slice(0, 10);
+      }
+
+      // 6. Sıra sayısı alanına odaklan (Kafa 1 Sıra Sayısı)
+      const sira1 = document.getElementById('apmKafaSira_1');
+      if (sira1) {
+        sira1.focus();
+        sira1.select();
+      }
+
+      hesaplaApmM2();
+      showToast(`⚡ "${p.plaka}" (${p.makine}) bilgileri yüklendi! Sadece sıra sayılarını girmeniz yeterlidir.`, 'success');
+    }
+
+    function apmHizliPlakaSifirla() {
+      const inp = document.getElementById('apmHizliPlakaSecim');
+      if (inp) inp.value = '';
+
+      const badgeCard = document.getElementById('apmSeciliPlakaBilgiKarti');
+      if (badgeCard) badgeCard.classList.add('hidden');
+
+      for (let i = 1; i <= 6; i++) {
+        if (document.getElementById(`apmKafaEn_${i}`)) document.getElementById(`apmKafaEn_${i}`).value = '';
+        if (document.getElementById(`apmKafaKalinlik_${i}`)) document.getElementById(`apmKafaKalinlik_${i}`).value = '';
+        if (document.getElementById(`apmKafaSira_${i}`)) document.getElementById(`apmKafaSira_${i}`).value = '';
+        if (document.getElementById(`apmKafaKayma_${i}`)) document.getElementById(`apmKafaKayma_${i}`).value = '';
+        if (document.getElementById(`apmKafaBoy_${i}`)) document.getElementById(`apmKafaBoy_${i}`).value = '';
+        if (document.getElementById(`apmKafaM2_${i}`)) document.getElementById(`apmKafaM2_${i}`).innerText = '0.00';
+      }
+      if (document.getElementById('apmGenelToplamM2')) document.getElementById('apmGenelToplamM2').innerText = '0.00';
+      showToast('Kafa verileri ve plaka seçimi sıfırlandı.', 'info');
+    }
+
+    function apmTumKafalaraSiraUygula() {
+      const topInp = document.getElementById('apmTopluSiraInput');
+      if (!topInp) return;
+      const siraVal = parseFloat(topInp.value);
+      if (isNaN(siraVal) || siraVal <= 0) {
+        alert('Lütfen geçerli bir sıra sayısı giriniz (Örn: 30)');
+        return;
+      }
+
+      for (let i = 1; i <= 6; i++) {
+        const siraEl = document.getElementById(`apmKafaSira_${i}`);
+        if (siraEl) siraEl.value = siraVal;
+      }
+
+      hesaplaApmM2();
+      showToast(`⚡ Tüm 6 kafaya ${siraVal} sıra uygulandı ve toplam m² hesaplandı!`, 'success');
+    }
+
     function renderApmKafaGrid() {
       let html = '';
       let tabIdx = 10;
@@ -7610,6 +7813,7 @@
       }
       const bodyEl = document.getElementById('apmKafaBody');
       if (bodyEl) bodyEl.innerHTML = html;
+      apmHizliPlakaDatalistDoldur();
     }
 
     function hesaplaApmM2() {
