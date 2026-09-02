@@ -7668,11 +7668,11 @@
         const plakaAd = p.plaka || p.plakaNo || p.ttNo || 'Plaka';
         const boy = p.kaynakBoy || p.sacBoy || '-';
         const en = p.kaynakEn || p.sacEn || '-';
-        const kal = p.toplamKalinlik || (parseFloat(p.anaMetal || 0) + parseFloat(p.kaplama || 0)) || '-';
+        const kaplamaKal = p.kaplama || (parseFloat(p.toplamKalinlik || 0) - parseFloat(p.anaMetal || 0)) || '-';
         const tel = p.telKodu || p.kaynakCinsi || '';
         const durum = p.durum || 'Planlandı';
 
-        const label = `[${makine}] ${plakaAd} - Boy: ${boy}mm, En: ${en}mm, Kal: ${kal}mm ${tel ? '(' + tel + ')' : ''} [${durum}]`;
+        const label = `[${makine}] ${plakaAd} - Boy: ${boy}mm, En: ${en}mm, Kaplama: ${kaplamaKal}mm (AnaMetal: ${p.anaMetal || '-'}mm) ${tel ? '(' + tel + ')' : ''} [${durum}]`;
         optionsHtml += `<option value="${plakaAd} (${makine})" data-id="${p.id}">${label}</option>`;
       });
 
@@ -7716,7 +7716,8 @@
       // 2. Boyutlar ve Parametreler
       const en = parseFloat(p.kaynakEn) || parseFloat(p.sacEn) || 1410;
       const boy = parseFloat(p.kaynakBoy) || parseFloat(p.sacBoy) || 2910;
-      const kalinlik = parseFloat(p.toplamKalinlik) || (parseFloat(p.anaMetal || 0) + parseFloat(p.kaplama || 0)) || 10;
+      // Kalınlık olarak doğrudan KAPLAMA KALINLIĞI alınır (Toplam kalınlık değil)
+      const kalinlik = parseFloat(p.kaplama) || (parseFloat(p.toplamKalinlik || 0) - parseFloat(p.anaMetal || 0)) || 4;
       const kayma = parseFloat(p.kayma) || 5;
 
       // 3. Tüm 6 Kafaya bilgileri otomatik aktar
@@ -7739,7 +7740,7 @@
         document.getElementById('apmbg_ad').innerText = p.plaka || 'Plaka';
         document.getElementById('apmbg_makine').innerText = p.makine || '-';
         document.getElementById('apmbg_boyut').innerText = `Boy: ${boy} mm × En: ${en} mm`;
-        document.getElementById('apmbg_kalinlik').innerText = `Kalınlık: ${kalinlik} mm (Kayma: ${kayma} mm)`;
+        document.getElementById('apmbg_kalinlik').innerText = `Kaplama: ${kalinlik} mm (Ana Metal: ${p.anaMetal || '-'} mm | Toplam: ${p.toplamKalinlik || '-'} mm | Kayma: ${kayma} mm)`;
         document.getElementById('apmbg_tel').innerText = `Tel: ${p.telKodu || p.kaynakCinsi || '-'}`;
       }
 
