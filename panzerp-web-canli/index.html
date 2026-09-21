@@ -3148,96 +3148,74 @@
 
         <!-- TALEP OLUŞTURMA KARTI -->
         <div class="card p-5 border border-slate-200 bg-white rounded-2xl shadow-sm mb-6">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-            <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
-              <span class="p-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs">➕</span> Yeni Malzeme / Sarf Talebi Oluştur
-            </h3>
-            <span class="text-[11px] text-slate-400 font-medium">Tüm sahalar (FCW / APM / Mekanik / Bakım) kullanabilir</span>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 mb-4 gap-2">
+            <div>
+              <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
+                <span class="p-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs">➕</span> Yeni Malzeme / Sarf Talebi Oluştur
+              </h3>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">Tek bir talep altında birden fazla malzeme, sarf veya yedek parça kalemi (Rulman, WD40 vb.) ekleyebilirsiniz.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="malzemeTalepKalemEkleSatiri()"
+                class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer">
+                <span>➕</span> <span>Yeni Ürün / Kalem Ekle</span>
+              </button>
+            </div>
           </div>
 
-          <form id="malzemeTalepForm" onsubmit="event.preventDefault(); malzemeTalepKaydet();" class="grid grid-cols-1 md:grid-cols-12 gap-3.5 text-xs">
-            <!-- Malzeme Adı / Tanımı -->
-            <div class="md:col-span-4">
-              <label class="block font-bold text-slate-700 mb-1">Talep Edilen Malzeme / Kalem <span class="text-rose-500">*</span></label>
-              <input type="text" id="mtMalzemeAdi" required
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-slate-50 focus:bg-white font-bold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-300 shadow-inner"
-                placeholder="Örn: 2.8 mm RollHARD Tel / Gaz / Rulman / Yağ...">
-            </div>
-
-            <!-- Miktar ve Birim -->
-            <div class="md:col-span-2">
-              <label class="block font-bold text-slate-700 mb-1">Miktar <span class="text-rose-500">*</span></label>
-              <input type="number" step="0.01" id="mtMiktar" required
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-black text-indigo-700 text-sm outline-none focus:ring-2 focus:ring-indigo-300 shadow-xs"
-                placeholder="Örn: 50">
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="block font-bold text-slate-700 mb-1">Birim <span class="text-rose-500">*</span></label>
-              <select id="mtBirim" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 outline-none">
-                <option value="kg">kg</option>
-                <option value="adet">adet</option>
-                <option value="bidon">bidon</option>
-                <option value="makara">makara</option>
-                <option value="metre">metre</option>
-                <option value="koli">koli</option>
-                <option value="litre">litre</option>
-                <option value="paket">paket</option>
-              </select>
-            </div>
-
-            <!-- Hat / Makine / Bölüm -->
-            <div class="md:col-span-2">
-              <label class="block font-bold text-slate-700 mb-1">Hat / Makine / Bölüm <span class="text-rose-500">*</span></label>
-              <select id="mtBolum" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-semibold text-slate-700 outline-none">
-                <option value="APM-1">APM-1</option>
-                <option value="APM-2">APM-2</option>
-                <option value="APM-3">APM-3</option>
-                <option value="APM-4">APM-4</option>
-                <option value="APM-5">APM-5</option>
-                <option value="APM-6">APM-6</option>
-                <option value="Kaba Çekme-1">Kaba Çekme-1</option>
-                <option value="Kaba Çekme-2">Kaba Çekme-2</option>
-                <option value="İnce Çekme">İnce Çekme</option>
-                <option value="Bidon Sarma">Bidon Sarma</option>
-                <option value="Hassas Sarma">Hassas Sarma</option>
-                <option value="Mekanik & Bakım">Mekanik & Bakım</option>
-                <option value="Genel Depo">Genel Depo</option>
-              </select>
-            </div>
-
-            <!-- Aciliyet -->
-            <div class="md:col-span-2">
+          <!-- ÜST BİLGİ ALANLARI (Aciliyet & Genel Not) -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4 text-xs">
+            <div class="md:col-span-3">
               <label class="block font-bold text-slate-700 mb-1">Aciliyet Durumu <span class="text-rose-500">*</span></label>
-              <select id="mtAciliyet" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 outline-none">
+              <select id="mtAciliyet" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-300 shadow-xs">
                 <option value="Normal">🟢 Normal</option>
                 <option value="Acil">🟡 Acil (Gün İçi)</option>
                 <option value="Kritik">🔴 Kritik / Makine Duruşu</option>
               </select>
             </div>
-
-            <!-- Talep Eden Operatör & Not -->
-            <div class="md:col-span-4">
-              <label class="block font-bold text-slate-700 mb-1">Talep Eden Personel</label>
-              <input type="text" id="mtTalepEden"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-slate-800 font-medium outline-none"
-                placeholder="Personel Adı Soyadı">
+            <div class="md:col-span-9">
+              <label class="block font-bold text-slate-700 mb-1">Talep Notu / Kullanım Amacı (Opsiyonel)</label>
+              <input type="text" id="mtGenelNot"
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-slate-800 outline-none focus:ring-2 focus:ring-indigo-300 shadow-xs placeholder:text-slate-400"
+                placeholder="Örn: Mekanik bakım ve atölye sarf ihtiyacı...">
             </div>
+          </div>
 
-            <div class="md:col-span-6">
-              <label class="block font-bold text-slate-700 mb-1">Açıklama / Kullanım Yeri / Gerekçe</label>
-              <input type="text" id="mtAciklama"
-                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-slate-800 font-medium outline-none"
-                placeholder="Hangi iş emri veya operasyon için gerektiği...">
-            </div>
+          <!-- TALEP EDİLEN ÜRÜNLER TABLOSU -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden mb-4 shadow-2xs">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100/90 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="p-2.5 text-center w-10">#</th>
+                  <th class="p-2.5 min-w-[200px]">Ürün / Malzeme Adı <span class="text-rose-500">*</span></th>
+                  <th class="p-2.5 min-w-[180px]">Özelliği <span class="text-rose-500">*</span></th>
+                  <th class="p-2.5 min-w-[160px]">Standardı / Markası</th>
+                  <th class="p-2.5 w-32 text-right">Adet / Miktar <span class="text-rose-500">*</span></th>
+                  <th class="p-2.5 w-28">Birimi</th>
+                  <th class="p-2.5 text-center w-12">Sil</th>
+                </tr>
+              </thead>
+              <tbody id="mtKalemlerBody" class="divide-y divide-slate-100 bg-white">
+                <!-- JS ile dinamik kalem satırları -->
+              </tbody>
+            </table>
+          </div>
 
-            <div class="md:col-span-2 flex items-end">
-              <button type="submit"
-                class="w-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-black py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-amber-400/20 active:scale-[0.98] cursor-pointer">
-                <span>📤</span> <span>Talebi İlet</span>
+          <!-- ALT AKSİYON ÇUBUĞU -->
+          <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-1">
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="malzemeTalepKalemEkleSatiri()"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200">
+                <span>➕</span> <span>Başka Bir Ürün / Kalem Ekle</span>
               </button>
+              <span class="text-xs text-slate-500 font-medium ml-2">Toplam: <b id="mtToplamKalemSayisi" class="text-slate-900 font-black">0</b> kalem</span>
             </div>
-          </form>
+
+            <button type="button" onclick="malzemeTalepKaydet()"
+              class="w-full sm:w-auto bg-slate-950 hover:bg-slate-900 text-amber-400 font-black px-6 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-2 border border-amber-400/20 active:scale-[0.98] cursor-pointer">
+              <span>📤</span> <span>Tüm Malzeme Talebini İlet ve Kaydet</span>
+            </button>
+          </div>
         </div>
 
         <!-- TALEP LİSTESİ TABLOSU & FİLTRELER -->
@@ -3259,7 +3237,7 @@
             </div>
             <div class="w-full sm:w-64">
               <input type="text" id="mtAramaInput" oninput="renderMalzemeTalepleri()"
-                placeholder="Malzeme, personel veya makine ara..."
+                placeholder="Ürün, özellik veya standart ara..."
                 class="border border-slate-200 bg-slate-50 px-3 py-1.5 rounded-xl text-xs w-full outline-none focus:bg-white focus:ring-2 focus:ring-indigo-200">
             </div>
           </div>
@@ -3268,11 +3246,9 @@
             <table class="w-full text-xs text-left">
               <thead class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
                 <tr>
-                  <th class="p-3">Tarih / Saat</th>
-                  <th class="p-3">Talep Eden</th>
-                  <th class="p-3">Makine / Hat</th>
-                  <th class="p-3">Malzeme & Kalem</th>
-                  <th class="p-3 text-right">Miktar</th>
+                  <th class="p-3">Talep No & Tarih</th>
+                  <th class="p-3">Talep Edilen Ürünler / Malzemeler</th>
+                  <th class="p-3 text-center">Toplam Kalem</th>
                   <th class="p-3 text-center">Aciliyet</th>
                   <th class="p-3 text-center">Durum</th>
                   <th class="p-3 text-right">İşlem / Aksiyon</th>
@@ -15516,9 +15492,120 @@
     }
 
     /* ========================================================================= */
-    /* OPERATÖR MALZEME & SARF TALEP MOTORU                                      */
+    /* ÇOKLU MALZEME & SARF TALEP MOTORU                                         */
     /* ========================================================================= */
     let mtAktifFiltre = 'hepsi';
+    let mtDraftKalemler = [];
+
+    function malzemeTalepFormSifirla() {
+      mtDraftKalemler = [];
+      if (document.getElementById('mtGenelNot')) document.getElementById('mtGenelNot').value = '';
+      if (document.getElementById('mtAciliyet')) document.getElementById('mtAciliyet').value = 'Normal';
+      malzemeTalepKalemEkleSatiri({ urunAdi: '', ozellik: '', standart: '', miktar: '', birim: 'adet' });
+      malzemeTalepKalemEkleSatiri({ urunAdi: '', ozellik: '', standart: '', miktar: '', birim: 'adet' });
+      malzemeTalepKalemleriRender();
+    }
+
+    function malzemeTalepKalemEkleSatiri(veri = null) {
+      mtDraftKalemler.push({
+        id: Date.now() + Math.random(),
+        urunAdi: veri ? (veri.urunAdi || '') : '',
+        ozellik: veri ? (veri.ozellik || '') : '',
+        standart: veri ? (veri.standart || '') : '',
+        miktar: veri && veri.miktar ? veri.miktar : '',
+        birim: veri && veri.birim ? veri.birim : 'adet'
+      });
+      malzemeTalepKalemleriRender();
+    }
+
+    function malzemeTalepKalemSilSatiri(idx) {
+      if (mtDraftKalemler.length <= 1) {
+        mtDraftKalemler[0] = { id: Date.now(), urunAdi: '', ozellik: '', standart: '', miktar: '', birim: 'adet' };
+      } else {
+        mtDraftKalemler.splice(idx, 1);
+      }
+      malzemeTalepKalemleriRender();
+    }
+
+    function malzemeTalepKalemGuncelle(idx, alan, deger) {
+      if (!mtDraftKalemler[idx]) return;
+      mtDraftKalemler[idx][alan] = deger;
+      const sayacEl = document.getElementById('mtToplamKalemSayisi');
+      if (sayacEl) {
+        const doluSayisi = mtDraftKalemler.filter(k => (k.urunAdi || '').trim().length > 0).length;
+        sayacEl.textContent = doluSayisi || mtDraftKalemler.length;
+      }
+    }
+
+    function malzemeTalepKalemleriRender() {
+      const tbody = document.getElementById('mtKalemlerBody');
+      if (!tbody) return;
+
+      if (mtDraftKalemler.length === 0) {
+        mtDraftKalemler.push({ id: Date.now(), urunAdi: '', ozellik: '', standart: '', miktar: '', birim: 'adet' });
+      }
+
+      let html = '';
+      mtDraftKalemler.forEach((k, idx) => {
+        html += `
+          <tr class="hover:bg-slate-50/70 transition-colors">
+            <td class="p-2.5 text-center font-bold text-slate-400 text-xs">${idx + 1}</td>
+            <td class="p-2">
+              <input type="text" value="${(k.urunAdi || '').replace(/"/g, '&quot;')}"
+                oninput="malzemeTalepKalemGuncelle(${idx}, 'urunAdi', this.value)"
+                placeholder="Örn: Rulman, WD40, Zımpara..."
+                class="border border-slate-300 p-2 rounded-lg w-full text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300">
+            </td>
+            <td class="p-2">
+              <input type="text" value="${(k.ozellik || '').replace(/"/g, '&quot;')}"
+                oninput="malzemeTalepKalemGuncelle(${idx}, 'ozellik', this.value)"
+                placeholder="Örn: 6204-2RS, 400 ml, 180 Kum..."
+                class="border border-slate-300 p-2 rounded-lg w-full text-xs text-slate-700 bg-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300">
+            </td>
+            <td class="p-2">
+              <input type="text" value="${(k.standart || '').replace(/"/g, '&quot;')}"
+                oninput="malzemeTalepKalemGuncelle(${idx}, 'standart', this.value)"
+                placeholder="Örn: SKF, Orijinal, DIN 625..."
+                class="border border-slate-300 p-2 rounded-lg w-full text-xs text-slate-700 bg-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300">
+            </td>
+            <td class="p-2">
+              <input type="number" step="0.01" value="${k.miktar !== undefined && k.miktar !== null ? k.miktar : ''}"
+                oninput="malzemeTalepKalemGuncelle(${idx}, 'miktar', this.value)"
+                placeholder="Adet"
+                class="border border-slate-300 p-2 rounded-lg w-full text-xs font-black text-indigo-700 text-right bg-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300">
+            </td>
+            <td class="p-2">
+              <select onchange="malzemeTalepKalemGuncelle(${idx}, 'birim', this.value)"
+                class="border border-slate-300 p-2 rounded-lg w-full text-xs font-semibold text-slate-700 bg-white outline-none">
+                <option value="adet" ${k.birim === 'adet' ? 'selected' : ''}>adet</option>
+                <option value="koli" ${k.birim === 'koli' ? 'selected' : ''}>koli</option>
+                <option value="paket" ${k.birim === 'paket' ? 'selected' : ''}>paket</option>
+                <option value="kutu" ${k.birim === 'kutu' ? 'selected' : ''}>kutu</option>
+                <option value="teneke" ${k.birim === 'teneke' ? 'selected' : ''}>teneke</option>
+                <option value="kg" ${k.birim === 'kg' ? 'selected' : ''}>kg</option>
+                <option value="litre" ${k.birim === 'litre' ? 'selected' : ''}>litre</option>
+                <option value="metre" ${k.birim === 'metre' ? 'selected' : ''}>metre</option>
+                <option value="makara" ${k.birim === 'makara' ? 'selected' : ''}>makara</option>
+                <option value="bidon" ${k.birim === 'bidon' ? 'selected' : ''}>bidon</option>
+              </select>
+            </td>
+            <td class="p-2 text-center">
+              <button type="button" onclick="malzemeTalepKalemSilSatiri(${idx})" title="Kalemi Sil"
+                class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+
+      const sayacEl = document.getElementById('mtToplamKalemSayisi');
+      if (sayacEl) {
+        const doluSayisi = mtDraftKalemler.filter(k => (k.urunAdi || '').trim().length > 0).length;
+        sayacEl.textContent = doluSayisi || mtDraftKalemler.length;
+      }
+    }
 
     function filtreleMalzemeTalep(filtre) {
       mtAktifFiltre = filtre;
@@ -15536,35 +15623,54 @@
     }
 
     function malzemeTalepKaydet() {
-      const malzeme = (document.getElementById('mtMalzemeAdi')?.value || '').trim();
-      const miktar = parseFloat(document.getElementById('mtMiktar')?.value) || 0;
-      const birim = document.getElementById('mtBirim')?.value || 'kg';
-      const bolum = document.getElementById('mtBolum')?.value || 'APM-1';
       const aciliyet = document.getElementById('mtAciliyet')?.value || 'Normal';
-      let talepEden = (document.getElementById('mtTalepEden')?.value || '').trim();
-      const aciklama = (document.getElementById('mtAciklama')?.value || '').trim();
+      const genelNot = (document.getElementById('mtGenelNot')?.value || '').trim();
 
-      if (!malzeme || miktar <= 0) {
-        alert('Lütfen talep edilen malzeme adını ve geçerli bir miktar giriniz!');
+      // DOM'daki anlık input değerlerini de mtDraftKalemler ile senkronize et
+      const tableRows = document.querySelectorAll('#mtKalemlerBody tr');
+      tableRows.forEach((row, idx) => {
+        if (mtDraftKalemler[idx]) {
+          const inputs = row.querySelectorAll('input');
+          if (inputs[0]) mtDraftKalemler[idx].urunAdi = inputs[0].value.trim();
+          if (inputs[1]) mtDraftKalemler[idx].ozellik = inputs[1].value.trim();
+          if (inputs[2]) mtDraftKalemler[idx].standart = inputs[2].value.trim();
+          if (inputs[3]) mtDraftKalemler[idx].miktar = parseFloat(inputs[3].value) || 0;
+          const sel = row.querySelector('select');
+          if (sel) mtDraftKalemler[idx].birim = sel.value;
+        }
+      });
+
+      // Geçerli kalemleri filtrele
+      const gecerliKalemler = (mtDraftKalemler || []).filter(k => {
+        const ad = (k.urunAdi || '').trim();
+        const mik = parseFloat(k.miktar);
+        return ad.length > 0 && mik > 0;
+      });
+
+      if (gecerliKalemler.length === 0) {
+        alert('Lütfen en az 1 adet ürün / malzeme adı ve miktarı giriniz!\n(Örn: Rulman - 4 adet)');
         return;
       }
 
-      if (!talepEden && aktifKullanici) {
-        talepEden = aktifKullanici.ad || 'Operatör';
-      }
-
       ensureDBArrays();
+      const tarih = new Date().toISOString();
+      const talepNo = 'TLP-' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + '-' + Math.floor(100 + Math.random() * 900);
+
       const yeniTalep = {
         id: Date.now(),
-        malzeme,
-        miktar,
-        birim,
-        bolum,
+        talepNo,
+        tarih,
         aciliyet,
-        talepEden: talepEden || 'Operatör',
-        aciklama,
-        tarih: new Date().toISOString(),
+        not: genelNot,
         durum: 'bekliyor',
+        kalemler: gecerliKalemler.map((k, i) => ({
+          kalemNo: i + 1,
+          urunAdi: k.urunAdi.trim(),
+          ozellik: (k.ozellik || '').trim(),
+          standart: (k.standart || '').trim(),
+          miktar: parseFloat(k.miktar) || 1,
+          birim: k.birim || 'adet'
+        })),
         karsilayan: null,
         karsilanmaTarihi: null
       };
@@ -15573,14 +15679,15 @@
       saveDB(true);
 
       // Formu sıfırla
-      if (document.getElementById('mtMalzemeAdi')) document.getElementById('mtMalzemeAdi').value = '';
-      if (document.getElementById('mtMiktar')) document.getElementById('mtMiktar').value = '';
-      if (document.getElementById('mtAciklama')) document.getElementById('mtAciklama').value = '';
+      malzemeTalepFormSifirla();
 
-      showToast(`"${malzeme}" talebi başarıyla iletildi.`, 'success');
+      showToast(`"${talepNo}" numaralı malzeme talebi (${gecerliKalemler.length} Kalem) iletildi.`, 'success');
+
+      // Bildirim metni
+      let kalemlerOzet = gecerliKalemler.map(k => `• ${k.urunAdi} (${k.ozellik || ''}): ${k.miktar} ${k.birim}`).join('\n');
       bildirimGonder(
-        `Yeni Malzeme Talebi: ${malzeme}`,
-        `${bolum} bölümünden ${talepEden} tarafından ${miktar} ${birim} ${malzeme} talep edildi. (Aciliyet: ${aciliyet})`,
+        `Yeni Malzeme Talebi (${gecerliKalemler.length} Kalem)`,
+        `Talep No: ${talepNo}\nAciliyet: ${aciliyet}\n${kalemlerOzet}`,
         aciliyet === 'Kritik' ? 'error' : (aciliyet === 'Acil' ? 'warning' : 'info'),
         true
       );
@@ -15595,7 +15702,7 @@
 
       talep.durum = yeniDurum;
       if (yeniDurum === 'karsilandi') {
-        talep.karsilayan = aktifKullanici ? aktifKullanici.ad : 'Depo / Yönetim';
+        talep.karsilayan = aktifKullanici ? aktifKullanici.ad : 'Depo / Satınalma';
         talep.karsilanmaTarihi = new Date().toISOString();
         showToast(`Talep karşılandı olarak işaretlendi.`, 'success');
       } else {
@@ -15615,6 +15722,36 @@
       saveDB(true);
       renderMalzemeTalepleri();
       showToast('Talep silindi.', 'info');
+    }
+
+    function malzemeTalepWhatsAppGonder(talepId) {
+      ensureDBArrays();
+      const talep = (DB.malzemeTalepleri || []).find(t => t.id === talepId);
+      if (!talep) return;
+
+      const kalemler = Array.isArray(talep.kalemler) && talep.kalemler.length > 0 ? talep.kalemler : [{
+        urunAdi: talep.malzeme || 'Malzeme',
+        ozellik: talep.aciklama || '-',
+        standart: '-',
+        miktar: talep.miktar || 1,
+        birim: talep.birim || 'adet'
+      }];
+
+      let urunlerMetin = '';
+      kalemler.forEach((k, idx) => {
+        urunlerMetin += `\n${idx + 1}. *${k.urunAdi}*`;
+        if (k.ozellik) urunlerMetin += ` - Özellik: ${k.ozellik}`;
+        if (k.standart && k.standart !== '-') urunlerMetin += ` | Std/Marka: ${k.standart}`;
+        urunlerMetin += ` ➔ *${k.miktar} ${k.birim || 'adet'}*`;
+      });
+
+      const d = talep.tarih ? new Date(talep.tarih) : new Date();
+      const tarihStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+      const waText = `*PANZERCROM - MALZEME & SARF TALEBİ*\n\n📋 *Talep No:* ${talep.talepNo || ('TLP-' + talep.id)}\n📅 *Tarih:* ${tarihStr}\n🚨 *Aciliyet:* ${talep.aciliyet || 'Normal'}${talep.not ? '\n📝 *Talep Notu:* ' + talep.not : ''}\n\n📦 *TALEP EDİLEN MALZEMELER:*${urunlerMetin}\n\nLütfen temin / tedarik durumunu bildiriniz.`;
+
+      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
+      window.open(url, '_blank');
     }
 
     function renderMalzemeTalepleri() {
@@ -15647,6 +15784,11 @@
         }
       }
 
+      // Eğer form draft kalemleri boşsa ilk 2 boş satırı render et
+      if (!mtDraftKalemler || mtDraftKalemler.length === 0) {
+        malzemeTalepFormSifirla();
+      }
+
       if (!tbody) return;
 
       let list = [...talepler];
@@ -15654,16 +15796,18 @@
       else if (mtAktifFiltre === 'karsilandi') list = list.filter(t => t.durum === 'karsilandi');
 
       if (arama) {
-        list = list.filter(t =>
-          (t.malzeme && t.malzeme.toLowerCase().includes(arama)) ||
-          (t.talepEden && t.talepEden.toLowerCase().includes(arama)) ||
-          (t.bolum && t.bolum.toLowerCase().includes(arama)) ||
-          (t.aciklama && t.aciklama.toLowerCase().includes(arama))
-        );
+        list = list.filter(t => {
+          const tNo = (t.talepNo || '').toLowerCase();
+          const tNot = (t.not || t.aciklama || '').toLowerCase();
+          const kText = Array.isArray(t.kalemler)
+            ? t.kalemler.map(k => `${k.urunAdi} ${k.ozellik} ${k.standart}`).join(' ').toLowerCase()
+            : (t.malzeme || '').toLowerCase();
+          return tNo.includes(arama) || tNot.includes(arama) || kText.includes(arama);
+        });
       }
 
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-medium">Kayıtlı malzeme talebi bulunmuyor.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-medium">Kayıtlı malzeme talebi bulunmuyor.</td></tr>`;
         return;
       }
 
@@ -15671,50 +15815,83 @@
       list.forEach(t => {
         const d = t.tarih ? new Date(t.tarih) : new Date();
         const tarihStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        const talepNo = t.talepNo || ('TLP-' + String(t.id).slice(-6));
 
-        let aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700">🟢 Normal</span>`;
-        if (t.aciliyet === 'Acil') aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">🟡 Acil</span>`;
-        if (t.aciliyet === 'Kritik') aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">🔴 Kritik</span>`;
+        // Kalemleri normalize et
+        const kalemler = Array.isArray(t.kalemler) && t.kalemler.length > 0 ? t.kalemler : [{
+          kalemNo: 1,
+          urunAdi: t.malzeme || 'Malzeme',
+          ozellik: t.aciklama || '-',
+          standart: '-',
+          miktar: t.miktar || 1,
+          birim: t.birim || 'adet'
+        }];
+
+        let aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700 whitespace-nowrap">🟢 Normal</span>`;
+        if (t.aciliyet === 'Acil') aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 whitespace-nowrap">🟡 Acil</span>`;
+        if (t.aciliyet === 'Kritik') aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse whitespace-nowrap">🔴 Kritik</span>`;
 
         let durumBadge = '';
         if (t.durum === 'bekliyor') {
-          durumBadge = `<span class="bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-full">⏳ Bekliyor</span>`;
+          durumBadge = `<span class="bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap">⏳ Bekliyor</span>`;
         } else if (t.durum === 'karsilandi') {
-          durumBadge = `<span class="bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full">✅ Karşılandı</span>
+          durumBadge = `<span class="bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap">✅ Karşılandı</span>
           ${t.karsilayan ? `<div class="text-[10px] text-slate-400 mt-0.5">${t.karsilayan}</div>` : ''}`;
         } else {
-          durumBadge = `<span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded-full">İptal</span>`;
+          durumBadge = `<span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap">İptal</span>`;
         }
 
+        // Kalemler listesi kutusu
+        let kalemlerHtml = `<div class="space-y-1.5 my-1">`;
+        kalemler.forEach(k => {
+          kalemlerHtml += `
+            <div class="flex items-center justify-between gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <div class="min-w-0 flex-1">
+                <span class="font-extrabold text-slate-900 text-xs">${k.urunAdi}</span>
+                ${k.ozellik ? `<span class="text-indigo-900 text-[11px] font-semibold ml-1.5">Özellik: <b>${k.ozellik}</b></span>` : ''}
+                ${k.standart && k.standart !== '-' ? `<span class="text-slate-600 text-[10px] ml-1.5 bg-white px-1.5 py-0.5 rounded border border-slate-300">Std: <b>${k.standart}</b></span>` : ''}
+              </div>
+              <div class="whitespace-nowrap">
+                <span class="font-black text-slate-900 text-xs bg-white px-2 py-0.5 rounded border border-slate-300 shadow-2xs">
+                  ${parseFloat(k.miktar).toLocaleString('tr-TR')} ${k.birim || 'adet'}
+                </span>
+              </div>
+            </div>
+          `;
+        });
+        kalemlerHtml += `</div>`;
+
         html += `
-          <tr class="hover:bg-slate-50 transition-colors">
-            <td class="p-3 text-slate-500 font-mono text-xs whitespace-nowrap">${tarihStr}</td>
-            <td class="p-3 font-bold text-slate-800 text-xs">${t.talepEden || '-'}</td>
-            <td class="p-3 whitespace-nowrap">
-              <span class="bg-indigo-50 text-indigo-800 px-2 py-0.5 rounded-md font-bold text-[11px] border border-indigo-200">
-                ${t.bolum || '-'}
+          <tr class="hover:bg-slate-50/60 transition-colors">
+            <td class="p-3 align-top whitespace-nowrap">
+              <b class="font-mono text-indigo-700 text-xs block">${talepNo}</b>
+              <span class="text-slate-500 text-[11px] block mt-0.5">${tarihStr}</span>
+              ${t.not ? `<div class="text-[10px] text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-1 max-w-[140px] truncate" title="${t.not}">📝 ${t.not}</div>` : ''}
+            </td>
+            <td class="p-3 align-top min-w-[280px]">
+              ${kalemlerHtml}
+            </td>
+            <td class="p-3 align-top text-center whitespace-nowrap">
+              <span class="bg-indigo-50 text-indigo-800 text-xs font-black px-2.5 py-1 rounded-lg border border-indigo-200">
+                ${kalemler.length} Kalem
               </span>
             </td>
-            <td class="p-3">
-              <b class="text-slate-900 text-xs block">${t.malzeme}</b>
-              ${t.aciklama ? `<span class="text-[11px] text-slate-500 italic block mt-0.5">${t.aciklama}</span>` : ''}
-            </td>
-            <td class="p-3 text-right font-black text-slate-900 text-xs whitespace-nowrap">
-              ${parseFloat(t.miktar).toLocaleString('tr-TR')} <span class="font-normal text-slate-500 text-[11px]">${t.birim}</span>
-            </td>
-            <td class="p-3 text-center whitespace-nowrap">${aciliyetBadge}</td>
-            <td class="p-3 text-center whitespace-nowrap">${durumBadge}</td>
-            <td class="p-3 text-right whitespace-nowrap">
+            <td class="p-3 align-top text-center">${aciliyetBadge}</td>
+            <td class="p-3 align-top text-center">${durumBadge}</td>
+            <td class="p-3 align-top text-right whitespace-nowrap">
               ${t.durum === 'bekliyor' ? `
-                <button onclick="malzemeTalepDurumDegistir(${t.id}, 'karsilandi')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs shadow-xs transition-colors mr-1">
+                <button onclick="malzemeTalepDurumDegistir(${t.id}, 'karsilandi')" title="Talebi Karşılandı Olarak İşaretle" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs shadow-xs transition-colors mr-1 cursor-pointer">
                   ✅ Karşıla
                 </button>
               ` : `
-                <button onclick="malzemeTalepDurumDegistir(${t.id}, 'bekliyor')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-2 py-1 rounded-lg text-[11px] transition-colors mr-1">
+                <button onclick="malzemeTalepDurumDegistir(${t.id}, 'bekliyor')" title="Geri Al" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-2 py-1 rounded-lg text-[11px] transition-colors mr-1 cursor-pointer">
                   ↩️ Geri Al
                 </button>
               `}
-              <button onclick="malzemeTalepSil(${t.id})" class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-1.5 rounded-lg text-xs font-bold transition-colors">
+              <button onclick="malzemeTalepWhatsAppGonder(${t.id})" title="WhatsApp ile Paylaş" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-1.5 rounded-lg text-xs mr-1 transition-colors cursor-pointer">
+                💬 WA
+              </button>
+              <button onclick="malzemeTalepSil(${t.id})" title="Talebi Sil" class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
                 🗑️
               </button>
             </td>
