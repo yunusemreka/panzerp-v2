@@ -1306,10 +1306,11 @@
             id="bTelCikis"></em></div>
         <div class="nav-item" data-target="urun">📦 <span>Ürünler</span></div>
 
-        <div class="ngrp">Stok</div>
+        <div class="ngrp">Stok & Talep</div>
         <div class="nav-item" data-target="hammadde">🧱 <span>Hammadde Stok</span><em class="nbdg red" id="bStok"></em>
         </div>
         <div class="nav-item" data-target="ktm">🔗 <span>KTM</span></div>
+        <div class="nav-item" data-target="malzemetalep">📋 <span>Malzeme Talepleri</span><em class="nbdg" id="bTalep"></em></div>
 
         <div class="ngrp">APM</div>
         <div class="nav-item" data-target="apmisemri">🛡️ <span>APM Üretim Verileri</span></div>
@@ -2691,8 +2692,16 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Sipariş Tarihi
-                *</label>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Sipariş Türü</label>
+              <select id="ktmSipTuru"
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-sm text-slate-800 shadow-sm outline-none">
+                <option value="Yurtiçi">🇹🇷 Yurtiçi</option>
+                <option value="İhracat">🌍 İhracat</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Sipariş Tarihi *</label>
               <input id="ktmSipTarih" type="date"
                 class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-sm">
             </div>
@@ -2706,6 +2715,25 @@
                 class="border border-indigo-300 p-2.5 rounded-xl w-full bg-indigo-50/50 text-sm font-bold text-indigo-900">
             </div>
 
+            <!-- 2. Satır Bilgileri: Yenerer Ref No & Müşteri Sipariş No & WhatsApp & Not -->
+            <div class="md:col-span-3">
+              <label class="block text-xs font-bold text-indigo-800 uppercase tracking-wide mb-1 flex items-center gap-1">
+                <span>🔖</span> Yenerer Ref. No
+              </label>
+              <input id="ktmSipYenererRefNo" type="text"
+                class="border border-indigo-200 p-2.5 rounded-xl w-full bg-indigo-50/30 font-semibold text-indigo-900 text-sm outline-none focus:ring-2 focus:ring-indigo-300"
+                placeholder="Örn: YNR-2026-145">
+            </div>
+
+            <div class="md:col-span-3">
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1 flex items-center gap-1">
+                <span>📑</span> Müşteri Sipariş No
+              </label>
+              <input id="ktmSipMusteriSipNo" type="text"
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-semibold text-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-300"
+                placeholder="Örn: PO-98421 / Talep No">
+            </div>
+
             <div class="md:col-span-2">
               <label
                 class="block text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1 flex items-center gap-1">
@@ -2716,12 +2744,11 @@
                 placeholder="Örn: 905XXXXXXXXX">
             </div>
 
-            <div class="md:col-span-12">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Depo Notu / Özel
-                Sevkiyat Talimatları</label>
+            <div class="md:col-span-4">
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Depo Notu / Özel Talimatlar</label>
               <input id="ktmSipDepoNotu" type="text"
                 class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-sm"
-                placeholder="Örn: Euro palet üzerine streçlenecek, etiket eklenecek vb.">
+                placeholder="Örn: Euro palet üzerine streçlenecek, etiket vb.">
             </div>
           </div>
 
@@ -3098,6 +3125,162 @@
                 </tr>
               </thead>
               <tbody id="ktmHareketTable" class="divide-y divide-slate-50 text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- OPERATÖR MALZEME TALEP MODÜLÜ -->
+      <section id="malzemetalep" class="module-section">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2.5">
+              <span>📋</span> Operatör Malzeme & Sarf Talepleri
+            </h2>
+            <p class="text-xs text-slate-500 font-medium mt-1">Üretim sahası ve operatörler için hammadde, tel, gaz, yedek parça ve sarf malzeme talep takip listesi</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="malzemeTalepOzetBadge" class="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs">
+              <span>⏳</span> <span id="malzemeTalepBekleyenSayisi">0</span> Bekleyen Talep
+            </span>
+          </div>
+        </div>
+
+        <!-- TALEP OLUŞTURMA KARTI -->
+        <div class="card p-5 border border-slate-200 bg-white rounded-2xl shadow-sm mb-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
+              <span class="p-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs">➕</span> Yeni Malzeme / Sarf Talebi Oluştur
+            </h3>
+            <span class="text-[11px] text-slate-400 font-medium">Tüm sahalar (FCW / APM / Mekanik / Bakım) kullanabilir</span>
+          </div>
+
+          <form id="malzemeTalepForm" onsubmit="event.preventDefault(); malzemeTalepKaydet();" class="grid grid-cols-1 md:grid-cols-12 gap-3.5 text-xs">
+            <!-- Malzeme Adı / Tanımı -->
+            <div class="md:col-span-4">
+              <label class="block font-bold text-slate-700 mb-1">Talep Edilen Malzeme / Kalem <span class="text-rose-500">*</span></label>
+              <input type="text" id="mtMalzemeAdi" required
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-slate-50 focus:bg-white font-bold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-300 shadow-inner"
+                placeholder="Örn: 2.8 mm RollHARD Tel / Gaz / Rulman / Yağ...">
+            </div>
+
+            <!-- Miktar ve Birim -->
+            <div class="md:col-span-2">
+              <label class="block font-bold text-slate-700 mb-1">Miktar <span class="text-rose-500">*</span></label>
+              <input type="number" step="0.01" id="mtMiktar" required
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-black text-indigo-700 text-sm outline-none focus:ring-2 focus:ring-indigo-300 shadow-xs"
+                placeholder="Örn: 50">
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block font-bold text-slate-700 mb-1">Birim <span class="text-rose-500">*</span></label>
+              <select id="mtBirim" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 outline-none">
+                <option value="kg">kg</option>
+                <option value="adet">adet</option>
+                <option value="bidon">bidon</option>
+                <option value="makara">makara</option>
+                <option value="metre">metre</option>
+                <option value="koli">koli</option>
+                <option value="litre">litre</option>
+                <option value="paket">paket</option>
+              </select>
+            </div>
+
+            <!-- Hat / Makine / Bölüm -->
+            <div class="md:col-span-2">
+              <label class="block font-bold text-slate-700 mb-1">Hat / Makine / Bölüm <span class="text-rose-500">*</span></label>
+              <select id="mtBolum" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-semibold text-slate-700 outline-none">
+                <option value="APM-1">APM-1</option>
+                <option value="APM-2">APM-2</option>
+                <option value="APM-3">APM-3</option>
+                <option value="APM-4">APM-4</option>
+                <option value="APM-5">APM-5</option>
+                <option value="APM-6">APM-6</option>
+                <option value="Kaba Çekme-1">Kaba Çekme-1</option>
+                <option value="Kaba Çekme-2">Kaba Çekme-2</option>
+                <option value="İnce Çekme">İnce Çekme</option>
+                <option value="Bidon Sarma">Bidon Sarma</option>
+                <option value="Hassas Sarma">Hassas Sarma</option>
+                <option value="Mekanik & Bakım">Mekanik & Bakım</option>
+                <option value="Genel Depo">Genel Depo</option>
+              </select>
+            </div>
+
+            <!-- Aciliyet -->
+            <div class="md:col-span-2">
+              <label class="block font-bold text-slate-700 mb-1">Aciliyet Durumu <span class="text-rose-500">*</span></label>
+              <select id="mtAciliyet" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-700 outline-none">
+                <option value="Normal">🟢 Normal</option>
+                <option value="Acil">🟡 Acil (Gün İçi)</option>
+                <option value="Kritik">🔴 Kritik / Makine Duruşu</option>
+              </select>
+            </div>
+
+            <!-- Talep Eden Operatör & Not -->
+            <div class="md:col-span-4">
+              <label class="block font-bold text-slate-700 mb-1">Talep Eden Personel</label>
+              <input type="text" id="mtTalepEden"
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-slate-800 font-medium outline-none"
+                placeholder="Personel Adı Soyadı">
+            </div>
+
+            <div class="md:col-span-6">
+              <label class="block font-bold text-slate-700 mb-1">Açıklama / Kullanım Yeri / Gerekçe</label>
+              <input type="text" id="mtAciklama"
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white text-slate-800 font-medium outline-none"
+                placeholder="Hangi iş emri veya operasyon için gerektiği...">
+            </div>
+
+            <div class="md:col-span-2 flex items-end">
+              <button type="submit"
+                class="w-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-black py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-amber-400/20 active:scale-[0.98] cursor-pointer">
+                <span>📤</span> <span>Talebi İlet</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- TALEP LİSTESİ TABLOSU & FİLTRELER -->
+        <div class="card p-5 border border-slate-200 bg-white rounded-2xl shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <button onclick="filtreleMalzemeTalep('hepsi')" id="mtFiltreBtn_hepsi"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-xs">
+                Tüm Talepler (<span id="mtSayi_hepsi">0</span>)
+              </button>
+              <button onclick="filtreleMalzemeTalep('bekliyor')" id="mtFiltreBtn_bekliyor"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-amber-100 hover:text-amber-800">
+                ⏳ Bekleyenler (<span id="mtSayi_bekliyor">0</span>)
+              </button>
+              <button onclick="filtreleMalzemeTalep('karsilandi')" id="mtFiltreBtn_karsilandi"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-800">
+                ✅ Karşılananlar (<span id="mtSayi_karsilandi">0</span>)
+              </button>
+            </div>
+            <div class="w-full sm:w-64">
+              <input type="text" id="mtAramaInput" oninput="renderMalzemeTalepleri()"
+                placeholder="Malzeme, personel veya makine ara..."
+                class="border border-slate-200 bg-slate-50 px-3 py-1.5 rounded-xl text-xs w-full outline-none focus:bg-white focus:ring-2 focus:ring-indigo-200">
+            </div>
+          </div>
+
+          <div class="table-responsive border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="p-3">Tarih / Saat</th>
+                  <th class="p-3">Talep Eden</th>
+                  <th class="p-3">Makine / Hat</th>
+                  <th class="p-3">Malzeme & Kalem</th>
+                  <th class="p-3 text-right">Miktar</th>
+                  <th class="p-3 text-center">Aciliyet</th>
+                  <th class="p-3 text-center">Durum</th>
+                  <th class="p-3 text-right">İşlem / Aksiyon</th>
+                </tr>
+              </thead>
+              <tbody id="malzemeTalepTableBody" class="divide-y divide-slate-100 bg-white">
+                <!-- JS ile dinamik listelenecek -->
+              </tbody>
             </table>
           </div>
         </div>
@@ -4082,10 +4265,13 @@
           </div>
 
           <div class="md:col-span-4">
-            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Brüt Ağırlık (kg)</label>
-            <input id="ktmPaket_brutAgirlik" type="number" step="0.1"
-              class="border border-slate-300 p-2 rounded-lg w-full text-xs bg-white font-bold text-slate-800"
-              placeholder="Örn: 475 (Palet Dahil)">
+            <label class="block text-[11px] font-bold text-slate-800 uppercase mb-1 flex items-center justify-between">
+              <span>Brüt Ağırlık (kg) <span class="text-rose-500 font-black">* (Zorunlu)</span></span>
+              <button type="button" onclick="ktmPaketBrutOner()" class="text-[10px] text-blue-600 font-bold hover:underline">Otomatik Hesapla (+25kg)</button>
+            </label>
+            <input id="ktmPaket_brutAgirlik" type="number" step="0.1" required
+              class="border border-slate-300 p-2 rounded-lg w-full text-xs bg-white font-black text-slate-900 focus:ring-2 focus:ring-blue-400"
+              placeholder="Örn: 475 (Palet Dahil Tartım)">
           </div>
 
           <div class="md:col-span-4 flex items-end">
@@ -4231,9 +4417,16 @@
               placeholder="Örn: Başkent VD / 1234567890">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Adres</label>
-            <input id="mstAdres" type="text" class="border border-slate-300 p-2 rounded-lg w-full text-xs bg-white"
-              placeholder="Örn: Ankara OSB No:12">
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Fatura Adresi</label>
+            <input id="mstFaturaAdresi" type="text" class="border border-slate-300 p-2 rounded-lg w-full text-xs bg-white"
+              placeholder="Fatura kesilecek yasal merkez adresi...">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-indigo-700 uppercase mb-1 flex items-center gap-1">
+              <span>🚚</span> Sevk / Teslimat Adresi
+            </label>
+            <input id="mstSevkAdresi" type="text" class="border border-indigo-200 p-2 rounded-lg w-full text-xs bg-indigo-50/30"
+              placeholder="Ürünlerin teslim edileceği fabrika/depo/şantiye adresi...">
           </div>
         </div>
         <button onclick="musteriEkle()"
@@ -6457,10 +6650,15 @@
       // KTM Mamül Çıkışı Modalı ise
       if (inputId === 'ktmModalUrunInput') {
         const kodVal = element.dataset.kod || '';
-        const urun = (DB.ktmUrunler || []).find(u => (u.kod === kodVal || u.ad === selectedName) && (!capVal || u.cap === capVal));
+        const cap = element.dataset.cap || capVal || '';
+        const urun = (DB.ktmUrunler || []).find(u => (u.kod === kodVal || u.ad === selectedName) && (!cap || u.cap === cap));
         if (urun) {
           const idEl = document.getElementById('ktmModalUrunId');
           if (idEl) idEl.value = urun.id;
+          const displayCap = (urun.cap || cap || '').trim();
+          inputEl.value = (urun.ad || selectedName) + (displayCap && displayCap !== '-' ? ` (⌀ ${displayCap})` : '');
+        } else {
+          inputEl.value = selectedName + (cap && cap !== '-' ? ` (⌀ ${cap})` : '');
         }
         if (typeof ktmModalStokGuncelle === 'function') {
           ktmModalStokGuncelle();
@@ -6617,6 +6815,7 @@
       { id: 'recete', ad: 'Reçeteler', icon: '🧪', grup: 'FCW Üretim' },
       { id: 'hammadde', ad: 'Hammadde Stok', icon: '🧱', grup: 'Stok' },
       { id: 'ktm', ad: 'KTM', icon: '🔗', grup: 'Stok' },
+      { id: 'malzemetalep', ad: 'Malzeme Talepleri', icon: '📋', grup: 'Stok & Talep' },
       { id: 'apmisemri', ad: 'APM Üretim Verileri', icon: '🛡️', grup: 'APM' },
       { id: 'mesajlar', ad: 'Mesajlaşma & Sohbet', icon: '💬', grup: 'İletişim' },
       { id: 'kullanicilar', ad: 'Kullanıcı & Personel', icon: '👥', grup: 'Yönetim' },
@@ -6678,6 +6877,7 @@
       if (!DB.ozelReceteler || typeof DB.ozelReceteler !== 'object') DB.ozelReceteler = {};
       if (!DB.ozelReceteNotlar || typeof DB.ozelReceteNotlar !== 'object') DB.ozelReceteNotlar = {};
       if (!DB.apmIsEmirleri || typeof DB.apmIsEmirleri !== 'object') DB.apmIsEmirleri = {};
+      if (!DB.malzemeTalepleri || !Array.isArray(DB.malzemeTalepleri)) DB.malzemeTalepleri = [];
     }
 
     /* GLOBAL TARİH FORMATLAYICI: GG-AA-YYYY */
@@ -6867,7 +7067,8 @@
       'uretimTakip', 'ktmSiparisler', 'apmUretim', 'apmPlakalar',
       'musteriler', 'standartPaletler', 'telCikislari', 'bildirimler',
       'kullanicilar', 'mesajlar',
-      'receteler', 'ozelReceteler', 'ozelReceteNotlar', 'apmIsEmirleri'
+      'receteler', 'ozelReceteler', 'ozelReceteNotlar', 'apmIsEmirleri',
+      'malzemeTalepleri'
     ];
 
     let saveTimeout = null;
@@ -12966,10 +13167,21 @@
       if (tbody) {
         let html = '';
         (DB.musteriler || []).forEach(m => {
+          const faturaAdr = m.faturaAdresi || m.adres || '-';
+          const sevkAdr = m.sevkAdresi || m.adres || '-';
           html += `<tr class="hover:bg-slate-50 transition-colors">
-            <td class="p-2.5 font-bold text-slate-800">${m.ad}</td>
-            <td class="p-2.5 text-slate-600">${m.unvan || '-'}</td>
-            <td class="p-2.5 text-slate-600">${m.tel || '-'}</td>
+            <td class="p-2.5 font-bold text-slate-800">
+              ${m.ad}
+              ${m.unvan ? `<div class="text-[11px] text-slate-500 font-normal">${m.unvan}</div>` : ''}
+            </td>
+            <td class="p-2.5 text-slate-600">
+              ${m.tel ? `<div>📞 ${m.tel}</div>` : ''}
+              ${m.email ? `<div class="text-[11px] text-blue-600">✉️ ${m.email}</div>` : ''}
+            </td>
+            <td class="p-2.5 text-slate-600 text-[11px]">
+              <div class="font-semibold text-slate-700">🏢 Fatura: <span class="font-normal">${faturaAdr}</span></div>
+              <div class="font-semibold text-indigo-700 mt-0.5">🚚 Sevk: <span class="font-normal text-slate-800">${sevkAdr}</span></div>
+            </td>
             <td class="p-2.5 text-slate-600">${m.vergi || '-'}</td>
             <td class="p-2.5 text-right">
               <button onclick="musteriSil(${m.id})" class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-1.5 rounded-lg text-xs font-bold transition-colors">🗑️ Sil</button>
@@ -12992,17 +13204,24 @@
       const tel = document.getElementById('mstTel').value.trim();
       const email = document.getElementById('mstEmail').value.trim();
       const vergi = document.getElementById('mstVergi').value.trim();
-      const adres = document.getElementById('mstAdres').value.trim();
+      const faturaAdresi = (document.getElementById('mstFaturaAdresi')?.value || '').trim();
+      const sevkAdresi = (document.getElementById('mstSevkAdresi')?.value || '').trim();
 
       DB.musteriler = DB.musteriler || [];
-      DB.musteriler.push({ id: Date.now(), ad, unvan, tel, email, vergi, adres });
+      DB.musteriler.push({
+        id: Date.now(),
+        ad, unvan, tel, email, vergi,
+        faturaAdresi,
+        sevkAdresi,
+        adres: sevkAdresi || faturaAdresi // Geriye dönük uyumluluk
+      });
 
-      ['mstAd', 'mstUnvan', 'mstTel', 'mstEmail', 'mstVergi', 'mstAdres'].forEach(id => {
+      ['mstAd', 'mstUnvan', 'mstTel', 'mstEmail', 'mstVergi', 'mstFaturaAdresi', 'mstSevkAdresi'].forEach(id => {
         let e = document.getElementById(id);
         if (e) e.value = '';
       });
 
-      saveDB();
+      saveDB(true);
       musteriDropdownDoldur();
       musteriModalAc();
 
@@ -13277,10 +13496,18 @@
       if (netAgirlikInput) {
         netAgirlikInput.value = toplamSeciliNetKg > 0 ? toplamSeciliNetKg.toFixed(1) : '';
       }
-      if (brutAgirlikInput && (!brutAgirlikInput.value || parseFloat(brutAgirlikInput.value) < toplamSeciliNetKg)) {
-        // Otomatik palet dara tahmini (örnek: +20-25kg ahşap palet)
-        const tahminiBrut = toplamSeciliNetKg > 0 ? (toplamSeciliNetKg + 20) : '';
+      if (brutAgirlikInput && (!brutAgirlikInput.value || parseFloat(brutAgirlikInput.value) <= 0)) {
+        // Otomatik palet dara tahmini (örnek: +25kg ahşap palet)
+        const tahminiBrut = toplamSeciliNetKg > 0 ? (toplamSeciliNetKg + 25) : '';
         brutAgirlikInput.value = tahminiBrut ? tahminiBrut.toFixed(1) : '';
+      }
+    }
+
+    function ktmPaketBrutOner() {
+      const net = parseFloat(document.getElementById('ktmPaket_netAgirlik')?.value) || 0;
+      const brutEl = document.getElementById('ktmPaket_brutAgirlik');
+      if (brutEl) {
+        brutEl.value = (net > 0 ? (net + 25) : 25).toFixed(1);
       }
     }
 
@@ -13301,11 +13528,17 @@
       const yukseklik = parseFloat(document.getElementById('ktmPaket_yukseklik').value) || 0;
       const adet = parseInt(document.getElementById('ktmPaket_adet').value) || 1;
       let netAgirlik = parseFloat(document.getElementById('ktmPaket_netAgirlik').value) || 0;
-      let brutAgirlik = parseFloat(document.getElementById('ktmPaket_brutAgirlik').value) || netAgirlik;
+      let brutAgirlik = parseFloat(document.getElementById('ktmPaket_brutAgirlik').value) || 0;
 
       if (yukseklik <= 0) {
         alert('Lütfen palet / paket yüksekliğini (cm) giriniz!');
         document.getElementById('ktmPaket_yukseklik').focus();
+        return;
+      }
+
+      if (brutAgirlik <= 0) {
+        alert('Lütfen paletin Brüt Ağırlığını (kg) giriniz!\n(Brüt Ağırlık zorunlu alandır, her palette tartım veya hesaplama gerektirir)');
+        document.getElementById('ktmPaket_brutAgirlik').focus();
         return;
       }
 
@@ -13494,15 +13727,26 @@
 
         let icerikRows = '';
         if (Array.isArray(p.icerik) && p.icerik.length > 0) {
-          icerikRows = p.icerik.map(it => `
+          icerikRows = p.icerik.map(it => {
+            let capStr = '';
+            const u = (DB.ktmUrunler || []).find(x => x.id == it.urunId || x.kod === it.urunKod);
+            if (u && u.cap && u.cap !== '-') capStr = `(⌀ ${u.cap})`;
+            return `
             <div class="flex justify-between items-center py-1 border-b border-slate-200">
-              <span class="font-bold text-slate-800 text-sm">${it.urunKod} <small class="text-slate-500 font-normal">(${it.urunAd})</small></span>
+              <span class="font-bold text-slate-800 text-sm">
+                ${it.urunKod} ${capStr ? `<span class="text-indigo-700 font-black ml-1">${capStr}</span>` : ''}
+                <small class="text-slate-500 font-normal ml-1">(${it.urunAd})</small>
+              </span>
               <span class="font-black text-slate-900 text-base">${it.miktar} kg</span>
             </div>
-          `).join('');
+          `;
+          }).join('');
         } else {
           icerikRows = `<div class="py-1 text-slate-500 font-bold">${sip.urunKod || ''} - ${sip.urunAd || ''} (${p.netAgirlik || sip.miktar} kg)</div>`;
         }
+
+        const musteriObj = (DB.musteriler || []).find(m => m.ad === sip.musteri || m.unvan === sip.musteri);
+        const sevkAdresi = musteriObj ? (musteriObj.sevkAdresi || musteriObj.adres || '') : '';
 
         html += `
           <div class="palet-etiket-kart bg-white border-4 border-slate-900 p-4 rounded-xl shadow-none page-break-after flex flex-col justify-between" style="box-sizing: border-box; width: 100%;">
@@ -13519,9 +13763,13 @@
                 </div>
                 <div>
                   <h1 class="text-lg font-black text-slate-900 tracking-tight leading-none">PANZERCROM SEVKİYAT ETİKETİ</h1>
+                  <span class="text-[10px] font-bold text-slate-500 uppercase">PALLET SHIPPING LABEL</span>
                 </div>
               </div>
-              <div class="text-right">
+              <div class="text-right flex items-center gap-2">
+                <span class="text-xs font-black px-2 py-1 rounded border ${sip.siparisTuru === 'İhracat' ? 'bg-purple-100 text-purple-900 border-purple-400' : 'bg-blue-100 text-blue-900 border-blue-300'}">
+                  ${sip.siparisTuru || 'Yurtiçi'}
+                </span>
                 <div class="bg-slate-900 text-white font-black text-sm px-3 py-1 rounded-md inline-block">
                   PALET: ${idx + 1} / ${paketler.length}
                 </div>
@@ -13529,14 +13777,17 @@
             </div>
 
             <!-- Müşteri ve Sipariş Bilgi Grid -->
-            <div class="grid grid-cols-3 gap-2 mb-2 text-xs">
-              <div class="p-1.5 px-2 bg-slate-50 rounded-lg border border-slate-300">
+            <div class="grid grid-cols-4 gap-2 mb-2 text-xs">
+              <div class="p-1.5 px-2 bg-slate-50 rounded-lg border border-slate-300 col-span-2">
                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block leading-tight">Müşteri / Alıcı</span>
                 <b class="text-xs text-slate-900 block mt-0.5 truncate">${sip.musteri || '-'}</b>
+                ${sevkAdresi ? `<div class="text-[10px] text-indigo-950 font-semibold truncate mt-0.5">🚚 Sevk: ${sevkAdresi}</div>` : ''}
               </div>
               <div class="p-1.5 px-2 bg-slate-50 rounded-lg border border-slate-300">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block leading-tight">Sipariş No</span>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block leading-tight">Sipariş & Ref No</span>
                 <b class="text-xs font-mono text-blue-700 block mt-0.5 truncate">${sip.siparisNo || ('SIP-' + sip.id)}</b>
+                ${sip.yenererRefNo ? `<div class="text-[10px] font-bold text-indigo-700 truncate">Ref: ${sip.yenererRefNo}</div>` : ''}
+                ${sip.musteriSipNo ? `<div class="text-[10px] text-slate-600 truncate">Müş.Sip: ${sip.musteriSipNo}</div>` : ''}
               </div>
               <div class="p-1.5 px-2 bg-slate-50 rounded-lg border border-slate-300">
                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block leading-tight">Tarih</span>
@@ -13682,8 +13933,10 @@
             </div>
             <div class="text-right">
               <h2 class="text-2xl font-extrabold text-blue-800 uppercase tracking-wide">SEVKİYAT ÇEKİ LİSTESİ</h2>
-              <div class="text-xs text-slate-500 font-bold uppercase tracking-wider">PACKING LIST</div>
-              <div class="font-mono text-sm font-black text-slate-800 mt-1">NO: ${sip.siparisNo || ('SIP-' + sip.id)}</div>
+              <div class="text-xs text-slate-600 font-black uppercase tracking-wider">PACKING LIST [${sip.siparisTuru || 'Yurtiçi'}]</div>
+              <div class="font-mono text-sm font-black text-slate-900 mt-1">NO: ${sip.siparisNo || ('SIP-' + sip.id)}</div>
+              ${sip.yenererRefNo ? `<div class="text-xs font-bold text-indigo-700">YENERER REF: ${sip.yenererRefNo}</div>` : ''}
+              ${sip.musteriSipNo ? `<div class="text-xs font-bold text-slate-600">MÜŞTERİ SİP: ${sip.musteriSipNo}</div>` : ''}
             </div>
           </div>
 
@@ -13692,11 +13945,21 @@
             <div>
               <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ALICI / MÜŞTERİ BİLGİLERİ</span>
               <div class="text-sm font-bold text-slate-900">${sip.musteri || '-'}</div>
-              <div class="text-slate-600 mt-1">Teslimat / Sevk Adresi: Müşteri Fabrika / Depo Teslim</div>
-              ${sip.whatsapp ? `<div class="text-slate-500 mt-0.5">İletişim: ${sip.whatsapp}</div>` : ''}
+              ${(() => {
+                const musteriObj = (DB.musteriler || []).find(m => m.ad === sip.musteri || m.unvan === sip.musteri);
+                const faturaAdr = musteriObj ? (musteriObj.faturaAdresi || musteriObj.adres || '-') : '-';
+                const sevkAdr = musteriObj ? (musteriObj.sevkAdresi || musteriObj.adres || 'Müşteri Fabrika / Depo Teslim') : 'Müşteri Fabrika / Depo Teslim';
+                return `
+                  ${musteriObj && musteriObj.unvan ? `<div class="text-xs text-slate-600 mb-1">${musteriObj.unvan}</div>` : ''}
+                  <div class="text-slate-700 mt-1.5 text-[11px]">🏢 <b>Fatura Adresi:</b> ${faturaAdr}</div>
+                  <div class="text-indigo-950 mt-1 text-[11px] font-bold">🚚 <b>Sevk / Teslimat Adresi:</b> ${sevkAdr}</div>
+                `;
+              })()}
+              ${sip.whatsapp ? `<div class="text-slate-500 mt-1">📞 İletişim: ${sip.whatsapp}</div>` : ''}
             </div>
             <div class="space-y-1 text-right sm:text-left">
               <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">SEVKİYAT DETAYLARI</span>
+              <div><strong>Sipariş Türü:</strong> <span class="font-bold px-2 py-0.5 rounded text-xs ${sip.siparisTuru === 'İhracat' ? 'bg-purple-100 text-purple-900' : 'bg-blue-100 text-blue-900'}">${sip.siparisTuru || 'Yurtiçi'}</span></div>
               <div><strong>Sipariş Tarihi:</strong> ${formatTarihTR(sip.tarih)}</div>
               <div><strong>Sevk Tarihi:</strong> ${formatTarihTR(sip.sevkTarihi || new Date().toISOString().slice(0, 10))}</div>
               <div><strong>Sevkiyat Durumu:</strong> <span class="font-bold text-emerald-700">${sip.durum === 'sevk_edildi' ? 'Sevk Edildi' : 'Hazırlandı / Sevke Hazır'}</span></div>
@@ -13758,10 +14021,12 @@
             const fark = sipKg - paletNetToplam;
             const esit = Math.abs(fark) < 0.1;
             let u = null;
-          if (k.urunId) u = (DB.ktmUrunler || []).find(x => String(x.id) === String(k.urunId));
-          if (!u) u = findKtmUrunByInput(`${k.urunKod || ''} ${k.urunCap || ''} ${k.urunAd || ''}`);
-          if (!u) u = (DB.ktmUrunler || []).find(x => x.kod === k.urunKod);
-            const capPaketStr = u ? `${u.cap || '-'} / ${u.paket || '-'}` : '-';
+            if (k.urunId) u = (DB.ktmUrunler || []).find(x => String(x.id) === String(k.urunId));
+            if (!u) u = findKtmUrunByInput(`${k.urunKod || ''} ${k.urunCap || ''} ${k.urunAd || ''}`);
+            if (!u) u = (DB.ktmUrunler || []).find(x => x.kod === k.urunKod);
+            const capVal = (u && u.cap) ? u.cap : (k.cap || '-');
+            const paketVal = (u && u.paket) ? u.paket : (k.paket || '-');
+            const capPaketStr = `${capVal !== '-' ? `⌀ ${capVal}` : '-'} / ${paketVal}`;
 
             kHtml += `
                       <tr class="hover:bg-slate-50">
@@ -14025,6 +14290,12 @@
       if (waEl) waEl.value = '';
       const notEl = document.getElementById('ktmSipDepoNotu');
       if (notEl) notEl.value = '';
+      const turEl = document.getElementById('ktmSipTuru');
+      if (turEl) turEl.value = 'Yurtiçi';
+      const ynrEl = document.getElementById('ktmSipYenererRefNo');
+      if (ynrEl) ynrEl.value = '';
+      const mstSipEl = document.getElementById('ktmSipMusteriSipNo');
+      if (mstSipEl) mstSipEl.value = '';
 
       const iptalBtn = document.getElementById('ktmSiparisDuzenleIptalBtn');
       if (iptalBtn) iptalBtn.classList.add('hidden');
@@ -14053,6 +14324,9 @@
       document.getElementById('ktmSipTeslimTarihi').value = s.teslimTarihi || '';
       document.getElementById('ktmSipWhatsapp').value = s.whatsapp || '';
       document.getElementById('ktmSipDepoNotu').value = s.depoNotu || '';
+      if (document.getElementById('ktmSipTuru')) document.getElementById('ktmSipTuru').value = s.siparisTuru || 'Yurtiçi';
+      if (document.getElementById('ktmSipYenererRefNo')) document.getElementById('ktmSipYenererRefNo').value = s.yenererRefNo || '';
+      if (document.getElementById('ktmSipMusteriSipNo')) document.getElementById('ktmSipMusteriSipNo').value = s.musteriSipNo || '';
 
       const kalemler = Array.isArray(s.kalemler) && s.kalemler.length > 0 ? s.kalemler : [{
         urunId: s.urunId,
@@ -14360,6 +14634,9 @@
       const teslimTarihi = (document.getElementById('ktmSipTeslimTarihi') ? document.getElementById('ktmSipTeslimTarihi').value : '') || null;
       const whatsapp = (document.getElementById('ktmSipWhatsapp') ? document.getElementById('ktmSipWhatsapp').value.trim() : '');
       const depoNotu = (document.getElementById('ktmSipDepoNotu') ? document.getElementById('ktmSipDepoNotu').value.trim() : '');
+      const siparisTuru = (document.getElementById('ktmSipTuru') ? document.getElementById('ktmSipTuru').value : 'Yurtiçi');
+      const yenererRefNo = (document.getElementById('ktmSipYenererRefNo') ? document.getElementById('ktmSipYenererRefNo').value.trim() : '');
+      const musteriSipNo = (document.getElementById('ktmSipMusteriSipNo') ? document.getElementById('ktmSipMusteriSipNo').value.trim() : '');
 
       if (!siparisNo || !musteri) {
         alert('Lütfen Sipariş No ve Müşteri alanlarını doldurunuz!');
@@ -14410,6 +14687,8 @@
         urunId: k.urunId,
         urunKod: k.urunKod,
         urunAd: k.urunAd,
+        cap: k.cap || '',
+        paket: k.paket || '',
         miktar: parseFloat(k.miktar),
         sevkEdilen: parseFloat(k.sevkEdilen) || 0,
         hazir: !!k.hazir,
@@ -14428,6 +14707,9 @@
           existingSip.teslimTarihi = teslimTarihi;
           existingSip.whatsapp = whatsapp;
           existingSip.depoNotu = depoNotu;
+          existingSip.siparisTuru = siparisTuru;
+          existingSip.yenererRefNo = yenererRefNo;
+          existingSip.musteriSipNo = musteriSipNo;
           existingSip.toplamMiktar = toplamMiktar;
           existingSip.urunId = firstK.urunId;
           existingSip.urunKod = firstK.urunKod;
@@ -14449,6 +14731,9 @@
           teslimTarihi,
           whatsapp,
           depoNotu,
+          siparisTuru,
+          yenererRefNo,
+          musteriSipNo,
           toplamMiktar,
           // Tekli kalem uyumluluğu
           urunId: firstK.urunId,
@@ -14474,14 +14759,18 @@
           kalemlerListesiMetin += `\n• ${k.urunKod} - ${k.urunAd}: *${k.miktar} kg* ${k.not ? '(' + k.not + ')' : ''}`;
         });
 
-        const bildirimMetni = `Sipariş No: ${siparisNo}\nMüşteri: ${musteri}\nToplam: ${toplamMiktar} kg (${kalemlerStructured.length} Kalem)\nSipariş Tarihi: ${formatTarihTR(tarih)}${teslimTarihi ? '\nTeslim Tarihi: ' + formatTarihTR(teslimTarihi) : ''}${depoNotu ? '\nNot: ' + depoNotu : ''}`;
-        const waText = `*PANZERCROM ERP - YENİ SİPARİŞ EMRİ*\n\n📋 *Sipariş No:* ${siparisNo}\n🏢 *Müşteri:* ${musteri}\n📅 *Sipariş Tarihi:* ${formatTarihTR(tarih)}${teslimTarihi ? '\n🗓️ *Teslim Tarihi:* ' + formatTarihTR(teslimTarihi) : ''}\n\n📦 *SİPARİŞ KALEMLERİ:*${kalemlerListesiMetin}\n\n⚖️ *TOPLAM:* *${toplamMiktar} kg*${depoNotu ? '\n\n📝 *Depo Notu:* ' + depoNotu : ''}`;
+        const refInfo = yenererRefNo ? `\n🔖 Yenerer Ref: ${yenererRefNo}` : '';
+        const poInfo = musteriSipNo ? `\n📑 Müşteri Sip No: ${musteriSipNo}` : '';
+        const turInfo = `\n🌐 Sipariş Türü: ${siparisTuru}`;
+
+        const bildirimMetni = `Sipariş No: ${siparisNo} (${siparisTuru})\nMüşteri: ${musteri}${refInfo}${poInfo}\nToplam: ${toplamMiktar} kg (${kalemlerStructured.length} Kalem)\nSipariş Tarihi: ${formatTarihTR(tarih)}${teslimTarihi ? '\nTeslim Tarihi: ' + formatTarihTR(teslimTarihi) : ''}${depoNotu ? '\nNot: ' + depoNotu : ''}`;
+        const waText = `*PANZERCROM ERP - YENİ SİPARİŞ EMRİ*\n\n📋 *Sipariş No:* ${siparisNo} [${siparisTuru}]\n🏢 *Müşteri:* ${musteri}${refInfo}${poInfo}\n📅 *Sipariş Tarihi:* ${formatTarihTR(tarih)}${teslimTarihi ? '\n🗓️ *Teslim Tarihi:* ' + formatTarihTR(teslimTarihi) : ''}\n\n📦 *SİPARİŞ KALEMLERİ:*${kalemlerListesiMetin}\n\n⚖️ *TOPLAM:* *${toplamMiktar} kg*${depoNotu ? '\n\n📝 *Depo Notu:* ' + depoNotu : ''}`;
 
         bildirimGonder("Yeni KTM Siparişi Alındı", bildirimMetni, 'info', true, { whatsappTel: whatsapp, whatsappMesaj: waText });
       }
 
       ktmSiparisFormSifirla();
-      saveDB();
+      saveDB(true);
       renderAll();
     }
 
@@ -14597,9 +14886,16 @@
         let kalemlerHtml = `<div class="space-y-1">`;
         kalemler.forEach(k => {
           const hazirBadge = k.hazir ? `<span class="text-emerald-700 font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200 text-[10px]">✅ Hazır</span>` : `<span class="text-slate-400 text-[10px]">⏳ Hazırlanıyor</span>`;
+          let capDisplay = k.cap || '';
+          if (!capDisplay) {
+            const u = (DB.ktmUrunler || []).find(x => x.id == k.urunId || x.kod === k.urunKod);
+            if (u && u.cap) capDisplay = u.cap;
+          }
           kalemlerHtml += `<div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-0.5">
             <div>
-              <b class="text-slate-700 font-bold">${k.urunKod}</b> <span class="text-slate-500 text-[11px]">${k.urunAd}</span>
+              <b class="text-slate-700 font-bold">${k.urunKod}</b>
+              ${capDisplay && capDisplay !== '-' ? `<span class="text-xs font-black text-indigo-700 bg-indigo-50 px-1 py-0.2 rounded ml-1 border border-indigo-200">⌀ ${capDisplay}</span>` : ''}
+              <span class="text-slate-500 text-[11px] ml-1">${k.urunAd}</span>
             </div>
             <div class="flex items-center gap-1.5 whitespace-nowrap">
               <span class="font-black text-slate-700">${k.miktar} kg</span>
@@ -14630,8 +14926,13 @@
 
         const row = `<tr class="hover:bg-slate-50 transition-colors">
           <td class="p-2.5">
-            <b class="font-mono text-blue-700 text-sm block">${s.siparisNo || 'SIP-' + s.id}</b>
-            <span class="text-slate-500 text-[11px] block">Sipariş: <b>${formatTarihTR(s.tarih)}</b></span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <b class="font-mono text-blue-700 text-sm">${s.siparisNo || 'SIP-' + s.id}</b>
+              <span class="text-[10px] font-black px-1.5 py-0.5 rounded ${s.siparisTuru === 'İhracat' ? 'bg-purple-100 text-purple-800 border border-purple-300' : 'bg-blue-100 text-blue-800 border border-blue-200'}">${s.siparisTuru || 'Yurtiçi'}</span>
+            </div>
+            ${s.yenererRefNo ? `<span class="text-indigo-800 text-[11px] font-bold block mt-0.5">🔖 Ref: <b>${s.yenererRefNo}</b></span>` : ''}
+            ${s.musteriSipNo ? `<span class="text-slate-600 text-[11px] font-semibold block">📑 Müş. No: <b>${s.musteriSipNo}</b></span>` : ''}
+            <span class="text-slate-500 text-[11px] block mt-0.5">Sipariş: <b>${formatTarihTR(s.tarih)}</b></span>
             ${s.teslimTarihi ? `<span class="text-indigo-700 text-[11px] font-bold block">Teslim: ${formatTarihTR(s.teslimTarihi)}</span>` : ''}
             ${s.hazirlandiTarihi ? `<span class="text-blue-600 text-[11px] block">Hazırlandı: ${formatTarihTR(s.hazirlandiTarihi)}</span>` : ''}
             ${s.sevkTarihi ? `<span class="text-emerald-700 text-[11px] block">Sevk: ${formatTarihTR(s.sevkTarihi)}</span>` : ''}
@@ -14726,7 +15027,32 @@
       currentDetaySipId = sip.id;
 
       document.getElementById('ktmDetay_sipNo').innerText = sip.siparisNo || ('SIP-' + sip.id);
-      document.getElementById('ktmDetay_musteri').innerText = sip.musteri;
+
+      const musteriObj = (DB.musteriler || []).find(m => m.ad === sip.musteri || m.unvan === sip.musteri);
+      const faturaAdr = musteriObj ? (musteriObj.faturaAdresi || musteriObj.adres || '-') : '-';
+      const sevkAdr = musteriObj ? (musteriObj.sevkAdresi || musteriObj.adres || '-') : '-';
+
+      const mstEl = document.getElementById('ktmDetay_musteri');
+      if (mstEl) {
+        let mstHtml = `<div class="font-black text-slate-800 text-base">${sip.musteri}</div>`;
+        if (sip.siparisTuru) {
+          mstHtml += `<div class="mt-1"><span class="text-xs font-black px-2 py-0.5 rounded border ${sip.siparisTuru === 'İhracat' ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-blue-100 text-blue-800 border-blue-300'}">🌐 ${sip.siparisTuru}</span></div>`;
+        }
+        if (sip.yenererRefNo) {
+          mstHtml += `<div class="text-xs text-indigo-700 font-bold mt-1">🔖 Yenerer Ref: <b>${sip.yenererRefNo}</b></div>`;
+        }
+        if (sip.musteriSipNo) {
+          mstHtml += `<div class="text-xs text-slate-600 font-semibold mt-0.5">📑 Müşteri Sip No: <b>${sip.musteriSipNo}</b></div>`;
+        }
+        if (musteriObj) {
+          mstHtml += `<div class="mt-2 text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-200">
+            <div class="text-slate-600">🏢 <b>Fatura Adresi:</b> ${faturaAdr}</div>
+            <div class="text-indigo-800 font-medium mt-1">🚚 <b>Sevk Adresi:</b> ${sevkAdr}</div>
+          </div>`;
+        }
+        mstEl.innerHTML = mstHtml;
+      }
+
       document.getElementById('ktmDetay_tarih').innerText = formatTarihTR(sip.tarih);
       document.getElementById('ktmDetay_teslimTarihi').innerText = formatTarihTR(sip.teslimTarihi);
       document.getElementById('ktmDetay_depoNotu').innerText = sip.depoNotu || 'Özel bir depo notu eklenmemiş.';
@@ -14751,11 +15077,20 @@
         const kalan = Math.max(0, (parseFloat(k.miktar) || 0) - sevkEdilen);
         const tamamlandi = kalan === 0;
 
+        let capDisplay = k.cap || '';
+        if (!capDisplay) {
+          const u = (DB.ktmUrunler || []).find(x => x.id == k.urunId || x.kod === k.urunKod);
+          if (u && u.cap) capDisplay = u.cap;
+        }
+
         html += `<tr class="hover:bg-slate-50">
           <td class="p-2.5 font-bold text-slate-500">${idx + 1}</td>
           <td class="p-2.5">
-            <b class="text-slate-800 block">${k.urunKod}</b>
-            <span class="text-slate-500 text-[11px]">${k.urunAd}</span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <b class="text-slate-800 text-xs">${k.urunKod}</b>
+              ${capDisplay && capDisplay !== '-' ? `<span class="text-xs font-black text-indigo-700 bg-indigo-50 px-1 py-0.2 rounded border border-indigo-200">⌀ ${capDisplay}</span>` : ''}
+            </div>
+            <span class="text-slate-500 text-[11px] block">${k.urunAd}</span>
             ${k.not ? `<div class="text-[10px] text-amber-700 italic">Not: ${k.not}</div>` : ''}
           </td>
           <td class="p-2.5 font-bold text-slate-700">${k.miktar} kg</td>
@@ -15179,6 +15514,217 @@
         </div>
       `;
     }
+
+    /* ========================================================================= */
+    /* OPERATÖR MALZEME & SARF TALEP MOTORU                                      */
+    /* ========================================================================= */
+    let mtAktifFiltre = 'hepsi';
+
+    function filtreleMalzemeTalep(filtre) {
+      mtAktifFiltre = filtre;
+      ['hepsi', 'bekliyor', 'karsilandi'].forEach(f => {
+        const btn = document.getElementById(`mtFiltreBtn_${f}`);
+        if (btn) {
+          if (f === filtre) {
+            btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-xs';
+          } else {
+            btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200';
+          }
+        }
+      });
+      renderMalzemeTalepleri();
+    }
+
+    function malzemeTalepKaydet() {
+      const malzeme = (document.getElementById('mtMalzemeAdi')?.value || '').trim();
+      const miktar = parseFloat(document.getElementById('mtMiktar')?.value) || 0;
+      const birim = document.getElementById('mtBirim')?.value || 'kg';
+      const bolum = document.getElementById('mtBolum')?.value || 'APM-1';
+      const aciliyet = document.getElementById('mtAciliyet')?.value || 'Normal';
+      let talepEden = (document.getElementById('mtTalepEden')?.value || '').trim();
+      const aciklama = (document.getElementById('mtAciklama')?.value || '').trim();
+
+      if (!malzeme || miktar <= 0) {
+        alert('Lütfen talep edilen malzeme adını ve geçerli bir miktar giriniz!');
+        return;
+      }
+
+      if (!talepEden && aktifKullanici) {
+        talepEden = aktifKullanici.ad || 'Operatör';
+      }
+
+      ensureDBArrays();
+      const yeniTalep = {
+        id: Date.now(),
+        malzeme,
+        miktar,
+        birim,
+        bolum,
+        aciliyet,
+        talepEden: talepEden || 'Operatör',
+        aciklama,
+        tarih: new Date().toISOString(),
+        durum: 'bekliyor',
+        karsilayan: null,
+        karsilanmaTarihi: null
+      };
+
+      DB.malzemeTalepleri.unshift(yeniTalep);
+      saveDB(true);
+
+      // Formu sıfırla
+      if (document.getElementById('mtMalzemeAdi')) document.getElementById('mtMalzemeAdi').value = '';
+      if (document.getElementById('mtMiktar')) document.getElementById('mtMiktar').value = '';
+      if (document.getElementById('mtAciklama')) document.getElementById('mtAciklama').value = '';
+
+      showToast(`"${malzeme}" talebi başarıyla iletildi.`, 'success');
+      bildirimGonder(
+        `Yeni Malzeme Talebi: ${malzeme}`,
+        `${bolum} bölümünden ${talepEden} tarafından ${miktar} ${birim} ${malzeme} talep edildi. (Aciliyet: ${aciliyet})`,
+        aciliyet === 'Kritik' ? 'error' : (aciliyet === 'Acil' ? 'warning' : 'info'),
+        true
+      );
+
+      renderMalzemeTalepleri();
+    }
+
+    function malzemeTalepDurumDegistir(talepId, yeniDurum) {
+      ensureDBArrays();
+      const talep = (DB.malzemeTalepleri || []).find(t => t.id === talepId);
+      if (!talep) return;
+
+      talep.durum = yeniDurum;
+      if (yeniDurum === 'karsilandi') {
+        talep.karsilayan = aktifKullanici ? aktifKullanici.ad : 'Depo / Yönetim';
+        talep.karsilanmaTarihi = new Date().toISOString();
+        showToast(`Talep karşılandı olarak işaretlendi.`, 'success');
+      } else {
+        talep.karsilayan = null;
+        talep.karsilanmaTarihi = null;
+        showToast(`Talep durumu "${yeniDurum}" olarak güncellendi.`, 'info');
+      }
+
+      saveDB(true);
+      renderMalzemeTalepleri();
+    }
+
+    function malzemeTalepSil(talepId) {
+      if (!confirm('Bu malzeme talebini silmek istediğinize emin misiniz?')) return;
+      ensureDBArrays();
+      DB.malzemeTalepleri = (DB.malzemeTalepleri || []).filter(t => t.id !== talepId);
+      saveDB(true);
+      renderMalzemeTalepleri();
+      showToast('Talep silindi.', 'info');
+    }
+
+    function renderMalzemeTalepleri() {
+      ensureDBArrays();
+      const tbody = document.getElementById('malzemeTalepTableBody');
+      const arama = (document.getElementById('mtAramaInput')?.value || '').toLowerCase().trim();
+
+      const talepler = DB.malzemeTalepleri || [];
+      const hepsiSayisi = talepler.length;
+      const bekleyenSayisi = talepler.filter(t => t.durum === 'bekliyor').length;
+      const karsilandiSayisi = talepler.filter(t => t.durum === 'karsilandi').length;
+
+      const sHepsi = document.getElementById('mtSayi_hepsi');
+      const sBekleyen = document.getElementById('mtSayi_bekliyor');
+      const sKarsilandi = document.getElementById('mtSayi_karsilandi');
+      const ozetBekleyen = document.getElementById('malzemeTalepBekleyenSayisi');
+      const navBadge = document.getElementById('bTalep');
+
+      if (sHepsi) sHepsi.textContent = hepsiSayisi;
+      if (sBekleyen) sBekleyen.textContent = bekleyenSayisi;
+      if (sKarsilandi) sKarsilandi.textContent = karsilandiSayisi;
+      if (ozetBekleyen) ozetBekleyen.textContent = bekleyenSayisi;
+
+      if (navBadge) {
+        if (bekleyenSayisi > 0) {
+          navBadge.textContent = bekleyenSayisi;
+          navBadge.classList.remove('hidden');
+        } else {
+          navBadge.classList.add('hidden');
+        }
+      }
+
+      if (!tbody) return;
+
+      let list = [...talepler];
+      if (mtAktifFiltre === 'bekliyor') list = list.filter(t => t.durum === 'bekliyor');
+      else if (mtAktifFiltre === 'karsilandi') list = list.filter(t => t.durum === 'karsilandi');
+
+      if (arama) {
+        list = list.filter(t =>
+          (t.malzeme && t.malzeme.toLowerCase().includes(arama)) ||
+          (t.talepEden && t.talepEden.toLowerCase().includes(arama)) ||
+          (t.bolum && t.bolum.toLowerCase().includes(arama)) ||
+          (t.aciklama && t.aciklama.toLowerCase().includes(arama))
+        );
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-medium">Kayıtlı malzeme talebi bulunmuyor.</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      list.forEach(t => {
+        const d = t.tarih ? new Date(t.tarih) : new Date();
+        const tarihStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+        let aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700">🟢 Normal</span>`;
+        if (t.aciliyet === 'Acil') aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">🟡 Acil</span>`;
+        if (t.aciliyet === 'Kritik') aciliyetBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">🔴 Kritik</span>`;
+
+        let durumBadge = '';
+        if (t.durum === 'bekliyor') {
+          durumBadge = `<span class="bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-full">⏳ Bekliyor</span>`;
+        } else if (t.durum === 'karsilandi') {
+          durumBadge = `<span class="bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full">✅ Karşılandı</span>
+          ${t.karsilayan ? `<div class="text-[10px] text-slate-400 mt-0.5">${t.karsilayan}</div>` : ''}`;
+        } else {
+          durumBadge = `<span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded-full">İptal</span>`;
+        }
+
+        html += `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-3 text-slate-500 font-mono text-xs whitespace-nowrap">${tarihStr}</td>
+            <td class="p-3 font-bold text-slate-800 text-xs">${t.talepEden || '-'}</td>
+            <td class="p-3 whitespace-nowrap">
+              <span class="bg-indigo-50 text-indigo-800 px-2 py-0.5 rounded-md font-bold text-[11px] border border-indigo-200">
+                ${t.bolum || '-'}
+              </span>
+            </td>
+            <td class="p-3">
+              <b class="text-slate-900 text-xs block">${t.malzeme}</b>
+              ${t.aciklama ? `<span class="text-[11px] text-slate-500 italic block mt-0.5">${t.aciklama}</span>` : ''}
+            </td>
+            <td class="p-3 text-right font-black text-slate-900 text-xs whitespace-nowrap">
+              ${parseFloat(t.miktar).toLocaleString('tr-TR')} <span class="font-normal text-slate-500 text-[11px]">${t.birim}</span>
+            </td>
+            <td class="p-3 text-center whitespace-nowrap">${aciliyetBadge}</td>
+            <td class="p-3 text-center whitespace-nowrap">${durumBadge}</td>
+            <td class="p-3 text-right whitespace-nowrap">
+              ${t.durum === 'bekliyor' ? `
+                <button onclick="malzemeTalepDurumDegistir(${t.id}, 'karsilandi')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs shadow-xs transition-colors mr-1">
+                  ✅ Karşıla
+                </button>
+              ` : `
+                <button onclick="malzemeTalepDurumDegistir(${t.id}, 'bekliyor')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-2 py-1 rounded-lg text-[11px] transition-colors mr-1">
+                  ↩️ Geri Al
+                </button>
+              `}
+              <button onclick="malzemeTalepSil(${t.id})" class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-1.5 rounded-lg text-xs font-bold transition-colors">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
     function raporHizliFiltre(tip) {
       const today = new Date().toISOString().slice(0, 10);
       const basEl = document.getElementById('rpBas');
@@ -17903,7 +18449,8 @@
       if (typeof apmPlakaTablolariGuncelle === 'function') try { apmPlakaTablolariGuncelle(); } catch (e) { }
       if (typeof apmUeGosterimleriGuncelle === 'function') try { apmUeGosterimleriGuncelle(); } catch (e) { }
 
-      // Kullanıcı & Mesajlaşma Senkronizasyonu
+      // Kullanıcı, Mesajlaşma & Malzeme Talepleri Senkronizasyonu
+      if (typeof renderMalzemeTalepleri === 'function') renderMalzemeTalepleri();
       if (typeof renderKullaniciListesi === 'function') renderKullaniciListesi();
       if (typeof renderMesajlar === 'function') renderMesajlar();
       if (typeof updateChatBadges === 'function') updateChatBadges();
