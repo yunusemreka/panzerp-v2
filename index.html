@@ -16372,11 +16372,12 @@
     /* ========================================================================= */
     /* AKILLI GEÇMİŞ İSTİHBARATI (EN SON NE ZAMAN İSTENDİ, NE KADAR GELDİ/AÇIK)  */
     /* ========================================================================= */
-    function mtGetUrunGecmisBilgisi(malzemeAdi, stokKodu) {
+    function mtGetUrunGecmisBilgisi(malzemeAdi, stokKodu, koduOlculeri = '') {
       ensureDBArrays();
       const talepler = DB.malzemeTalepleri || [];
       const normalizedAd = (malzemeAdi || '').toLowerCase().trim();
       const normalizedKod = (stokKodu || '').toLowerCase().trim();
+      const normalizedOlcu = (koduOlculeri || '').toLowerCase().trim();
 
       if (!normalizedAd && !normalizedKod) return null;
 
@@ -16384,8 +16385,24 @@
       talepler.forEach(t => {
         (t.kalemler || []).forEach(k => {
           const kAd = (k.malzemeAdi || '').toLowerCase().trim();
-          const kKod = (k.koduOlculeri || '').toLowerCase().trim();
-          const eslesti = (normalizedKod && kKod.includes(normalizedKod)) || (normalizedAd && kAd === normalizedAd);
+          const kStokKod = (k.stokKodu || '').toLowerCase().trim();
+          const kOlcu = (k.koduOlculeri || '').toLowerCase().trim();
+
+          // KESİN DOĞRULAMA: ÜRÜN ADI + KODU / ÖLÇÜSÜ BİRLİKTE DOĞRULANIR
+          let eslesti = false;
+
+          if (normalizedKod && kStokKod) {
+            eslesti = (kStokKod === normalizedKod) && (kAd === normalizedAd || kAd.includes(normalizedAd) || normalizedAd.includes(kAd));
+          } else if (normalizedKod && kOlcu) {
+            eslesti = (kOlcu.includes(normalizedKod)) && (kAd === normalizedAd || kAd.includes(normalizedAd) || normalizedAd.includes(kAd));
+          } else if (normalizedOlcu && kOlcu) {
+            eslesti = (kAd === normalizedAd) && (kOlcu === normalizedOlcu);
+          } else if (normalizedKod) {
+            eslesti = (kStokKod === normalizedKod) || (kOlcu.includes(normalizedKod));
+          } else {
+            eslesti = (kAd === normalizedAd) && (!kStokKod && !kOlcu);
+          }
+
           if (eslesti) {
             const hedef = parseFloat(k.revizeAdet !== undefined && k.revizeAdet !== null ? k.revizeAdet : (k.adet || 1));
             const gelen = parseFloat(k.gelenAdet || (t.durum === 'karsilandi' ? hedef : 0));
@@ -16394,8 +16411,11 @@
             gecmisKalemler.push({
               talepNo: t.talepNo || ('TLP-' + t.id),
               tarih: t.tarih || (t.olusturmaZamani ? t.olusturmaZamani.slice(0, 10) : '-'),
+              termin: k.termin || t.termin || '-',
               talepEden: t.talepEden || '-',
               bolum: t.bolum || '-',
+              stokKodu: k.stokKodu || '',
+              koduOlculeri: k.koduOlculeri || '',
               talepAdet: parseFloat(k.adet || 1),
               onaylananAdet: hedef,
               gelenAdet: gelen,
@@ -16418,243 +16438,64 @@
 
       return {
         sonTalepTarihi: son.tarih,
+        sonTerminTarihi: son.termin && son.termin !== '-' ? son.termin : 'Belirtilmedi',
         sonTalepEden: son.talepEden,
         sonBolum: son.bolum,
         sonTalepNo: son.talepNo,
+        sonStokKodu: son.stokKodu,
         sonIstenenAdet: son.talepAdet,
         sonOnaylananAdet: son.onaylananAdet,
         sonGelenAdet: son.gelenAdet,
         sonBirim: son.birim,
         toplamTalepSayisi: gecmisKalemler.length,
         toplamAcikAdet,
-        acikSiparisSayisi: acikSiparisler.length
+        acikSiparisSayisi: acikSiparisler.length,
+        gecmisKayitlar: gecmisKalemler
       };
     }
 
-    function mtYeniTalepNoUret() {
-      ensureDBArrays();
-      const now = new Date();
-      const yy = String(now.getFullYear()).slice(-2);
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const prefix = `TLP-${yy}${mm}${dd}`;
-
-      const todays = (DB.malzemeTalepleri || []).filter(t => (t.talepNo || '').startsWith(prefix));
-      const nextSeq = String(todays.length + 1).padStart(2, '0');
-      return `${prefix}-${nextSeq}`;
-    }
-
-    function malzemeTalepFormSifirla() {
-      mtSeciliMevcutTalep = null;
-      mtDraftKalemler = [];
-
-      const inpNo = document.getElementById('mtTalepNo');
-      const inpEden = document.getElementById('mtTalepEden');
-      const selBolum = document.getElementById('mtBolum');
-      const inpTarih = document.getElementById('mtTalepTarihi');
-      const selMevcut = document.getElementById('mtMevcutTalepSec');
-
-      if (inpNo) inpNo.value = mtYeniTalepNoUret();
-      if (inpEden) inpEden.value = (typeof aktifKullanici !== 'undefined' && aktifKullanici && aktifKullanici.ad) ? aktifKullanici.ad : 'Operatör';
-      if (selBolum) {
-        if (typeof aktifKullanici !== 'undefined' && aktifKullanici && aktifKullanici.departman) {
-          const dep = aktifKullanici.departman.toUpperCase();
-          for (let opt of selBolum.options) {
-            if (opt.value.toUpperCase().includes(dep) || dep.includes(opt.value.toUpperCase())) {
-              selBolum.value = opt.value;
-              break;
-            }
-          }
-        }
-      }
-      if (inpTarih) inpTarih.value = new Date().toISOString().slice(0, 10);
-
-      // Mevcut açık talep dropdown
-      if (selMevcut) {
-        ensureDBArrays();
-        const aciklar = (DB.malzemeTalepleri || []).filter(t => t.durum !== 'karsilandi' && t.durum !== 'reddedildi');
-        let mHtml = '<option value="">-- Boş bırakın (Yeni Talep) --</option>';
-        aciklar.forEach(t => {
-          const kSayi = Array.isArray(t.kalemler) ? t.kalemler.length : 1;
-          mHtml += `<option value="${t.id}">${t.talepNo || ('TLP-' + t.id)} - (${t.talepEden || 'Bilinmiyor'} / ${t.bolum || 'Genel'} - ${kSayi} Kalem)</option>`;
-        });
-        selMevcut.innerHTML = mHtml;
-        selMevcut.value = '';
-      }
-
-      for (let i = 0; i < 4; i++) {
-        malzemeTalepKalemEkleSatiri();
-      }
-      malzemeTalepKalemleriRender();
-    }
-
-    function mtMevcutTalepDegisti(talepId) {
-      if (!talepId) {
-        mtSeciliMevcutTalep = null;
-        const inpNo = document.getElementById('mtTalepNo');
-        if (inpNo) inpNo.value = mtYeniTalepNoUret();
-        return;
-      }
-
-      ensureDBArrays();
-      const talep = (DB.malzemeTalepleri || []).find(t => String(t.id) === String(talepId));
-      if (!talep) return;
-
-      mtSeciliMevcutTalep = talep;
-      const inpNo = document.getElementById('mtTalepNo');
-      const inpEden = document.getElementById('mtTalepEden');
-      const selBolum = document.getElementById('mtBolum');
-
-      if (inpNo) inpNo.value = talep.talepNo || ('TLP-' + talep.id);
-      if (inpEden && talep.talepEden) inpEden.value = talep.talepEden;
-      if (selBolum && talep.bolum) {
-        selBolum.value = talep.bolum;
-        mtBolumDegisti(talep.bolum);
-      }
-
-      showToast(`${talep.talepNo || 'Seçilen'} nolu mevcut talebe yeni satırlar eklenecek.`, 'info');
-    }
-
-    function malzemeTalepKalemEkleSatiri(veri = null) {
-      const today = new Date();
-      const terminDate = new Date();
-      terminDate.setDate(today.getDate() + 3);
-      const terminStr = terminDate.toISOString().slice(0, 10);
-
-      mtDraftKalemler.push({
-        id: Date.now() + Math.random(),
-        stokKodu: veri ? (veri.stokKodu || '') : '',
-        malzemeAdi: veri ? (veri.malzemeAdi || '') : '',
-        koduOlculeri: veri ? (veri.koduOlculeri || '') : '',
-        kalite: veri ? (veri.kalite || '') : '',
-        adet: veri && veri.adet ? veri.adet : '',
-        revizeAdet: veri && (veri.revizeAdet !== undefined) ? veri.revizeAdet : (veri ? veri.adet : ''),
-        gelenAdet: veri && (veri.gelenAdet !== undefined) ? veri.gelenAdet : 0,
-        birim: veri && veri.birim ? veri.birim : 'Adet',
-        kullanimAlani: veri ? (veri.kullanimAlani || '') : '',
-        termin: veri && veri.termin ? veri.termin : terminStr,
-        acil: veri && veri.acil ? true : false,
-        urunLinki: veri ? (veri.urunLinki || '') : '',
-        not: veri ? (veri.not || '') : ''
-      });
-      malzemeTalepKalemleriRender();
-    }
-
-    function malzemeTalepKalemSilSatiri(idx) {
-      if (mtDraftKalemler.length <= 1) {
-        mtDraftKalemler[0] = {
-          id: Date.now(),
-          stokKodu: '',
-          malzemeAdi: '',
-          koduOlculeri: '',
-          kalite: '',
-          adet: '',
-          revizeAdet: '',
-          gelenAdet: 0,
-          birim: 'Adet',
-          kullanimAlani: '',
-          termin: '',
-          acil: false,
-          urunLinki: '',
-          not: ''
-        };
-      } else {
-        mtDraftKalemler.splice(idx, 1);
-      }
-      malzemeTalepKalemleriRender();
-    }
-
-    function mtKalemGuncelle(idx, alan, deger) {
-      if (!mtDraftKalemler[idx]) return;
-      mtDraftKalemler[idx][alan] = deger;
-      const sayacEl = document.getElementById('mtToplamKalemSayisi');
-      if (sayacEl) {
-        const doluSayisi = mtDraftKalemler.filter(k => (k.malzemeAdi || '').trim().length > 0).length;
-        sayacEl.textContent = doluSayisi || mtDraftKalemler.length;
-      }
-    }
-
-    function mtMalzemeDropdownAc(idx) {
-      const listEl = document.getElementById(`mtMalzemeInp_${idx}-list`);
-      if (listEl) {
-        listEl.innerHTML = buildMalzemeStokDropdownItems('', idx);
-        listEl.classList.add('active');
-      }
-    }
-
-    function mtMalzemeDropdownFiltrele(idx) {
-      const inp = document.getElementById(`mtMalzemeInp_${idx}`);
-      const val = (inp?.value || '').trim();
-      mtKalemGuncelle(idx, 'malzemeAdi', val);
-
-      const listEl = document.getElementById(`mtMalzemeInp_${idx}-list`);
-      if (listEl) {
-        listEl.innerHTML = buildMalzemeStokDropdownItems(val, idx);
-        listEl.classList.add('active');
-      }
-    }
-
-    function mtMalzemeDropdownKapat(idx) {
-      const listEl = document.getElementById(`mtMalzemeInp_${idx}-list`);
-      if (listEl) listEl.classList.remove('active');
-    }
-
-    function mtKalemStokSec(idx, stokKodu, malzemeAdi) {
-      ensureDBArrays();
-      const item = (DB.malzemeStokKartlari || []).find(s => 
-        (stokKodu && s.stokKodu === stokKodu) || (malzemeAdi && s.malzemeAdi === malzemeAdi)
-      );
-      if (!item || !mtDraftKalemler[idx]) return;
-
-      mtDraftKalemler[idx].stokKodu = item.stokKodu;
-      mtDraftKalemler[idx].malzemeAdi = item.malzemeAdi;
-      mtDraftKalemler[idx].koduOlculeri = item.olcuTanim ? (item.stokKodu ? `[${item.stokKodu}] ${item.olcuTanim}` : item.olcuTanim) : (item.stokKodu || '');
-      mtDraftKalemler[idx].birim = item.birim || 'Adet';
-      if (item.marka) mtDraftKalemler[idx].kalite = item.marka;
-
-      // DOM elemanlarını anında güncelle
-      const inpMalzeme = document.getElementById(`mtMalzemeInp_${idx}`);
-      const inpKodu = document.getElementById(`mtKoduOlcu_${idx}`);
-      const inpKalite = document.getElementById(`mtKalite_${idx}`);
-      const selBirim = document.getElementById(`mtBirim_${idx}`);
-
-      if (inpMalzeme) inpMalzeme.value = mtDraftKalemler[idx].malzemeAdi;
-      if (inpKodu) inpKodu.value = mtDraftKalemler[idx].koduOlculeri;
-      if (inpKalite) inpKalite.value = mtDraftKalemler[idx].kalite || '';
-      if (selBirim) selBirim.value = mtDraftKalemler[idx].birim;
-
-      mtMalzemeDropdownKapat(idx);
-
-      // Geçmiş sipariş bilgisini satır altında anında göster
-      mtGecmisRozetiGoster(idx, item.malzemeAdi, item.stokKodu);
-    }
-
-    function mtGecmisRozetiGoster(idx, malzemeAdi, stokKodu) {
+    function mtGecmisRozetiGoster(idx, malzemeAdi, stokKodu, koduOlculeri) {
       const rozetEl = document.getElementById(`mtGecmisRozet_${idx}`);
       if (!rozetEl) return;
 
-      const gecmis = mtGetUrunGecmisBilgisi(malzemeAdi, stokKodu);
+      const item = (mtDraftKalemler && mtDraftKalemler[idx]) ? mtDraftKalemler[idx] : {};
+      const ad = malzemeAdi || item.malzemeAdi;
+      const kod = stokKodu || item.stokKodu;
+      const olcu = koduOlculeri || item.koduOlculeri;
+
+      if (!ad && !kod) {
+        rozetEl.innerHTML = '';
+        return;
+      }
+
+      const gecmis = mtGetUrunGecmisBilgisi(ad, kod, olcu);
       if (!gecmis) {
-        rozetEl.innerHTML = `<span class="text-[10px] text-slate-400">ℹ️ Bu ürün için sistemde daha önce talep kaydı bulunmuyor.</span>`;
+        rozetEl.innerHTML = `<span class="text-[10px] text-slate-400 font-medium">ℹ️ Bu ürün/kod için sistemde daha önce talep kaydı bulunmuyor.</span>`;
         return;
       }
 
       let html = `
-        <div class="mt-1 p-1.5 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-600 flex items-center justify-between gap-2 flex-wrap">
-          <div>
-            <span>🕒 <b>Son Talep:</b> ${gecmis.sonTalepTarihi} (${gecmis.sonTalepEden} / ${gecmis.sonBolum})</span>
-            <span class="mx-1 text-slate-300">|</span>
-            <span>📦 <b>İstenen:</b> ${gecmis.sonIstenenAdet} ${gecmis.sonBirim}</span>
-            <span class="mx-1 text-slate-300">|</span>
-            <span class="text-emerald-700 font-bold">🚚 <b>Gelen:</b> ${gecmis.sonGelenAdet} ${gecmis.sonBirim}</span>
+        <div class="mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] text-slate-700 flex items-center justify-between gap-2 flex-wrap shadow-2xs">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span>🕒 <b>Son Talep:</b> ${escapeHtml(gecmis.sonTalepTarihi)} (${escapeHtml(gecmis.sonTalepEden)} / ${escapeHtml(gecmis.sonBolum)})</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-indigo-800 font-bold bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">📅 <b>Son Termin:</b> ${escapeHtml(gecmis.sonTerminTarihi)}</span>
+            <span class="text-slate-300">|</span>
+            <span>📦 <b>İstenen:</b> ${gecmis.sonIstenenAdet} ${escapeHtml(gecmis.sonBirim)}</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-emerald-700 font-bold">🚚 <b>Gelen:</b> ${gecmis.sonGelenAdet} ${escapeHtml(gecmis.sonBirim)}</span>
           </div>
-          ${gecmis.toplamAcikAdet > 0 ? `
-            <span class="bg-rose-50 text-rose-800 border border-rose-300 font-bold px-1.5 py-0.5 rounded animate-pulse">
-              ⚠️ Açık Bekleyen Sipariş: ${gecmis.toplamAcikAdet} ${gecmis.sonBirim}
-            </span>
-          ` : `
-            <span class="bg-emerald-50 text-emerald-800 font-semibold px-1 rounded">Açık Sipariş Yok</span>
-          `}
+          <div>
+            ${gecmis.toplamAcikAdet > 0 ? `
+              <span class="bg-rose-50 text-rose-800 border border-rose-300 font-black px-2 py-0.5 rounded-full animate-pulse">
+                ⚠️ Açık Bekleyen: ${gecmis.toplamAcikAdet} ${escapeHtml(gecmis.sonBirim)}
+              </span>
+            ` : `
+              <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold px-2 py-0.5 rounded-full">
+                ✅ Açık Sipariş Yok
+              </span>
+            `}
+          </div>
         </div>
       `;
       rozetEl.innerHTML = html;
@@ -16782,7 +16623,7 @@
       html = matches.map(m => {
         const safeAd = (m.malzemeAdi || '').replace(/'/g, "\\'");
         const safeKod = (m.stokKodu || '').replace(/'/g, "\\'");
-        const gecmis = mtGetUrunGecmisBilgisi(m.malzemeAdi, m.stokKodu);
+        const gecmis = mtGetUrunGecmisBilgisi(m.malzemeAdi, m.stokKodu, m.olcuTanim);
 
         return `
           <div onclick="mtKalemStokSec(${rowIdx}, '${safeKod}', '${safeAd}')" 
@@ -16796,9 +16637,18 @@
               <span class="text-emerald-800 font-bold bg-emerald-50 px-1.5 py-0.2 rounded text-[10px] shrink-0">${escapeHtml(m.birim || 'Adet')}</span>
             </div>
             ${gecmis ? `
-              <div class="text-[9px] text-slate-400 mt-1 flex items-center gap-2">
-                <span>🕒 Son Talep: ${gecmis.sonTalepTarihi} (${gecmis.sonIstenenAdet} ${gecmis.sonBirim})</span>
-                ${gecmis.toplamAcikAdet > 0 ? `<span class="text-rose-600 font-bold">⚠️ Açık Kalan: ${gecmis.toplamAcikAdet} ${gecmis.sonBirim}</span>` : ''}
+              <div class="text-[9px] text-slate-500 mt-1 pt-1 border-t border-slate-100 flex items-center justify-between gap-1 flex-wrap">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span>🕒 Son: <b>${escapeHtml(gecmis.sonTalepTarihi)}</b></span>
+                  <span class="text-indigo-700 font-semibold bg-indigo-50 px-1 rounded">📅 Termin: <b>${escapeHtml(gecmis.sonTerminTarihi)}</b></span>
+                  <span>📦 <b>${gecmis.sonIstenenAdet}</b> ${escapeHtml(gecmis.sonBirim)}</span>
+                  <span class="text-emerald-700 font-semibold">🚚 <b>${gecmis.sonGelenAdet}</b> Geldi</span>
+                </div>
+                ${gecmis.toplamAcikAdet > 0 ? `
+                  <span class="text-rose-700 font-black bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
+                    ⚠️ Açık: ${gecmis.toplamAcikAdet} ${escapeHtml(gecmis.sonBirim)}
+                  </span>
+                ` : '<span class="text-emerald-700 font-bold text-[9px]">Açık Yok</span>'}
               </div>
             ` : ''}
           </div>
