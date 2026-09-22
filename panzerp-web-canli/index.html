@@ -1963,6 +1963,90 @@
             </table>
           </div>
         </div>
+
+        <!-- ========================================================================= -->
+        <!-- 📦 STOK KARTLARI YÖNETİMİ & KATALOG DÜZENLEME PANELİ                     -->
+        <!-- ========================================================================= -->
+        <div class="card p-5 mt-6 border-t-4 border-amber-500 shadow-sm">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pb-3 border-b border-slate-200">
+            <div>
+              <h3 class="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <span>📦</span> Malzeme Stok Kartları Kataloğu
+                <span id="mtStokKartToplamSayi" class="bg-amber-100 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full border border-amber-300">246 Kart</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">
+                Katalogdaki stok kartlarını listeleyin, filtreleyin, arayın ve doğrudan düzenleyin veya yeni stok kartı ekleyin.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="mtYeniStokKartiModalAc()"
+                class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs shadow-xs transition-colors cursor-pointer flex items-center gap-1.5">
+                <span>➕</span> <span>Yeni Stok Kartı Ekle</span>
+              </button>
+              <button type="button" onclick="mtStokExcelIndir()"
+                class="bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 font-bold px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer flex items-center gap-1">
+                <span>📊</span> <span>Excel İndir</span>
+              </button>
+              <button type="button" onclick="mtStokVarsayilanYukle()"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer"
+                title="Fabrika varsayılan 246 stok kartı şablonunu tekrar yükle">
+                <span>🔄</span> <span>Şablonu Sıfırla</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtreler & Arama -->
+          <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-4">
+            <!-- Bölüm Filtre Butonları -->
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="mtStokFiltrele('hepsi')" id="mtStokFiltre_hepsi"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-xs cursor-pointer">
+                Tümü (<span id="mtStokSayi_hepsi">0</span>)
+              </button>
+              <button type="button" onclick="mtStokFiltrele('APM')" id="mtStokFiltre_APM"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-indigo-100 hover:text-indigo-800 cursor-pointer">
+                APM (<span id="mtStokSayi_APM">0</span>)
+              </button>
+              <button type="button" onclick="mtStokFiltrele('FCW')" id="mtStokFiltre_FCW"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-amber-100 hover:text-amber-800 cursor-pointer">
+                FCW (<span id="mtStokSayi_FCW">0</span>)
+              </button>
+              <button type="button" onclick="mtStokFiltrele('BAKIM')" id="mtStokFiltre_BAKIM"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">
+                Bakım & Genel (<span id="mtStokSayi_BAKIM">0</span>)
+              </button>
+            </div>
+
+            <!-- Arama Kutusu -->
+            <div class="relative w-full sm:w-72">
+              <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
+              <input type="text" id="mtStokAramaInput" oninput="renderStokKartlariYonetim()"
+                placeholder="Stok kodu, malzeme, ölçü, marka ara..."
+                class="border border-slate-300 pl-8 pr-3 py-1.5 rounded-xl w-full text-xs font-medium text-slate-900 bg-white outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200">
+            </div>
+          </div>
+
+          <!-- Stok Kartları Tablosu -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-[520px] overflow-y-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-slate-100 text-slate-700 sticky top-0 z-10 shadow-2xs font-extrabold uppercase text-[11px]">
+                <tr>
+                  <th class="p-2.5 w-12 text-center">#</th>
+                  <th class="p-2.5 w-24">Bölüm</th>
+                  <th class="p-2.5 w-28">Stok Kodu</th>
+                  <th class="p-2.5 min-w-[200px]">Malzeme Adı</th>
+                  <th class="p-2.5 min-w-[180px]">Ölçü / Tanım / Özellik</th>
+                  <th class="p-2.5 w-32">Marka / Kalite</th>
+                  <th class="p-2.5 w-20 text-center">Birim</th>
+                  <th class="p-2.5 w-24 text-right pr-4">İşlemler</th>
+                </tr>
+              </thead>
+              <tbody id="mtStokKartlariYonetimTableBody" class="divide-y divide-slate-100 bg-white">
+                <!-- JS renderStokKartlariYonetim ile doldurulacak -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- ÜRÜNLER -->
@@ -3292,29 +3376,25 @@
         <div class="card p-5 border border-slate-200 bg-white rounded-2xl shadow-sm">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-slate-100">
             <div class="flex flex-wrap items-center gap-1.5">
-              <button onclick="filtreleMalzemeTalep('hepsi')" id="mtFiltreBtn_hepsi"
+              <button type="button" onclick="filtreleMalzemeTalep('hepsi')" id="mtFiltreBtn_hepsi"
                 class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-xs cursor-pointer">
                 Tüm Talepler (<span id="mtSayi_hepsi">0</span>)
               </button>
-              <button onclick="filtreleMalzemeTalep('bekliyor')" id="mtFiltreBtn_bekliyor"
+              <button type="button" onclick="filtreleMalzemeTalep('bekliyor')" id="mtFiltreBtn_bekliyor"
                 class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-amber-100 hover:text-amber-800 cursor-pointer">
-                ⏳ İnceleniyor (<span id="mtSayi_bekliyor">0</span>)
+                ⏳ Açık / Bekleyen (<span id="mtSayi_bekliyor">0</span>)
               </button>
-              <button onclick="filtreleMalzemeTalep('onay_bekliyor')" id="mtFiltreBtn_onay_bekliyor"
-                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-indigo-100 hover:text-indigo-800 cursor-pointer">
-                👔 Emrah Bey Onayında (<span id="mtSayi_onay_bekliyor">0</span>)
+              <button type="button" onclick="filtreleMalzemeTalep('kismi_karsilandi')" id="mtFiltreBtn_kismi_karsilandi"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-amber-100 hover:text-amber-800 cursor-pointer">
+                🚚 Kısmi Teslim Edilen (<span id="mtSayi_kismi_karsilandi">0</span>)
               </button>
-              <button onclick="filtreleMalzemeTalep('onaylandi')" id="mtFiltreBtn_onaylandi"
-                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-blue-100 hover:text-blue-800 cursor-pointer">
-                ✅ Onaylananlar (<span id="mtSayi_onaylandi">0</span>)
-              </button>
-              <button onclick="filtreleMalzemeTalep('karsilandi')" id="mtFiltreBtn_karsilandi"
+              <button type="button" onclick="filtreleMalzemeTalep('karsilandi')" id="mtFiltreBtn_karsilandi"
                 class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-800 cursor-pointer">
-                📦 Karşılananlar (<span id="mtSayi_karsilandi">0</span>)
+                ✅ Tamamlananlar (<span id="mtSayi_karsilandi">0</span>)
               </button>
-              <button onclick="filtreleMalzemeTalep('reddedildi')" id="mtFiltreBtn_reddedildi"
-                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-rose-100 hover:text-rose-800 cursor-pointer">
-                ❌ Reddedilenler (<span id="mtSayi_reddedildi">0</span>)
+              <button type="button" onclick="filtreleMalzemeTalep('imzali')" id="mtFiltreBtn_imzali"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-indigo-100 hover:text-indigo-800 cursor-pointer">
+                📎 Onaylı / İmzalı Dosyalı (<span id="mtSayi_imzali">0</span>)
               </button>
             </div>
             <div class="w-full sm:w-64">
@@ -3322,7 +3402,7 @@
                 placeholder="Talep no, malzeme veya bölüm ara..."
                 class="border border-slate-200 bg-slate-50 px-3 py-1.5 rounded-xl text-xs w-full outline-none focus:bg-white focus:ring-2 focus:ring-indigo-200">
             </div>
-          </div>
+          </div>/div>/div>
 
           <div class="table-responsive border border-slate-200 rounded-xl overflow-hidden">
             <table class="w-full text-xs text-left">
@@ -4787,7 +4867,7 @@
       <div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-3 mb-4 text-xs text-indigo-950 flex items-start gap-2">
         <span class="text-base shrink-0">💡</span>
         <span>
-          Bu ekrandan operatörün talep ettiği malzeme miktarlarını ambar stoğu veya ihtiyaca göre revize edebilir, satınalma notunuzu ekleyerek <b>Emrah Bey'in Onayına Sunabilirsiniz</b>.
+          Bu ekrandan operatörün talep ettiği malzeme miktarlarını ambar stoğu veya ihtiyaca göre revize edebilir, satınalma notunuzu ekleyerek <b>revize edip kaydedebilirsiniz</b>.
         </span>
       </div>
 
@@ -4829,7 +4909,7 @@
           </button>
           <button type="button" id="mtBtnKaydetVeOnayaSun"
             class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
-            <span>👔</span> <span>Kaydet & Emrah Bey'e Onaya Sun</span>
+            <span>💾</span> <span>Miktarları Güncelle & Kaydet</span>
           </button>
         </div>
       </div>
@@ -4883,7 +4963,7 @@
         <input type="file" id="mtImzaliFileInput" accept="image/*,.pdf" class="hidden" onchange="mtImzaliDosyaSecildi(event)">
         <div class="text-3xl mb-2">📸 / 📄</div>
         <p class="font-bold text-slate-800 text-xs">İmzalı Belge Fotoğrafı veya PDF Dosyası Yükleyin</p>
-        <p class="text-[11px] text-slate-500 mt-1">Yazdırılıp Emrah Bey tarafından imzalanmış evrak fotoğrafını veya taranmış PDF'i seçin</p>
+        <p class="text-[11px] text-slate-500 mt-1">Yazdırılıp onaylanmış / ıslak imzalı evrak fotoğrafını veya taranmış PDF'i seçin</p>
         <button type="button" class="mt-3 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer">
           Dosya Seç / Fotoğraf Yükle
         </button>
@@ -5158,6 +5238,86 @@
     </div>
   </div>
 
+  
+  <!-- STOK KARTI DÜZENLEME MODALI -->
+  <div id="mtStokKartiDuzenleModal" class="modal">
+    <div class="modal-content" style="max-width: 580px; width: 95%;">
+      <div class="flex justify-between items-center pb-3 mb-4 border-b border-slate-200">
+        <div class="flex items-center gap-2.5">
+          <span class="p-2 bg-indigo-100 text-indigo-900 rounded-xl text-lg font-black">✏️</span>
+          <div>
+            <h3 class="font-black text-slate-800 text-base" id="mtStokDuzenleModalBaslik">Stok Kartı Düzenle</h3>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Kayıtlı malzeme stok kartı bilgilerini güncelleyin.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModal('mtStokKartiDuzenleModal')" class="text-slate-400 hover:text-slate-600 bg-slate-100 p-1.5 rounded-lg text-lg font-bold">✕</button>
+      </div>
+
+      <input type="hidden" id="mtStokDuzenleId" value="">
+
+      <div class="space-y-3.5 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Bölüm : <span class="text-rose-500">*</span></label>
+            <select id="mtStokDuzenleBolum" class="border border-slate-300 p-2 rounded-xl w-full bg-white font-bold text-slate-800 outline-none focus:border-indigo-600">
+              <option value="APM">APM</option>
+              <option value="FCW">FCW</option>
+              <option value="BAKIM">Mekanik / Elektrik Bakım</option>
+              <option value="GENEL">Genel Fabrika & Ambar</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Stok Kodu : <span class="text-rose-500">*</span></label>
+            <input type="text" id="mtStokDuzenleKod" placeholder="Örn: APM-0001" class="border border-slate-300 p-2 rounded-xl w-full bg-white font-mono font-bold text-indigo-800 outline-none focus:border-indigo-600">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Malzeme Adı : <span class="text-rose-500">*</span></label>
+          <input type="text" id="mtStokDuzenleAd" placeholder="Malzeme tam adı..." class="border border-slate-300 p-2 rounded-xl w-full bg-white font-bold text-slate-900 outline-none focus:border-indigo-600">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Ölçü / Tanım / Teknik Özellik :</label>
+          <input type="text" id="mtStokDuzenleOlcu" placeholder="Örn: Ø20 mm telli hortum, 2RS C3, vb." class="border border-slate-300 p-2 rounded-xl w-full bg-white outline-none focus:border-indigo-600">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Marka / Kalite :</label>
+            <input type="text" id="mtStokDuzenleMarka" placeholder="Örn: SKF, FAG, Bosch, vb." class="border border-slate-300 p-2 rounded-xl w-full bg-white outline-none focus:border-indigo-600">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Birim :</label>
+            <select id="mtStokDuzenleBirim" class="border border-slate-300 p-2 rounded-xl w-full bg-white font-bold outline-none focus:border-indigo-600">
+              <option value="Adet">Adet</option>
+              <option value="Metre">Metre</option>
+              <option value="Kg">Kg</option>
+              <option value="Koli">Koli</option>
+              <option value="Takım">Takım</option>
+              <option value="Paket">Paket</option>
+              <option value="Litre">Litre</option>
+              <option value="Rulo">Rulo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-between items-center gap-2">
+          <button type="button" id="mtStokDuzenleSilBtn" onclick="mtStokKartiDuzenleSil()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer flex items-center gap-1">
+            <span>🗑️</span> <span>Kartı Sil</span>
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeModal('mtStokKartiDuzenleModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition-colors cursor-pointer">
+              Vazgeç
+            </button>
+            <button type="button" onclick="mtStokKartiDuzenleKaydet()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-5 py-2 rounded-xl text-xs shadow-xs transition-colors cursor-pointer flex items-center gap-1.5">
+              <span>💾</span> <span>Kaydet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- YAZDIRMA İÇİN GİZLİ A4 TALEP FORMU KONTEYNERİ -->
   <div id="mtPrintContainer" class="hidden no-print"></div>
 
@@ -16083,6 +16243,16 @@
     /* PANZERP MALZEME TALEP & STOK MOTORU V3                                    */
     /* ZORUNLU STOK KARTI, PARÇA PARÇA TESLİMAT, AÇIK SİPARİŞ & GEÇMİŞ İSTİHBARAT */
     /* ========================================================================= */
+    
+    /* ========================================================================= */
+    /* PANZERP MALZEME TALEP & STOK MOTORU V3                                    */
+    /* ZORUNLU STOK KARTI, PARÇA PARÇA TESLİMAT, AÇIK SİPARİŞ & GEÇMİŞ İSTİHBARAT */
+    /* ========================================================================= */
+    
+    /* ========================================================================= */
+    /* PANZERP MALZEME TALEP & STOK MOTORU V3                                    */
+    /* ZORUNLU STOK KARTI, PARÇA PARÇA TESLİMAT, AÇIK SİPARİŞ & GEÇMİŞ İSTİHBARAT */
+    /* ========================================================================= */
     const DEFAULT_MALZEME_STOK_KARTLARI = [{"id":1790052589447,"bolum":"APM","stokKodu":"APM-0001","malzemeAdi":"0551000670 ROHS = SM-6P","olcuTanim":"SERVO ENCODER FIREWIRE SOKET","marka":"","birim":"Adet"},{"id":1790052589448,"bolum":"APM","stokKodu":"APM-0002","malzemeAdi":"10'lu Renkli Yassı (Flat) IDC Kablo","olcuTanim":"10 pin rainbow idc kablo","marka":"","birim":"Metre"},{"id":1790052589449,"bolum":"APM","stokKodu":"APM-0003","malzemeAdi":"2 li modüler sistem soket Klemens Takımı","olcuTanim":"No:1 Beyaz","marka":"","birim":"Paket"},{"id":1790052589450,"bolum":"APM","stokKodu":"APM-0004","malzemeAdi":"2 li modüler sistem soket Klemens Takımı","olcuTanim":"No:1 Siyah","marka":"","birim":"Paket"},{"id":1790052589451,"bolum":"APM","stokKodu":"APM-0005","malzemeAdi":"22mm Buton için Kontak Bloğu 1NA","olcuTanim":"Schneider ZBE-101","marka":"","birim":"Adet"},{"id":1790052589452,"bolum":"APM","stokKodu":"APM-0006","malzemeAdi":"24VDC Ray Tipi Güç Kaynağı (10 Amper)","olcuTanim":"S8VK-C24024","marka":"","birim":"Adet"},{"id":1790052589454,"bolum":"APM","stokKodu":"APM-0007","malzemeAdi":"380V Düz Fiş","olcuTanim":"380V, 32A 3P+N+E (3 Faz + Nötr + Toprak)","marka":"","birim":"Adet"},{"id":1790052589455,"bolum":"APM","stokKodu":"APM-0008","malzemeAdi":"40'lı Renkli Yassı (Flat) IDC Kablo","olcuTanim":"40 pin rainbow idc kablo","marka":"","birim":"Metre"},{"id":1790052589456,"bolum":"APM","stokKodu":"APM-0009","malzemeAdi":"AFP0HC32EP","olcuTanim":"CPU,16 GİRİŞ(PNP/NPN),16 PNP ÇIKIŞ,32K, 2xETHERNET","marka":"","birim":"Adet"},{"id":1790052589457,"bolum":"APM","stokKodu":"APM-0010","malzemeAdi":"AFP0HCCM1","olcuTanim":"PLC HABERLEŞME KASETİ RS485x1","marka":"","birim":"Adet"},{"id":1790052589458,"bolum":"APM","stokKodu":"APM-0011","malzemeAdi":"AFP0HM8N","olcuTanim":"PLC MODÜL RTEX MODÜLÜ 8 EKSEN KONTROL","marka":"","birim":"Adet"},{"id":1790052589459,"bolum":"APM","stokKodu":"APM-0012","malzemeAdi":"AFP0HXY64D2P","olcuTanim":"PLC EK MODÜL 32x24VDC GİRİŞ(PNP/NPN) 32PNP ÇIKIŞ","marka":"","birim":"Adet"},{"id":1790052589460,"bolum":"APM","stokKodu":"APM-0013","malzemeAdi":"AFP0RC32MP","olcuTanim":"PLC CPU 16G(PNP/NPN)16PNP","marka":"","birim":"Adet"},{"id":1790052589461,"bolum":"APM","stokKodu":"APM-0014","malzemeAdi":"AFPX-BATT#","olcuTanim":"PLC FPX/FP0H SERİSİ İÇİN HAFIZA PİLİ","marka":"","birim":"Adet"},{"id":1790052589462,"bolum":"APM","stokKodu":"APM-0015","malzemeAdi":"Ahşap Takoz","olcuTanim":"100x100x1500mm-Isıl işlemsiz","marka":"","birim":"Adet"},{"id":1790052589463,"bolum":"APM","stokKodu":"APM-0016","malzemeAdi":"Ahşap Takoz","olcuTanim":"100x100x2000mm-Isıl işlemsiz","marka":"","birim":"Adet"},{"id":1790052589464,"bolum":"APM","stokKodu":"APM-0017","malzemeAdi":"Ahşap Takoz","olcuTanim":"100x100x3000mm-Isıl işlemsiz","marka":"","birim":"Adet"},{"id":1790052589465,"bolum":"APM","stokKodu":"APM-0018","malzemeAdi":"APM4 Elektrik Panosu, Montaj İşçilik ve Sarf Malzemeleri","olcuTanim":"Genişlik: 1000+1000mm x Yükseklik: 2000mm + Alt Baza:100mm x Derinlik 500mm","marka":"","birim":"Adet"},{"id":1790052589466,"bolum":"APM","stokKodu":"APM-0019","malzemeAdi":"Avuç İçi Taşlama","olcuTanim":"Bosch Professional GWS 750 115 MM Avuç Taşlama Makinesi","marka":"","birim":"Adet"},{"id":1790052589467,"bolum":"APM","stokKodu":"APM-0020","malzemeAdi":"Baskılı Devre Klemensi","olcuTanim":"3 Pin - 5.08mm","marka":"","birim":"Adet"},{"id":1790052589468,"bolum":"APM","stokKodu":"APM-0021","malzemeAdi":"Beyaz Kalem","olcuTanim":"Sakura Marka","marka":"","birim":"Adet"},{"id":1790052589469,"bolum":"APM","stokKodu":"APM-0022","malzemeAdi":"Çalı Süpürgesi","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589470,"bolum":"APM","stokKodu":"APM-0023","malzemeAdi":"CAT6 Ethernet LAN Kablosu","olcuTanim":"5 metre","marka":"","birim":"Adet"},{"id":1790052589471,"bolum":"APM","stokKodu":"APM-0024","malzemeAdi":"Çember Köşe Koruyucu Plastik Köşebent","olcuTanim":"Ebat: 30mm x 30mm x 34mm","marka":"","birim":"Adet"},{"id":1790052589472,"bolum":"APM","stokKodu":"APM-0025","malzemeAdi":"Çevirici Entegresi","olcuTanim":"CD 4093","marka":"","birim":"Adet"},{"id":1790052589473,"bolum":"APM","stokKodu":"APM-0026","malzemeAdi":"Civata","olcuTanim":"M24x110 931 8.8 (Siyah)","marka":"","birim":"Adet"},{"id":1790052589474,"bolum":"APM","stokKodu":"APM-0027","malzemeAdi":"Civata","olcuTanim":"M24x115 931 8.8 (Siyah)","marka":"","birim":"Adet"},{"id":1790052589475,"bolum":"APM","stokKodu":"APM-0028","malzemeAdi":"Civata","olcuTanim":"M27x300 931 8.8 (Siyah)","marka":"","birim":"Adet"},{"id":1790052589476,"bolum":"APM","stokKodu":"APM-0029","malzemeAdi":"Digital Step Sürücü","olcuTanim":"EM1-556","marka":"","birim":"Adet"},{"id":1790052589477,"bolum":"APM","stokKodu":"APM-0030","malzemeAdi":"Direnç","olcuTanim":"0,33 Ohm 5W","marka":"","birim":"Adet"},{"id":1790052589478,"bolum":"APM","stokKodu":"APM-0031","malzemeAdi":"Direnç","olcuTanim":"0,47 Ohm 1/4 W","marka":"","birim":"Paket"},{"id":1790052589479,"bolum":"APM","stokKodu":"APM-0032","malzemeAdi":"Direnç","olcuTanim":"1 Ohm 1/4 W","marka":"","birim":"Paket"},{"id":1790052589480,"bolum":"APM","stokKodu":"APM-0033","malzemeAdi":"Dişi-Erkek Metal Distans","olcuTanim":"Vida: M3 Boy: 20mm ile 40mm'ye kadar","marka":"","birim":"Adet"},{"id":1790052589481,"bolum":"APM","stokKodu":"APM-0034","malzemeAdi":"Diyot","olcuTanim":"1N4007 (THT, \"Bacaklı\")","marka":"","birim":"Adet"},{"id":1790052589482,"bolum":"APM","stokKodu":"APM-0035","malzemeAdi":"DVOP0980","olcuTanim":"SERVO A5 - PLC BAGLANTI SOKETI SETI ( X4 50 PIN)","marka":"","birim":"Adet"},{"id":1790052589483,"bolum":"APM","stokKodu":"APM-0036","malzemeAdi":"Eldiven","olcuTanim":"Dotlu Montaj Eldiveni NO : 8","marka":"STARLİNE STL-1014 -GOOD YEAR POLLY 45-761","birim":"Adet"},{"id":1790052589484,"bolum":"APM","stokKodu":"APM-0037","malzemeAdi":"Eldiven","olcuTanim":"Köpük Nitril Eldiven NO:9","marka":"STARLINE ELDİVEN E-92","birim":"Adet"},{"id":1790052589485,"bolum":"APM","stokKodu":"APM-0038","malzemeAdi":"Eldiven","olcuTanim":"Sarı Eldiven  KN2 NO:10","marka":"STARLİNE STL-1014","birim":"Koli"},{"id":1790052589486,"bolum":"APM","stokKodu":"APM-0039","malzemeAdi":"Elektronikçi Yan Keski","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589487,"bolum":"APM","stokKodu":"APM-0040","malzemeAdi":"Finder 8'li jumper (95.75 tipi soket için)","olcuTanim":"095.18","marka":"","birim":"Adet"},{"id":1790052589488,"bolum":"APM","stokKodu":"APM-0041","malzemeAdi":"Finder LED+Diyot Modülü (95.75 tipi soket için)","olcuTanim":"99.02.9.024.99","marka":"","birim":"Adet"},{"id":1790052589489,"bolum":"APM","stokKodu":"APM-0042","malzemeAdi":"Finder Röle Soketi (40.52 tipi röle için)","olcuTanim":"95.75.SMA","marka":"","birim":"Adet"},{"id":1790052589490,"bolum":"APM","stokKodu":"APM-0043","malzemeAdi":"galvaniz Köşebent","olcuTanim":"30x30mm","marka":"","birim":"Boy"},{"id":1790052589491,"bolum":"APM","stokKodu":"APM-0044","malzemeAdi":"Gerilim Kontrol Rölesi","olcuTanim":"ENTES GKRC-02F","marka":"","birim":"Adet"},{"id":1790052589492,"bolum":"APM","stokKodu":"APM-0045","malzemeAdi":"Gırtlak Boru","olcuTanim":"Ø100mm","marka":"","birim":"Metre"},{"id":1790052589493,"bolum":"APM","stokKodu":"APM-0046","malzemeAdi":"Hareketli Kablo Kanalı","olcuTanim":"24x6.5 cm","marka":"","birim":"Metre"},{"id":1790052589494,"bolum":"APM","stokKodu":"APM-0047","malzemeAdi":"Hareketli Kablo Kanalı Açık Seri","olcuTanim":"Dış Ölçü : 60x140mm R=150 veya R=200","marka":"","birim":"Metre"},{"id":1790052589495,"bolum":"APM","stokKodu":"APM-0048","malzemeAdi":"Helcoil tamir takımı","olcuTanim":"Helcoil tamir takımı","marka":"","birim":"Adet"},{"id":1790052589496,"bolum":"APM","stokKodu":"APM-0049","malzemeAdi":"İş Eldiveni","olcuTanim":"Micro Köpük Nitril Eldiven","marka":"","birim":"Adet"},{"id":1790052589497,"bolum":"APM","stokKodu":"APM-0050","malzemeAdi":"Işıklı Kolon Tepe Lambası","olcuTanim":"24VAC, 2 Renk (Kırmızı Yeşil) + Buzzer","marka":"","birim":"Adet"},{"id":1790052589498,"bolum":"APM","stokKodu":"APM-0051","malzemeAdi":"İzolesiz Çelik Spiral","olcuTanim":"Dış Çap : 7mm iç çap : 3,5mm Boy : 3,5 Metre","marka":"","birim":"Adet"},{"id":1790052589499,"bolum":"APM","stokKodu":"APM-0052","malzemeAdi":"İzolesiz Çelik Spiral","olcuTanim":"İzolesiz Özlü Tel Spirali 3,5 mt (Yassı İzolesiz)","marka":"","birim":"Adet"},{"id":1790052589500,"bolum":"APM","stokKodu":"APM-0053","malzemeAdi":"Kablo Bağı","olcuTanim":"20cm Siyah","marka":"","birim":"Paket"},{"id":1790052589501,"bolum":"APM","stokKodu":"APM-0054","malzemeAdi":"Kablo Rakoru","olcuTanim":"PG13.5","marka":"","birim":"Adet"},{"id":1790052589502,"bolum":"APM","stokKodu":"APM-0055","malzemeAdi":"Kablo Yüksüğü","olcuTanim":"0,25mm İzoleli - Tek Girişli","marka":"","birim":"Paket"},{"id":1790052589503,"bolum":"APM","stokKodu":"APM-0056","malzemeAdi":"Kaynak Maskesi","olcuTanim":"El Tipi Kaynak Maskesi","marka":"","birim":"Adet"},{"id":1790052589504,"bolum":"APM","stokKodu":"APM-0057","malzemeAdi":"Kaynak Maskesi Camı","olcuTanim":"80x110mm Şeffaf","marka":"","birim":"Kutu"},{"id":1790052589505,"bolum":"APM","stokKodu":"APM-0058","malzemeAdi":"Kaynak Maskesi Camı","olcuTanim":"80x110mm Siyah","marka":"","birim":"Kutu"},{"id":1790052589506,"bolum":"APM","stokKodu":"APM-0059","malzemeAdi":"Kelepçe","olcuTanim":"13-19mm Metal Hortum Kelepçesi","marka":"","birim":"Adet"},{"id":1790052589507,"bolum":"APM","stokKodu":"APM-0060","malzemeAdi":"Kelepçe","olcuTanim":"19-26mm Metal Hortum Kelepçesi","marka":"","birim":"Adet"},{"id":1790052589508,"bolum":"APM","stokKodu":"APM-0061","malzemeAdi":"Kelepçe","olcuTanim":"25-40mm Metal Hortum Kelepçesi","marka":"","birim":"Adet"},{"id":1790052589509,"bolum":"APM","stokKodu":"APM-0062","malzemeAdi":"Kompakt Şalter","olcuTanim":"4 Kutup/ 3Faz + Nötr/ 100A","marka":"","birim":"Adet"},{"id":1790052589510,"bolum":"APM","stokKodu":"APM-0063","malzemeAdi":"Kontak Temizleyici Sprey","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589511,"bolum":"APM","stokKodu":"APM-0064","malzemeAdi":"Kurtağzı (Sac Kapma)","olcuTanim":"2 Ton","marka":"","birim":"Adet"},{"id":1790052589512,"bolum":"APM","stokKodu":"APM-0065","malzemeAdi":"Kutu Profil","olcuTanim":"30x30x1,5mm l:6000 mm","marka":"","birim":"Boy"},{"id":1790052589513,"bolum":"APM","stokKodu":"APM-0066","malzemeAdi":"Kutu Profil","olcuTanim":"40x40x1,5mm l:6000 mm","marka":"","birim":"Boy"},{"id":1790052589514,"bolum":"APM","stokKodu":"APM-0067","malzemeAdi":"Kutu Profil","olcuTanim":"40x40x1,5mm L:6000mm","marka":"","birim":"Adet"},{"id":1790052589515,"bolum":"APM","stokKodu":"APM-0068","malzemeAdi":"Led'li Yedek Sinyal Bloğu","olcuTanim":"EMAS B Serisi- 24VDC - Yeşil","marka":"","birim":"Adet"},{"id":1790052589516,"bolum":"APM","stokKodu":"APM-0069","malzemeAdi":"Led Panel","olcuTanim":"60x60cm","marka":"","birim":"Adet"},{"id":1790052589517,"bolum":"APM","stokKodu":"APM-0070","malzemeAdi":"Lokma","olcuTanim":"M36 Osaka Marka-LN1D36","marka":"","birim":"Adet"},{"id":1790052589518,"bolum":"APM","stokKodu":"APM-0071","malzemeAdi":"M8 x 1,25 ve yay","olcuTanim":"M8 x 1,25 ve yay","marka":"","birim":"Adet"},{"id":1790052589519,"bolum":"APM","stokKodu":"APM-0072","malzemeAdi":"Matkap Ucu","olcuTanim":"Ø2,8mm HSS","marka":"","birim":"Adet"},{"id":1790052589520,"bolum":"APM","stokKodu":"APM-0073","malzemeAdi":"Matkap Ucu","olcuTanim":"Ø3mm HSS","marka":"","birim":"Adet"},{"id":1790052589521,"bolum":"APM","stokKodu":"APM-0074","malzemeAdi":"MCDLN35NE","olcuTanim":"SERVO DRIVE A6N 1/3P-220V 750W RTEX","marka":"","birim":"Adet"},{"id":1790052589522,"bolum":"APM","stokKodu":"APM-0075","malzemeAdi":"MEDHT4430NA1","olcuTanim":"SERVO DRIVE A5N RTEX 3P-400V 2KW","marka":"","birim":"Adet"},{"id":1790052589523,"bolum":"APM","stokKodu":"APM-0076","malzemeAdi":"Mengene","olcuTanim":"150mm örslü","marka":"","birim":"Adet"},{"id":1790052589524,"bolum":"APM","stokKodu":"APM-0077","malzemeAdi":"MFECA0200MJD","olcuTanim":"CABLE A5 SERVO INC.ENCODER 20 METER 50-750W","marka":"","birim":"Adet"},{"id":1790052589525,"bolum":"APM","stokKodu":"APM-0078","malzemeAdi":"MFMCA0200NJD","olcuTanim":"CABLE A5 SERVO MOTOR 20 METER 50-750W","marka":"","birim":"Adet"},{"id":1790052589526,"bolum":"APM","stokKodu":"APM-0079","malzemeAdi":"Mikrometre","olcuTanim":"Mitutoyo - 293-821-30 0-25mm Dijital","marka":"","birim":"Adet"},{"id":1790052589527,"bolum":"APM","stokKodu":"APM-0080","malzemeAdi":"Modbus RTU Step Sürücü","olcuTanim":"EM2RS-556","marka":"","birim":"Adet"},{"id":1790052589528,"bolum":"APM","stokKodu":"APM-0081","malzemeAdi":"MOSFET","olcuTanim":"IRF640","marka":"","birim":"Adet"},{"id":1790052589529,"bolum":"APM","stokKodu":"APM-0082","malzemeAdi":"MOSFET","olcuTanim":"IRFZ44N","marka":"","birim":"Adet"},{"id":1790052589530,"bolum":"APM","stokKodu":"APM-0083","malzemeAdi":"Mosfet Sürücü Entegresi","olcuTanim":"IR 2103","marka":"","birim":"Adet"},{"id":1790052589531,"bolum":"APM","stokKodu":"APM-0084","malzemeAdi":"Motor Ayağı","olcuTanim":"WAT - MOTOR AYAĞI 71 TİP-6424097-SAĞ","marka":"","birim":"Adet"},{"id":1790052589532,"bolum":"APM","stokKodu":"APM-0085","malzemeAdi":"Motor Ayağı","olcuTanim":"WAT - MOTOR AYAĞI 71 TİP-6424098-SOL","marka":"","birim":"Adet"},{"id":1790052589533,"bolum":"APM","stokKodu":"APM-0086","malzemeAdi":"MSMF082L1U1","olcuTanim":"SERVO MOTOR A6 750W FRSZ 3000D/D DUSK ATL KML IP67","marka":"","birim":"Adet"},{"id":1790052589534,"bolum":"APM","stokKodu":"APM-0087","malzemeAdi":"Ok işaretli Buton","olcuTanim":"1NO, 22mm, Gri (veya Beyaz)","marka":"","birim":"Adet"},{"id":1790052589535,"bolum":"APM","stokKodu":"APM-0088","malzemeAdi":"OP AMP Entegresi","olcuTanim":"LF347N -DIP-14","marka":"","birim":"Adet"},{"id":1790052589536,"bolum":"APM","stokKodu":"APM-0089","malzemeAdi":"OP AMP Entegresi","olcuTanim":"LM324SNG -DIP14","marka":"","birim":"Adet"},{"id":1790052589537,"bolum":"APM","stokKodu":"APM-0090","malzemeAdi":"Operatör Paneli Panosu","olcuTanim":"380x465mm Teknik çizim ektedir.","marka":"","birim":"Adet"},{"id":1790052589538,"bolum":"APM","stokKodu":"APM-0091","malzemeAdi":"Otomat Sigorta","olcuTanim":"1 Faz/ B10A","marka":"","birim":"Adet"},{"id":1790052589539,"bolum":"APM","stokKodu":"APM-0092","malzemeAdi":"Otomat Sigorta","olcuTanim":"1 Faz/ B16A","marka":"","birim":"Adet"},{"id":1790052589540,"bolum":"APM","stokKodu":"APM-0093","malzemeAdi":"Otomat Sigorta","olcuTanim":"1 Faz/ B20A","marka":"","birim":"Adet"},{"id":1790052589541,"bolum":"APM","stokKodu":"APM-0094","malzemeAdi":"Otomat Sigorta","olcuTanim":"1 Faz/ B2A","marka":"","birim":"Adet"},{"id":1790052589542,"bolum":"APM","stokKodu":"APM-0095","malzemeAdi":"Otomat Sigorta","olcuTanim":"1 Faz/ B36A","marka":"","birim":"Adet"},{"id":1790052589543,"bolum":"APM","stokKodu":"APM-0096","malzemeAdi":"Otomat Sigorta","olcuTanim":"1 Faz/ B6A","marka":"","birim":"Adet"},{"id":1790052589544,"bolum":"APM","stokKodu":"APM-0097","malzemeAdi":"Otomat Sigorta","olcuTanim":"1 Faz/ C16A","marka":"","birim":"Adet"},{"id":1790052589545,"bolum":"APM","stokKodu":"APM-0098","malzemeAdi":"Otomat Sigorta","olcuTanim":"3 Faz/ B16A","marka":"","birim":"Adet"},{"id":1790052589546,"bolum":"APM","stokKodu":"APM-0099","malzemeAdi":"Otomat Sigorta","olcuTanim":"3 Faz/ B1A","marka":"","birim":"Adet"},{"id":1790052589547,"bolum":"APM","stokKodu":"APM-0100","malzemeAdi":"Özlü tel etiketi","olcuTanim":"AbraHARD 9200 Ø1,6","marka":"","birim":"Adet"},{"id":1790052589548,"bolum":"APM","stokKodu":"APM-0101","malzemeAdi":"Özlü tel etiketi","olcuTanim":"CHROMECORE 414MM-S","marka":"","birim":"Adet"},{"id":1790052589549,"bolum":"APM","stokKodu":"APM-0102","malzemeAdi":"Pense","olcuTanim":"İzeltaş Opak 180mm","marka":"","birim":"Adet"},{"id":1790052589550,"bolum":"APM","stokKodu":"APM-0103","malzemeAdi":"Pirinç Boru","olcuTanim":"","marka":"","birim":"Boy"},{"id":1790052589551,"bolum":"APM","stokKodu":"APM-0104","malzemeAdi":"Pirinç Boru","olcuTanim":"6X1 mm pirinç boru 5000 mm","marka":"","birim":"Boy"},{"id":1790052589552,"bolum":"APM","stokKodu":"APM-0105","malzemeAdi":"Plastik Kablo Koruyucu Spirali","olcuTanim":"Dış Çap: 18mm Siyah","marka":"","birim":"Metre"},{"id":1790052589553,"bolum":"APM","stokKodu":"APM-0106","malzemeAdi":"Rakor","olcuTanim":"PG9, PG11, PG13.5, PG16, PG21","marka":"","birim":"Adet"},{"id":1790052589554,"bolum":"APM","stokKodu":"APM-0107","malzemeAdi":"Redüktör","olcuTanim":"PMRV 090 Tahvil : 15 Montaj Pozisyonu:B3","marka":"","birim":"Adet"},{"id":1790052589555,"bolum":"APM","stokKodu":"APM-0108","malzemeAdi":"Rulman","olcuTanim":"4206BB-TVH","marka":"","birim":"Adet"},{"id":1790052589556,"bolum":"APM","stokKodu":"APM-0109","malzemeAdi":"Rulman","olcuTanim":"P2010","marka":"","birim":"Adet"},{"id":1790052589557,"bolum":"APM","stokKodu":"APM-0110","malzemeAdi":"Rulman","olcuTanim":"P205","marka":"","birim":"Adet"},{"id":1790052589558,"bolum":"APM","stokKodu":"APM-0111","malzemeAdi":"Rulman","olcuTanim":"SP30B","marka":"","birim":"Adet"},{"id":1790052589559,"bolum":"APM","stokKodu":"APM-0112","malzemeAdi":"Sac Makası","olcuTanim":"RETTA MARKA**","marka":"","birim":"Adet"},{"id":1790052589560,"bolum":"APM","stokKodu":"APM-0113","malzemeAdi":"Şerit Metre","olcuTanim":"5 Metre Şerit Metre","marka":"","birim":"Adet"},{"id":1790052589561,"bolum":"APM","stokKodu":"APM-0114","malzemeAdi":"Servo Motor Encoder Kablosu","olcuTanim":"LIYCY-TP 2x2x0,22 (veya 0,25)","marka":"","birim":"Metre"},{"id":1790052589562,"bolum":"APM","stokKodu":"APM-0115","malzemeAdi":"Servo Motor ve Step Motor Güç Kablosu","olcuTanim":"LIYCY 4G0,75","marka":"","birim":"Metre"},{"id":1790052589563,"bolum":"APM","stokKodu":"APM-0116","malzemeAdi":"Sıkma Kelepçe","olcuTanim":"10,5mm","marka":"","birim":"Adet"},{"id":1790052589564,"bolum":"APM","stokKodu":"APM-0117","malzemeAdi":"Sıra Klemens","olcuTanim":"No:1","marka":"","birim":"Paket"},{"id":1790052589565,"bolum":"APM","stokKodu":"APM-0118","malzemeAdi":"Somun","olcuTanim":"M24  934  8 kalite (Siyah)","marka":"","birim":"Adet"},{"id":1790052589566,"bolum":"APM","stokKodu":"APM-0119","malzemeAdi":"Somun","olcuTanim":"M27  934  8 kalite (Siyah)","marka":"","birim":"Adet"},{"id":1790052589567,"bolum":"APM","stokKodu":"APM-0120","malzemeAdi":"Sprey Boy","olcuTanim":"Taksi Sarısı","marka":"","birim":"Adet"},{"id":1790052589568,"bolum":"APM","stokKodu":"APM-0121","malzemeAdi":"Sprey Boya","olcuTanim":"Kırmızı","marka":"AKÇALI","birim":"Adet"},{"id":1790052589569,"bolum":"APM","stokKodu":"APM-0122","malzemeAdi":"Sprey Boya","olcuTanim":"Taksi Sarısı","marka":"AKÇALI","birim":"Adet"},{"id":1790052589570,"bolum":"APM","stokKodu":"APM-0123","malzemeAdi":"Su Terazisi","olcuTanim":"50-60 Cm Mıknatıslı","marka":"","birim":"Adet"},{"id":1790052589571,"bolum":"APM","stokKodu":"APM-0124","malzemeAdi":"SUNFİX","olcuTanim":"ORİJİNAL SUNFİX MACUN","marka":"","birim":"Adet"},{"id":1790052589572,"bolum":"APM","stokKodu":"APM-0125","malzemeAdi":"Tablalı Oynar Tekerlek","olcuTanim":"Tabla Ölçüleri : 52x52mm Tekerlek Çapı : 48mm","marka":"","birim":"Adet"},{"id":1790052589573,"bolum":"APM","stokKodu":"APM-0126","malzemeAdi":"Taş motoru kömürü","olcuTanim":"1 607 000 V37","marka":"","birim":"Çift"},{"id":1790052589574,"bolum":"APM","stokKodu":"APM-0127","malzemeAdi":"Taş motoru kömürü","olcuTanim":"F 000 611 029","marka":"","birim":"Çift"},{"id":1790052589575,"bolum":"APM","stokKodu":"APM-0128","malzemeAdi":"Tek yüzü Bakır Delikli plaket","olcuTanim":"10x15","marka":"","birim":"Adet"},{"id":1790052589576,"bolum":"APM","stokKodu":"APM-0129","malzemeAdi":"Tel Sürme Makarası","olcuTanim":"Ø40 4x2-4x4 Özlü Tel Makara (1.2-1.6)","marka":"","birim":"Adet"},{"id":1790052589577,"bolum":"APM","stokKodu":"APM-0130","malzemeAdi":"Tel Sürme Makarası","olcuTanim":"Ø40 4x2-4x4 Özlü Tel Makara (2.4-2.4)","marka":"","birim":"Adet"},{"id":1790052589578,"bolum":"APM","stokKodu":"APM-0131","malzemeAdi":"Tel Sürme Makarası","olcuTanim":"Ø40 4x2-4x4 Özlü Tel Makara (2.8-2.8)","marka":"","birim":"Adet"},{"id":1790052589579,"bolum":"APM","stokKodu":"APM-0132","malzemeAdi":"Torç Boynu","olcuTanim":"M14 KISA BOYUN","marka":"","birim":"Adet"},{"id":1790052589580,"bolum":"APM","stokKodu":"APM-0133","malzemeAdi":"Torç Boynu","olcuTanim":"M14 UZUN BOYUN","marka":"","birim":"Adet"},{"id":1790052589581,"bolum":"APM","stokKodu":"APM-0134","malzemeAdi":"Torç Boynu","olcuTanim":"M8 BOYUN","marka":"","birim":"Adet"},{"id":1790052589582,"bolum":"APM","stokKodu":"APM-0135","malzemeAdi":"Torç Su Hortumu","olcuTanim":"Kırmızı Örgülü Ø5x8mm","marka":"","birim":"Metre"},{"id":1790052589583,"bolum":"APM","stokKodu":"APM-0136","malzemeAdi":"Torç Su Hortumu","olcuTanim":"Mavi Örgülü Ø5x8mm","marka":"","birim":"Metre"},{"id":1790052589584,"bolum":"APM","stokKodu":"APM-0137","malzemeAdi":"Torç Su Jakı","olcuTanim":"Ø6mm Dişi Kırmızı","marka":"","birim":"Adet"},{"id":1790052589585,"bolum":"APM","stokKodu":"APM-0138","malzemeAdi":"Torç Su Jakı","olcuTanim":"Ø6mm Dişi Mavi","marka":"","birim":"Adet"},{"id":1790052589586,"bolum":"APM","stokKodu":"APM-0139","malzemeAdi":"Torç Su Jakı","olcuTanim":"Ø6mm Erkek","marka":"","birim":"Adet"},{"id":1790052589587,"bolum":"APM","stokKodu":"APM-0140","malzemeAdi":"Toz Maskesi","olcuTanim":"FFP2","marka":"","birim":"Kutu"},{"id":1790052589588,"bolum":"APM","stokKodu":"APM-0141","malzemeAdi":"Trafo","olcuTanim":"220VAC/24VAC 500VA","marka":"","birim":"Adet"},{"id":1790052589589,"bolum":"APM","stokKodu":"APM-0142","malzemeAdi":"Trifaze Kontaktör","olcuTanim":"3 Faz 400V / 120A Bobin:220VAC","marka":"","birim":"Adet"},{"id":1790052589590,"bolum":"APM","stokKodu":"APM-0143","malzemeAdi":"Tulum","olcuTanim":"Tek kullanımlık","marka":"","birim":"Adet"},{"id":1790052589591,"bolum":"APM","stokKodu":"APM-0144","malzemeAdi":"ÜÇLÜ GRUP PRİZ","olcuTanim":"1X16 KAUÇUK","marka":"","birim":"Adet"},{"id":1790052589592,"bolum":"APM","stokKodu":"APM-0145","malzemeAdi":"Vida","olcuTanim":"YSB 5mm / M3","marka":"","birim":"Adet"},{"id":1790052589593,"bolum":"APM","stokKodu":"APM-0146","malzemeAdi":"Voltaj Referans Entegresi","olcuTanim":"TL431 -TO92","marka":"","birim":"Adet"},{"id":1790052589594,"bolum":"APM","stokKodu":"APM-0147","malzemeAdi":"Wifi Router","olcuTanim":"4 Port","marka":"","birim":"Adet"},{"id":1790052589595,"bolum":"APM","stokKodu":"APM-0148","malzemeAdi":"Yassı kablo konnektörü","olcuTanim":"10'lu Dişi IDC Konnektör","marka":"","birim":"Adet"},{"id":1790052589596,"bolum":"APM","stokKodu":"APM-0149","malzemeAdi":"Yassı kablo konnektörü","olcuTanim":"40'lı dişi IDC Konnektör","marka":"","birim":"Adet"},{"id":1790052589597,"bolum":"FCW","stokKodu":"FCW-0001","malzemeAdi":"Alyan Takımı","olcuTanim":"İzeltaş Top Başlı","marka":"","birim":"Takım"},{"id":1790052589598,"bolum":"FCW","stokKodu":"FCW-0002","malzemeAdi":"Beyaz Yağ","olcuTanim":"Depar White Oil","marka":"","birim":"Bidon"},{"id":1790052589599,"bolum":"FCW","stokKodu":"FCW-0003","malzemeAdi":"Dalgıç Pompa","olcuTanim":"Venedik Pro QSB-JH-400AM-1- 400W 220V Sıfırdan Emişli Sensörlü Drenaj Dalgıç Pompa","marka":"","birim":"Adet"},{"id":1790052589600,"bolum":"FCW","stokKodu":"FCW-0004","malzemeAdi":"Eldiven","olcuTanim":"Pudrasız Siyah Tırtıklı Nitril Eldiven L","marka":"ASAP GRİP -MASTERFORCE","birim":"Kutu"},{"id":1790052589601,"bolum":"FCW","stokKodu":"FCW-0005","malzemeAdi":"Elektrik Panosu","olcuTanim":"30x40CM","marka":"","birim":"Adet"},{"id":1790052589602,"bolum":"FCW","stokKodu":"FCW-0006","malzemeAdi":"Hadde","olcuTanim":"Ø1,58mm D-18  Ø30X20 PCD","marka":"","birim":"Adet"},{"id":1790052589603,"bolum":"FCW","stokKodu":"FCW-0007","malzemeAdi":"Hadde","olcuTanim":"Ø2,36mm D-21  Ø30X20 PCD","marka":"","birim":"Adet"},{"id":1790052589604,"bolum":"FCW","stokKodu":"FCW-0008","malzemeAdi":"Hadde","olcuTanim":"Ø3,13mm D-24  Ø30X20 PCD","marka":"","birim":"Adet"},{"id":1790052589605,"bolum":"FCW","stokKodu":"FCW-0009","malzemeAdi":"Hadde","olcuTanim":"Ø3,65mm D-24  Ø30X20 PCD","marka":"","birim":"Adet"},{"id":1790052589606,"bolum":"FCW","stokKodu":"FCW-0010","malzemeAdi":"Kauçuk Disk","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589607,"bolum":"FCW","stokKodu":"FCW-0011","malzemeAdi":"Kauçuk Disk","olcuTanim":"Kaucuk Disk tamiri","marka":"","birim":"Adet"},{"id":1790052589608,"bolum":"FCW","stokKodu":"FCW-0012","malzemeAdi":"Kaynak Teli Bidonu","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589609,"bolum":"FCW","stokKodu":"FCW-0013","malzemeAdi":"Kaynak Teli Bidonu","olcuTanim":"FİBER VARİL 210 LT İÇ BORULU ÇAP 360 MM KAPLAMASIZ PLASTİK KAPAK","marka":"","birim":"Adet"},{"id":1790052589610,"bolum":"FCW","stokKodu":"FCW-0014","malzemeAdi":"Kesici Taş","olcuTanim":"Ø115x1,5mm Inox","marka":"","birim":"Adet"},{"id":1790052589611,"bolum":"FCW","stokKodu":"FCW-0015","malzemeAdi":"Maket Bıçağı","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589612,"bolum":"FCW","stokKodu":"FCW-0016","malzemeAdi":"Maket Bıçağı Ucu","olcuTanim":"","marka":"","birim":"Kutu"},{"id":1790052589613,"bolum":"FCW","stokKodu":"FCW-0017","malzemeAdi":"N95 Toz Maskesi","olcuTanim":"FFP2","marka":"","birim":"Kutu"},{"id":1790052589614,"bolum":"FCW","stokKodu":"FCW-0018","malzemeAdi":"Neodyum mıknatıs","olcuTanim":"Ø40mm - Mapalı","marka":"","birim":"Adet"},{"id":1790052589615,"bolum":"FCW","stokKodu":"FCW-0019","malzemeAdi":"Palet","olcuTanim":"115x115cm palet ısıl işlemli","marka":"","birim":"Adet"},{"id":1790052589616,"bolum":"FCW","stokKodu":"FCW-0020","malzemeAdi":"Palet","olcuTanim":"115x115cm palet ısıl işlemsiz","marka":"","birim":"Adet"},{"id":1790052589617,"bolum":"FCW","stokKodu":"FCW-0021","malzemeAdi":"Palet","olcuTanim":"800x120cm palet ısıl işlemsiz","marka":"","birim":"Adet"},{"id":1790052589618,"bolum":"FCW","stokKodu":"FCW-0022","malzemeAdi":"Palet","olcuTanim":"80x120cm palet ısıl işlemli","marka":"","birim":"Adet"},{"id":1790052589619,"bolum":"FCW","stokKodu":"FCW-0023","malzemeAdi":"Rulman","olcuTanim":"SKF 6208ZZ","marka":"","birim":"Adet"},{"id":1790052589620,"bolum":"FCW","stokKodu":"FCW-0024","malzemeAdi":"Sabun","olcuTanim":"NCH Swoop Extra Concentrated skin cleanser and conditioner","marka":"","birim":"Bidon"},{"id":1790052589621,"bolum":"FCW","stokKodu":"FCW-0025","malzemeAdi":"Silikajel","olcuTanim":"Clariant - Büyük","marka":"","birim":"Kutu"},{"id":1790052589622,"bolum":"FCW","stokKodu":"FCW-0026","malzemeAdi":"WD40","olcuTanim":"5 Litre","marka":"","birim":"Adet"},{"id":1790052589623,"bolum":"KTM","stokKodu":"KTM-0001","malzemeAdi":"El Kantarı","olcuTanim":"Dijital","marka":"","birim":"Adet"},{"id":1790052589624,"bolum":"KTM","stokKodu":"KTM-0002","malzemeAdi":"Özlü tel etiketi","olcuTanim":"AbraHARD 9100 Ø1,6","marka":"","birim":"Adet"},{"id":1790052589625,"bolum":"KTM","stokKodu":"KTM-0003","malzemeAdi":"Paketleme Streci","olcuTanim":"Beyaz","marka":"","birim":"Adet"},{"id":1790052589626,"bolum":"KTM","stokKodu":"KTM-0004","malzemeAdi":"Vakum Poşeti","olcuTanim":"40x60cm 160 Mikron","marka":"","birim":"Kg"},{"id":1790052589627,"bolum":"TAMİR BAKIM","stokKodu":"TB-0001","malzemeAdi":"24VDC Röle","olcuTanim":"4 Kontak (4CO) - PT570024","marka":"","birim":"Paket"},{"id":1790052589628,"bolum":"TAMİR BAKIM","stokKodu":"TB-0002","malzemeAdi":"4'lü Buton Kutusu","olcuTanim":"Gri","marka":"","birim":"Adet"},{"id":1790052589629,"bolum":"TAMİR BAKIM","stokKodu":"TB-0003","malzemeAdi":"Açık Ağız Anahtar","olcuTanim":"46336","marka":"","birim":"Adet"},{"id":1790052589630,"bolum":"TAMİR BAKIM","stokKodu":"TB-0004","malzemeAdi":"AKSİYEL FAN","olcuTanim":"DRAF-350-2K-M - 35 CM","marka":"","birim":"Adet"},{"id":1790052589631,"bolum":"TAMİR BAKIM","stokKodu":"TB-0005","malzemeAdi":"Allen Anahtar","olcuTanim":"T Tipi M4","marka":"","birim":"Adet"},{"id":1790052589632,"bolum":"TAMİR BAKIM","stokKodu":"TB-0006","malzemeAdi":"Allen Anahtar","olcuTanim":"T Tipi M6","marka":"","birim":"Adet"},{"id":1790052589633,"bolum":"TAMİR BAKIM","stokKodu":"TB-0007","malzemeAdi":"Alüminyum Buat Kutusu","olcuTanim":"10cm x 10cm","marka":"","birim":"Adet"},{"id":1790052589634,"bolum":"TAMİR BAKIM","stokKodu":"TB-0008","malzemeAdi":"Asma Kilit","olcuTanim":"32 mm","marka":"","birim":"Adet"},{"id":1790052589635,"bolum":"TAMİR BAKIM","stokKodu":"TB-0009","malzemeAdi":"Bosch E64 Taşlama Kömürü","olcuTanim":"24-180","marka":"","birim":"Set"},{"id":1790052589636,"bolum":"TAMİR BAKIM","stokKodu":"TB-0010","malzemeAdi":"Civata","olcuTanim":"AKB M6x30mm","marka":"","birim":"Paket"},{"id":1790052589637,"bolum":"TAMİR BAKIM","stokKodu":"TB-0011","malzemeAdi":"Disk Termostat","olcuTanim":"50 derece - NC","marka":"","birim":"Adet"},{"id":1790052589638,"bolum":"TAMİR BAKIM","stokKodu":"TB-0012","malzemeAdi":"Disk Termostat","olcuTanim":"85 derece - NC","marka":"","birim":"Adet"},{"id":1790052589639,"bolum":"TAMİR BAKIM","stokKodu":"TB-0013","malzemeAdi":"Elektrikçi Bandı","olcuTanim":"Standart Siyah","marka":"","birim":"Adet"},{"id":1790052589640,"bolum":"TAMİR BAKIM","stokKodu":"TB-0014","malzemeAdi":"Elektrikçi Bantı","olcuTanim":"Siyah","marka":"","birim":"Paket"},{"id":1790052589641,"bolum":"TAMİR BAKIM","stokKodu":"TB-0015","malzemeAdi":"ENCODER","olcuTanim":"SICK- DKS40-E5L00500","marka":"","birim":"Adet"},{"id":1790052589642,"bolum":"TAMİR BAKIM","stokKodu":"TB-0016","malzemeAdi":"Endüstriyel 380V Fiş","olcuTanim":"32 Amper 3P+N+E","marka":"","birim":"Adet"},{"id":1790052589643,"bolum":"TAMİR BAKIM","stokKodu":"TB-0017","malzemeAdi":"Endüstriyel 380V Fiş","olcuTanim":"63 Amper 3P+N+E","marka":"","birim":"Adet"},{"id":1790052589644,"bolum":"TAMİR BAKIM","stokKodu":"TB-0018","malzemeAdi":"Endüstriyel 3lü Priz","olcuTanim":"220V, Kauçuk, Siyah","marka":"","birim":"Adet"},{"id":1790052589645,"bolum":"TAMİR BAKIM","stokKodu":"TB-0019","malzemeAdi":"Endüstriyel Fiş","olcuTanim":"220V, Kauçuk, Siyah","marka":"","birim":"Adet"},{"id":1790052589646,"bolum":"TAMİR BAKIM","stokKodu":"TB-0020","malzemeAdi":"Kablo Bağı (Cırt)","olcuTanim":"4.8 mm X 300 mm","marka":"","birim":"Paket"},{"id":1790052589647,"bolum":"TAMİR BAKIM","stokKodu":"TB-0021","malzemeAdi":"Kablo Bağı (Cırt)","olcuTanim":"4,8 mm X 400 mm","marka":"","birim":"Paket"},{"id":1790052589648,"bolum":"TAMİR BAKIM","stokKodu":"TB-0022","malzemeAdi":"Kablo Pabucu","olcuTanim":"SKP- 25mm","marka":"","birim":"Adet"},{"id":1790052589649,"bolum":"TAMİR BAKIM","stokKodu":"TB-0023","malzemeAdi":"Kablo Pabucu","olcuTanim":"SKP - 35mm","marka":"","birim":"Adet"},{"id":1790052589650,"bolum":"TAMİR BAKIM","stokKodu":"TB-0024","malzemeAdi":"Kargaburun","olcuTanim":"160mm","marka":"","birim":"Adet"},{"id":1790052589651,"bolum":"TAMİR BAKIM","stokKodu":"TB-0025","malzemeAdi":"Kırmızı Mantar Buton","olcuTanim":"22mm - Yay dönüşlü (Kalıcı Olmayan) EMAS B100MK","marka":"","birim":"Adet"},{"id":1790052589652,"bolum":"TAMİR BAKIM","stokKodu":"TB-0026","malzemeAdi":"Kondansatör","olcuTanim":"1000uF 50V","marka":"","birim":"Adet"},{"id":1790052589653,"bolum":"TAMİR BAKIM","stokKodu":"TB-0027","malzemeAdi":"Kondansatör","olcuTanim":"2200uF 63V","marka":"","birim":"Adet"},{"id":1790052589654,"bolum":"TAMİR BAKIM","stokKodu":"TB-0028","malzemeAdi":"Kontaktör","olcuTanim":"LC1E95M5 (95 Amper, 24VAC Bobin)","marka":"","birim":"Adet"},{"id":1790052589655,"bolum":"TAMİR BAKIM","stokKodu":"TB-0029","malzemeAdi":"Kroşe","olcuTanim":"No:2","marka":"","birim":"Paket"},{"id":1790052589656,"bolum":"TAMİR BAKIM","stokKodu":"TB-0030","malzemeAdi":"Lehim Pastası","olcuTanim":"Standart","marka":"","birim":"Adet"},{"id":1790052589657,"bolum":"TAMİR BAKIM","stokKodu":"TB-0031","malzemeAdi":"Metabo Tipi Kömür Seti","olcuTanim":"W2230","marka":"","birim":"Set"},{"id":1790052589658,"bolum":"TAMİR BAKIM","stokKodu":"TB-0032","malzemeAdi":"Metabo Tipi Kömür Seti","olcuTanim":"W23-180","marka":"","birim":"Set"},{"id":1790052589659,"bolum":"TAMİR BAKIM","stokKodu":"TB-0033","malzemeAdi":"Metabo Tipi Kömür Seti","olcuTanim":"Ws 17-125q","marka":"","birim":"Set"},{"id":1790052589660,"bolum":"TAMİR BAKIM","stokKodu":"TB-0034","malzemeAdi":"Metabo Tipi Taşlama Kömür Seti","olcuTanim":"W 20-180","marka":"","birim":"Set"},{"id":1790052589661,"bolum":"TAMİR BAKIM","stokKodu":"TB-0035","malzemeAdi":"Metal Maket Bıçağı","olcuTanim":"Standart","marka":"","birim":"Adet"},{"id":1790052589662,"bolum":"TAMİR BAKIM","stokKodu":"TB-0036","malzemeAdi":"Mosfet (Elektronik Devre Komponenti)","olcuTanim":"IRF1010E","marka":"","birim":"Adet"},{"id":1790052589663,"bolum":"TAMİR BAKIM","stokKodu":"TB-0037","malzemeAdi":"Mosfet (Elektronik Devre Komponenti)","olcuTanim":"IRFD110","marka":"","birim":"Adet"},{"id":1790052589664,"bolum":"TAMİR BAKIM","stokKodu":"TB-0038","malzemeAdi":"Mosfet (Elektronik Devre Komponenti)","olcuTanim":"IRFZ44N","marka":"","birim":"Adet"},{"id":1790052589665,"bolum":"TAMİR BAKIM","stokKodu":"TB-0039","malzemeAdi":"Pako Şalter","olcuTanim":"3x63A","marka":"","birim":"Adet"},{"id":1790052589666,"bolum":"TAMİR BAKIM","stokKodu":"TB-0040","malzemeAdi":"Plastik Buat Kutusu","olcuTanim":"10x10 Siyah","marka":"","birim":"Adet"},{"id":1790052589667,"bolum":"TAMİR BAKIM","stokKodu":"TB-0041","malzemeAdi":"Röle","olcuTanim":"24VDC Faston Terminal","marka":"","birim":"Adet"},{"id":1790052589668,"bolum":"TAMİR BAKIM","stokKodu":"TB-0042","malzemeAdi":"Siyah Kablo Bağı","olcuTanim":"10cm x 2,5mm","marka":"","birim":"Paket"},{"id":1790052589669,"bolum":"TAMİR BAKIM","stokKodu":"TB-0043","malzemeAdi":"Siyah Kablo Bağı","olcuTanim":"15cm x 2,5mm","marka":"","birim":"Paket"},{"id":1790052589670,"bolum":"TAMİR BAKIM","stokKodu":"TB-0044","malzemeAdi":"Siyah Kablo Bağı","olcuTanim":"20cm x 2,5mm","marka":"","birim":"Paket"},{"id":1790052589671,"bolum":"TAMİR BAKIM","stokKodu":"TB-0045","malzemeAdi":"SKP Kablo Pabucu","olcuTanim":"150mm","marka":"","birim":"Adet"},{"id":1790052589672,"bolum":"TAMİR BAKIM","stokKodu":"TB-0046","malzemeAdi":"Tezgah Masası Metal Rafı","olcuTanim":"70x20","marka":"","birim":"Adet"},{"id":1790052589673,"bolum":"TAMİR BAKIM","stokKodu":"TB-0047","malzemeAdi":"Tristör","olcuTanim":"Bmetech ST330C16E2","marka":"","birim":"Adet"},{"id":1790052589674,"bolum":"TAMİR BAKIM","stokKodu":"TB-0048","malzemeAdi":"TTR Kablo","olcuTanim":"5x1.5 Siyah","marka":"","birim":"Metre"},{"id":1790052589675,"bolum":"TAMİR BAKIM","stokKodu":"TB-0049","malzemeAdi":"Yan Keski","olcuTanim":"160mm","marka":"","birim":"Adet"},{"id":1790052589676,"bolum":"TAMİR BAKIM","stokKodu":"TB-0050","malzemeAdi":"Yön Butonları","olcuTanim":"22mm, Sarı","marka":"","birim":"Adet"},{"id":1790052589677,"bolum":"GENEL","stokKodu":"MUHTELİF","malzemeAdi":"Muhtelif Malzeme","olcuTanim":"Tek seferlik alım - tanımı talep notuna yazın","marka":"","birim":"Adet"},{"id":1790052589678,"bolum":"KTM","stokKodu":"KTM-0005","malzemeAdi":"cwe","olcuTanim":"eeeeee","marka":"","birim":"ad"},{"id":1790052589679,"bolum":"FCW","stokKodu":"FCW-0027","malzemeAdi":"Encoder 5V Line Driver Çıkışlı","olcuTanim":"Autonics, E40S6-2500-6-L-5","marka":"","birim":"Adet"},{"id":1790052589680,"bolum":"APM","stokKodu":"APM-0150","malzemeAdi":"POLİÜRETAN HORTUM 150 MM 0,40 MM","olcuTanim":"","marka":"","birim":"metre"},{"id":1790052589681,"bolum":"TAMİR BAKIM","stokKodu":"TB-0051","malzemeAdi":"Cam Sigorta","olcuTanim":"2A 250V 6x30mm","marka":"","birim":"Adet"},{"id":1790052589682,"bolum":"TAMİR BAKIM","stokKodu":"TB-0052","malzemeAdi":"İzolatör - Fıçı Tipi","olcuTanim":"(50x55)mm M10 FIÇI 1C+1S IZOLATÖR (Dişi+Erkek)","marka":"","birim":"Adet"},{"id":1790052589683,"bolum":"TAMİR BAKIM","stokKodu":"TB-0053","malzemeAdi":"Civata","olcuTanim":"AKB, M10x55mm","marka":"","birim":"Adet"},{"id":1790052589684,"bolum":"TAMİR BAKIM","stokKodu":"TB-0054","malzemeAdi":"Kaynak Makine Fişi - Erkek","olcuTanim":"50-70","marka":"","birim":"Adet"},{"id":1790052589685,"bolum":"TAMİR BAKIM","stokKodu":"TB-0055","malzemeAdi":"Kaynak Makine Jakı - Dişi","olcuTanim":"50-70","marka":"","birim":"Adet"},{"id":1790052589686,"bolum":"TAMİR BAKIM","stokKodu":"TB-0056","malzemeAdi":"Elektrikçi Tornavida Seti","olcuTanim":"İzeltaş, 6 Parça","marka":"","birim":"Set"},{"id":1790052589687,"bolum":"TAMİR BAKIM","stokKodu":"TB-0057","malzemeAdi":"Kontrol Kalemi","olcuTanim":"İzeltaş, Düz Uçlu, 190mm","marka":"","birim":"Adet"},{"id":1790052589688,"bolum":"FCW","stokKodu":"FCW-0028","malzemeAdi":"Öz etiketi-RollFLUX","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589689,"bolum":"FCW","stokKodu":"FCW-0029","malzemeAdi":"Özlü tel etiketi —RollHARD 414-E Ø2,4","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589690,"bolum":"APM","stokKodu":"APM-0151","malzemeAdi":"Çelik Şerit Çember","olcuTanim":"","marka":"","birim":"Adet"},{"id":1790052589691,"bolum":"APM","stokKodu":"APM-0152","malzemeAdi":"APM Özel Üretim Kontak Meme (Ø2,8 tele uygun)","olcuTanim":"Ø2,8 tele uygun","marka":"","birim":"Adet"},{"id":1790052589692,"bolum":"APM","stokKodu":"APM-0153","malzemeAdi":"Açık Ağız Anahtar-12_13","olcuTanim":"12-13 Çift Taraflı","marka":"","birim":"Adet"},{"id":1790052589693,"bolum":"APM","stokKodu":"APM-0154","malzemeAdi":"Ø400 mm Poliüretan Duman Emme Hortumu","olcuTanim":"Telli, şeffaf","marka":"","birim":"Metre"}];
 
 
@@ -17446,7 +17616,7 @@
       openModal('mtMiktarDuzenleModal');
     }
 
-    function mtMiktarDuzenleKaydet(talepId, onayaSun = false) {
+    function mtMiktarDuzenleKaydet(talepId) {
       ensureDBArrays();
       const talep = (DB.malzemeTalepleri || []).find(t => t.id === talepId);
       if (!talep) return;
@@ -17462,97 +17632,9 @@
         if (notInp) k.revizyonNotu = notInp.value.trim();
       });
 
-      const aktifAd = (typeof aktifKullanici !== 'undefined' && aktifKullanici && aktifKullanici.ad) ? aktifKullanici.ad : 'Yönetici';
-
-      if (onayaSun) {
-        talep.durum = 'onay_bekliyor';
-        talep.onayaSunan = aktifAd;
-        talep.onayaSunmaTarihi = new Date().toISOString();
-        showToast(`${talep.talepNo || 'Talep'} miktarları revize edildi ve Emrah Bey'in onayına sunuldu.`, 'success');
-        bildirimGonder(
-          `Emrah Bey Onayında: ${talep.talepNo}`,
-          `${aktifAd} tarafından miktarlar revize edildi ve talep Emrah Bey'in onayına sunuldu.`,
-          'info',
-          true
-        );
-      } else {
-        showToast(`${talep.talepNo || 'Talep'} kalem miktarları başarıyla güncellendi.`, 'success');
-      }
-
+      showToast(`${talep.talepNo || 'Talep'} miktarları başarıyla güncellendi.`, 'success');
       saveDB(true);
       closeModal('mtMiktarDuzenleModal');
-      renderMalzemeTalepleri();
-    }
-
-    function mtEmrahBeyeSun(talepId) {
-      ensureDBArrays();
-      const talep = (DB.malzemeTalepleri || []).find(t => t.id === talepId);
-      if (!talep) return;
-
-      const not = prompt(`${talep.talepNo || 'Talep'} Emrah Bey'in onayına sunulacak.\nEklemek istediğiniz not (Opsiyonel):`, talep.revizyonNotu || '');
-      if (not === null) return;
-
-      const aktifAd = (typeof aktifKullanici !== 'undefined' && aktifKullanici && aktifKullanici.ad) ? aktifKullanici.ad : 'Sorumlu';
-      talep.durum = 'onay_bekliyor';
-      talep.onayaSunan = aktifAd;
-      talep.onayaSunmaTarihi = new Date().toISOString();
-      if (not) talep.revizyonNotu = not.trim();
-
-      saveDB(true);
-      showToast(`${talep.talepNo || 'Talep'} Emrah Bey'in onayına sunuldu.`, 'success');
-      bildirimGonder(
-        `Emrah Bey Onayına Sunuldu: ${talep.talepNo}`,
-        `${talep.talepNo} nolu satınalma talebi Emrah Bey'in onayını bekliyor.`,
-        'info',
-        true
-      );
-      renderMalzemeTalepleri();
-    }
-
-    function mtEmrahBeyOnayla(talepId) {
-      ensureDBArrays();
-      const talep = (DB.malzemeTalepleri || []).find(t => t.id === talepId);
-      if (!talep) return;
-
-      if (!confirm(`${talep.talepNo || 'Talep'} için EMRAH BEY ONAYI verilecek ve satınalma sürecine alınacaktır.\nOnaylıyor musunuz?`)) return;
-
-      talep.durum = 'onaylandi';
-      talep.onaylayan = 'Emrah Bey';
-      talep.onayTarihi = new Date().toISOString();
-
-      saveDB(true);
-      showToast(`${talep.talepNo || 'Talep'} Emrah Bey tarafından onaylandı.`, 'success');
-      playNotificationSound('success');
-      bildirimGonder(
-        `Talep Onaylandı: ${talep.talepNo}`,
-        `${talep.talepNo} satınalma talebi Emrah Bey tarafından ONAYLANDI.`,
-        'success',
-        true
-      );
-      renderMalzemeTalepleri();
-    }
-
-    function mtEmrahBeyReddet(talepId) {
-      ensureDBArrays();
-      const talep = (DB.malzemeTalepleri || []).find(t => t.id === talepId);
-      if (!talep) return;
-
-      const sebep = prompt(`${talep.talepNo || 'Talep'} reddedilecek.\nLütfen red gerekçesini yazınız:`);
-      if (sebep === null) return;
-
-      talep.durum = 'reddedildi';
-      talep.redGerekcesi = sebep.trim() || 'Yönetici tarafından uygun görülmedi.';
-      talep.onaylayan = 'Emrah Bey (Reddedildi)';
-      talep.onayTarihi = new Date().toISOString();
-
-      saveDB(true);
-      showToast(`${talep.talepNo || 'Talep'} reddedildi.`, 'warning');
-      bildirimGonder(
-        `Talep Reddedildi: ${talep.talepNo}`,
-        `Gerekçe: ${talep.redGerekcesi}`,
-        'danger',
-        true
-      );
       renderMalzemeTalepleri();
     }
 
@@ -17850,11 +17932,10 @@
 
       let durumIcon = '⏳';
       let durumMetin = 'İnceleniyor / Bekliyor';
-      if (talep.durum === 'onay_bekliyor') { durumIcon = '👔'; durumMetin = 'Emrah Bey Onayında'; }
-      else if (talep.durum === 'onaylandi') { durumIcon = '✅'; durumMetin = 'Emrah Bey Onayladı (Satınalmaya Hazır)'; }
+      if (talep.durum === 'karsilandi') { durumIcon = '✅'; durumMetin = 'Eksiksiz Karşılandı / Tamamlandı'; }
       else if (talep.durum === 'kismi_karsilandi') { durumIcon = '🚚'; durumMetin = 'Kısmi Teslim Alındı (Sevkiyat Sürüyor)'; }
-      else if (talep.durum === 'karsilandi') { durumIcon = '📦'; durumMetin = 'Eksiksiz Karşılandı / Tamamlandı'; }
       else if (talep.durum === 'reddedildi') { durumIcon = '❌'; durumMetin = 'Reddedildi'; }
+      else { durumIcon = '⏳'; durumMetin = 'Açık / Bekleyen Talep'; }
 
       let urunlerMetin = '';
       kalemler.forEach((k, idx) => {
@@ -18149,6 +18230,9 @@
         `;
       });
       tbody.innerHTML = html;
+      if (typeof renderStokKartlariYonetim === 'function') {
+        renderStokKartlariYonetim();
+      }
     }
 
     function tekilStokKartiEkle() {
@@ -18307,19 +18391,11 @@
               ⏳ İnceleniyor
             </span>
           `;
-        } else if (t.durum === 'onay_bekliyor') {
+        } else if (t.durum === 'kismi_karsilandi') {
           durumBadge = `
-            <span class="bg-indigo-50 text-indigo-800 border border-indigo-300 text-[11px] font-black px-2.5 py-1 rounded-full whitespace-nowrap block text-center shadow-2xs">
-              👔 Emrah Bey Onayında
+            <span class="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black px-2.5 py-1 rounded-lg whitespace-nowrap block text-center shadow-2xs">
+              🚚 Kısmi Teslim Edildi
             </span>
-            ${t.onayaSunan ? `<div class="text-[10px] text-indigo-600 mt-0.5 text-center">Sunan: ${escapeHtml(t.onayaSunan)}</div>` : ''}
-          `;
-        } else if (t.durum === 'onaylandi') {
-          durumBadge = `
-            <span class="bg-blue-50 text-blue-800 border border-blue-300 text-[11px] font-black px-2.5 py-1 rounded-full whitespace-nowrap block text-center">
-              ✅ Onaylandı
-            </span>
-            <div class="text-[10px] text-blue-600 mt-0.5 text-center">Sevkiyat Bekliyor</div>
           `;
         } else if (t.durum === 'kismi_karsilandi') {
           durumBadge = `
@@ -18432,34 +18508,6 @@
           </button>
         `;
 
-        // 4. Onay Butonları
-        if (t.durum === 'bekliyor') {
-          aksiyonlarHtml += `
-            <button onclick="mtEmrahBeyeSun(${t.id})" title="Emrah Bey'in Onayına Sun"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2 py-1 rounded-lg text-xs shadow-xs transition-colors cursor-pointer">
-              👔 Onaya Sun
-            </button>
-          `;
-        } else if (t.durum === 'onay_bekliyor') {
-          aksiyonlarHtml += `
-            <button onclick="mtEmrahBeyOnayla(${t.id})" title="Emrah Bey Olarak Onayla"
-              class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2 py-1 rounded-lg text-xs shadow-xs transition-colors cursor-pointer">
-              ✅ Onayla
-            </button>
-            <button onclick="mtEmrahBeyReddet(${t.id})" title="Talebi Reddet"
-              class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-2 py-1 rounded-lg text-xs border border-rose-200 transition-colors cursor-pointer">
-              ❌ Reddet
-            </button>
-          `;
-        } else if (t.durum === 'karsilandi') {
-          aksiyonlarHtml += `
-            <button onclick="malzemeTalepDurumDegistir(${t.id}, 'onaylandi')" title="Onaylı Durumuna Geri Al"
-              class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-2 py-1 rounded-lg text-[11px] transition-colors cursor-pointer">
-              ↩️ Geri Al
-            </button>
-          `;
-        }
-
         // 5. Yazdır, İmzalı Belge, WhatsApp, XLS, Sil
         aksiyonlarHtml += `
           <button onclick="mtTalepYazdir(${t.id})" title="Yazdır / Form Çıktısı Al (İmza İçin)"
@@ -18513,6 +18561,290 @@
       });
 
       tbody.innerHTML = html;
+    }
+
+
+    /* ========================================================================= */
+    /* 📦 STOK KARTLARI YÖNETİMİ & KATALOG DÜZENLEME MOTORU                      */
+    /* ========================================================================= */
+    let mtAktifStokFiltre = 'hepsi';
+
+    function renderStokKartlariYonetim() {
+      ensureDBArrays();
+      const tbody = document.getElementById('mtStokKartlariYonetimTableBody');
+      if (!tbody) return;
+
+      const q = (document.getElementById('mtStokAramaInput')?.value || '').toLowerCase().trim();
+      const list = DB.malzemeStokKartlari || [];
+
+      // Sayaçları güncelle
+      const cHepsi = list.length;
+      const cApm = list.filter(s => (s.bolum || '').toUpperCase().includes('APM')).length;
+      const cFcw = list.filter(s => (s.bolum || '').toUpperCase().includes('FCW')).length;
+      const cBakim = list.filter(s => {
+        const b = (s.bolum || '').toUpperCase();
+        return !b.includes('APM') && !b.includes('FCW');
+      }).length;
+
+      const elToplam = document.getElementById('mtStokKartToplamSayi');
+      const elHepsi = document.getElementById('mtStokSayi_hepsi');
+      const elApm = document.getElementById('mtStokSayi_APM');
+      const elFcw = document.getElementById('mtStokSayi_FCW');
+      const elBakim = document.getElementById('mtStokSayi_BAKIM');
+
+      if (elToplam) elToplam.innerText = `${cHepsi} Kart`;
+      if (elHepsi) elHepsi.innerText = cHepsi;
+      if (elApm) elApm.innerText = cApm;
+      if (elFcw) elFcw.innerText = cFcw;
+      if (elBakim) elBakim.innerText = cBakim;
+
+      // Filtreleme
+      let filtered = [...list];
+      if (mtAktifStokFiltre === 'APM') {
+        filtered = filtered.filter(s => (s.bolum || '').toUpperCase().includes('APM'));
+      } else if (mtAktifStokFiltre === 'FCW') {
+        filtered = filtered.filter(s => (s.bolum || '').toUpperCase().includes('FCW'));
+      } else if (mtAktifStokFiltre === 'BAKIM') {
+        filtered = filtered.filter(s => {
+          const b = (s.bolum || '').toUpperCase();
+          return !b.includes('APM') && !b.includes('FCW');
+        });
+      }
+
+      if (q) {
+        filtered = filtered.filter(s => {
+          const ad = (s.malzemeAdi || '').toLowerCase();
+          const kod = (s.stokKodu || '').toLowerCase();
+          const olcu = (s.olcuTanim || '').toLowerCase();
+          const marka = (s.marka || '').toLowerCase();
+          const bolum = (s.bolum || '').toLowerCase();
+          return ad.includes(q) || kod.includes(q) || olcu.includes(q) || marka.includes(q) || bolum.includes(q);
+        });
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="p-8 text-center text-slate-400">
+              <div class="text-2xl mb-1">🔍</div>
+              <p class="font-bold">Aramanıza veya filtreye uygun stok kartı bulunamadı.</p>
+              <button type="button" onclick="mtYeniStokKartiModalAc()" class="mt-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3 py-1.5 rounded-lg text-xs cursor-pointer">
+                ➕ Yeni Stok Kartı Ekle
+              </button>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach((s, idx) => {
+        const bolum = (s.bolum || 'APM').toUpperCase();
+        let bolumBadge = '';
+        if (bolum.includes('APM')) {
+          bolumBadge = '<span class="bg-indigo-100 text-indigo-900 border border-indigo-200 text-[10px] font-black px-2 py-0.5 rounded">APM</span>';
+        } else if (bolum.includes('FCW')) {
+          bolumBadge = '<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded">FCW</span>';
+        } else {
+          bolumBadge = '<span class="bg-slate-100 text-slate-800 border border-slate-300 text-[10px] font-bold px-2 py-0.5 rounded">' + escapeHtml(bolum) + '</span>';
+        }
+
+        html += `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-2.5 text-center text-slate-400 font-bold text-[11px]">${idx + 1}</td>
+            <td class="p-2.5 whitespace-nowrap">${bolumBadge}</td>
+            <td class="p-2.5 whitespace-nowrap font-mono font-bold text-indigo-700 text-xs">${escapeHtml(s.stokKodu || '-')}</td>
+            <td class="p-2.5 font-black text-slate-900">${escapeHtml(s.malzemeAdi || '-')}</td>
+            <td class="p-2.5 text-slate-600">${escapeHtml(s.olcuTanim || '-')}</td>
+            <td class="p-2.5 text-slate-700 font-medium">${escapeHtml(s.marka || '-')}</td>
+            <td class="p-2.5 text-center whitespace-nowrap font-bold text-slate-600">${escapeHtml(s.birim || 'Adet')}</td>
+            <td class="p-2.5 text-right whitespace-nowrap pr-3">
+              <div class="flex items-center justify-end gap-1.5">
+                <button type="button" onclick="mtStokKartiDuzenleModalAc('${s.id}')" title="Stok Kartını Düzenle"
+                  class="bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-bold px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer flex items-center gap-1">
+                  <span>✏️</span> <span>Düzenle</span>
+                </button>
+                <button type="button" onclick="mtStokKartiSil('${s.id}')" title="Stok Kartını Sil"
+                  class="bg-rose-50 hover:bg-rose-500 hover:text-white text-rose-600 font-bold p-1 rounded-lg text-xs transition-colors cursor-pointer">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function mtStokFiltrele(filtre) {
+      mtAktifStokFiltre = filtre;
+      ['hepsi', 'APM', 'FCW', 'BAKIM'].forEach(f => {
+        const btn = document.getElementById('mtStokFiltre_' + f);
+        if (btn) {
+          if (f === filtre) {
+            btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-xs cursor-pointer';
+          } else {
+            btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer';
+          }
+        }
+      });
+      renderStokKartlariYonetim();
+    }
+
+    function mtYeniStokKartiModalAc() {
+      ensureDBArrays();
+      const modal = document.getElementById('mtStokKartiDuzenleModal');
+      if (!modal) return;
+
+      document.getElementById('mtStokDuzenleModalBaslik').innerHTML = '➕ Yeni Stok Kartı Tanımla';
+      document.getElementById('mtStokDuzenleId').value = '';
+      document.getElementById('mtStokDuzenleBolum').value = 'APM';
+      
+      const apmKartlar = (DB.malzemeStokKartlari || []).filter(s => (s.bolum || '').toUpperCase().includes('APM'));
+      const nextSeq = String(apmKartlar.length + 1).padStart(4, '0');
+      document.getElementById('mtStokDuzenleKod').value = `APM-${nextSeq}`;
+
+      document.getElementById('mtStokDuzenleAd').value = '';
+      document.getElementById('mtStokDuzenleOlcu').value = '';
+      document.getElementById('mtStokDuzenleMarka').value = '';
+      document.getElementById('mtStokDuzenleBirim').value = 'Adet';
+
+      const silBtn = document.getElementById('mtStokDuzenleSilBtn');
+      if (silBtn) silBtn.style.display = 'none';
+
+      openModal('mtStokKartiDuzenleModal');
+    }
+
+    function mtStokKartiDuzenleModalAc(stokId) {
+      ensureDBArrays();
+      const card = (DB.malzemeStokKartlari || []).find(s => String(s.id) === String(stokId));
+      if (!card) {
+        showToast('Stok kartı bulunamadı!', 'error');
+        return;
+      }
+
+      document.getElementById('mtStokDuzenleModalBaslik').innerHTML = `✏️ Stok Kartı Düzenle (${card.stokKodu || card.malzemeAdi})`;
+      document.getElementById('mtStokDuzenleId').value = card.id;
+      document.getElementById('mtStokDuzenleBolum').value = card.bolum || 'APM';
+      document.getElementById('mtStokDuzenleKod').value = card.stokKodu || '';
+      document.getElementById('mtStokDuzenleAd').value = card.malzemeAdi || '';
+      document.getElementById('mtStokDuzenleOlcu').value = card.olcuTanim || '';
+      document.getElementById('mtStokDuzenleMarka').value = card.marka || '';
+      document.getElementById('mtStokDuzenleBirim').value = card.birim || 'Adet';
+
+      const silBtn = document.getElementById('mtStokDuzenleSilBtn');
+      if (silBtn) silBtn.style.display = 'flex';
+
+      openModal('mtStokKartiDuzenleModal');
+    }
+
+    function mtStokKartiDuzenleKaydet() {
+      ensureDBArrays();
+      const cardId = document.getElementById('mtStokDuzenleId')?.value;
+      const bolum = document.getElementById('mtStokDuzenleBolum')?.value || 'APM';
+      const stokKodu = (document.getElementById('mtStokDuzenleKod')?.value || '').trim();
+      const malzemeAdi = (document.getElementById('mtStokDuzenleAd')?.value || '').trim();
+      const olcuTanim = (document.getElementById('mtStokDuzenleOlcu')?.value || '').trim();
+      const marka = (document.getElementById('mtStokDuzenleMarka')?.value || '').trim();
+      const birim = document.getElementById('mtStokDuzenleBirim')?.value || 'Adet';
+
+      if (!malzemeAdi) {
+        alert('Lütfen malzeme adını giriniz!');
+        document.getElementById('mtStokDuzenleAd')?.focus();
+        return;
+      }
+
+      if (cardId) {
+        const card = (DB.malzemeStokKartlari || []).find(s => String(s.id) === String(cardId));
+        if (card) {
+          card.bolum = bolum;
+          card.stokKodu = stokKodu;
+          card.malzemeAdi = malzemeAdi;
+          card.olcuTanim = olcuTanim;
+          card.marka = marka;
+          card.birim = birim;
+          showToast(`"${malzemeAdi}" stok kartı güncellendi.`, 'success');
+        }
+      } else {
+        const yeniKart = {
+          id: Date.now(),
+          bolum,
+          stokKodu: stokKodu || `STK-${Date.now().toString().slice(-4)}`,
+          malzemeAdi,
+          olcuTanim,
+          marka,
+          birim
+        };
+        DB.malzemeStokKartlari.push(yeniKart);
+        showToast(`"${malzemeAdi}" yeni stok kartı olarak eklendi.`, 'success');
+      }
+
+      saveDB(true);
+      closeModal('mtStokKartiDuzenleModal');
+      renderStokKartlariYonetim();
+    }
+
+    function mtStokKartiSil(stokId) {
+      ensureDBArrays();
+      const card = (DB.malzemeStokKartlari || []).find(s => String(s.id) === String(stokId));
+      if (!card) return;
+
+      if (!confirm(`"${card.malzemeAdi}" stok kartını silmek istediğinize emin misiniz?\nStok Kodu: ${card.stokKodu || '-'}`)) {
+        return;
+      }
+
+      DB.malzemeStokKartlari = DB.malzemeStokKartlari.filter(s => String(s.id) !== String(stokId));
+      saveDB(true);
+      closeModal('mtStokKartiDuzenleModal');
+      renderStokKartlariYonetim();
+      showToast(`"${card.malzemeAdi}" stok kartı silindi.`, 'info');
+    }
+
+    function mtStokKartiDuzenleSil() {
+      const cardId = document.getElementById('mtStokDuzenleId')?.value;
+      if (cardId) mtStokKartiSil(cardId);
+    }
+
+    function mtStokVarsayilanYukle() {
+      if (typeof DEFAULT_MALZEME_STOK_KARTLARI === 'undefined' || !Array.isArray(DEFAULT_MALZEME_STOK_KARTLARI)) {
+        showToast('Varsayılan şablon bulunamadı.', 'error');
+        return;
+      }
+
+      if (!confirm('Varsayılan 246 fabrika stok kartı şablonu yüklenecek. Mevcut kartlar bu şablonla güncellenecektir. Onaylıyor musunuz?')) {
+        return;
+      }
+
+      ensureDBArrays();
+      DB.malzemeStokKartlari = [...DEFAULT_MALZEME_STOK_KARTLARI];
+      saveDB(true);
+      renderStokKartlariYonetim();
+      showToast('246 fabrika stok kartı başarıyla yüklendi.', 'success');
+    }
+
+    function mtStokExcelIndir() {
+      ensureDBArrays();
+      const list = DB.malzemeStokKartlari || [];
+      if (list.length === 0) {
+        showToast('İndirilecek stok kartı bulunmuyor.', 'warning');
+        return;
+      }
+
+      let csv = 'Bölüm\tStok Kodu\tMalzeme Adı\tÖlçü / Tanım\tMarka\tBirim\n';
+      list.forEach(s => {
+        csv += `${s.bolum || ''}\t${s.stokKodu || ''}\t${s.malzemeAdi || ''}\t${s.olcuTanim || ''}\t${s.marka || ''}\t${s.birim || ''}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PanzERP_Stok_Kartlari_${new Date().toISOString().slice(0, 10)}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('Stok kartları Excel formatında indirildi.', 'success');
     }
 
 
