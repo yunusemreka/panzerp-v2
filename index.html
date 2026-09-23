@@ -7727,12 +7727,21 @@
     const rtdb = firebase.database();
     const auth = firebase.auth();
 
-    // Auth oturum kalıcılığı (Varsayılan olarak tarayıcı oturumunu hatırlar)
+    // Auth oturum kalıcılığı: Tarayıcı/link açılışında otomatik giriş yapılmaması için SESSION kalıcılığı
     try {
-      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
     } catch (e) {
       console.warn("Auth persistence ayarı:", e);
     }
+
+    // Linke gidildiğinde otomatik girişi kesin olarak önle: Ziyarette giriş portalı zorunludur
+    try {
+      localStorage.removeItem('panzerp_aktif_kullanici');
+      if (sessionStorage.getItem('panzerp_oturum_aktif') !== 'true') {
+        auth.signOut().catch(() => {});
+        window.currentUser = null;
+      }
+    } catch (e) { }
 
     /* GLOBAL STATE */
     window.ERP_SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -8455,6 +8464,11 @@
           if (Array.isArray(gelenKullanicilar)) {
             DB.kullanicilar = gelenKullanicilar;
             const currentUser = firebase.auth().currentUser;
+            const isSessionActive = sessionStorage.getItem('panzerp_oturum_aktif') === 'true';
+            if (!isSessionActive) {
+              // Oturum henüz kullanıcı tarafından açılmadıysa kapıyı otomatik açma
+              return;
+            }
             const targetEmail = (currentUser?.email || aktifKullanici?.email || '').toLowerCase().trim();
             if (targetEmail) {
               const guncel = gelenKullanicilar.find(u => (u.email && u.email.toLowerCase() === targetEmail) || (currentUser && u.authUid === currentUser.uid));
@@ -22231,26 +22245,18 @@
 
 
     async function checkAuthGateStatus() {
-      // 0. Yerel kayıtlı yetkili kullanıcı kontrolü (Oturumun kopmasını önler)
-      try {
-        const savedUser = localStorage.getItem('panzerp_aktif_kullanici');
-        if (savedUser && !aktifKullanici) {
-          const parsed = JSON.parse(savedUser);
-          if (parsed && (parsed.durum === 'Aktif' || checkIsUserAdmin(parsed))) {
-            aktifKullanici = parsed;
-          }
-        }
-      } catch (e) { }
       const gate = document.getElementById('firebaseAuthGate');
       const appContainer = document.getElementById('app-container');
       const pLogin = document.getElementById('authGateLoginForm');
       const pReg = document.getElementById('authGateRegisterForm');
       const pWait = document.getElementById('authGateWaitingApproval');
 
+      const isSessionActive = sessionStorage.getItem('panzerp_oturum_aktif') === 'true';
       const user = firebase.auth().currentUser;
 
-      if (!user && !aktifKullanici) {
-        // Oturum açılmamış -> Giriş ekranını göster
+      // Linke tıklandığında veya yeni ziyarette otomatik giriş yapılmaz; kullanıcı mutlaka giriş butonuna basmalıdır
+      if (!isSessionActive || (!user && !aktifKullanici)) {
+        aktifKullanici = null;
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         if (gate) gate.classList.remove('hidden');
         if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
@@ -22312,7 +22318,7 @@
 
       // Başarılı ve Onaylı Giriş
       aktifKullanici = profil;
-      try { localStorage.setItem('panzerp_aktif_kullanici', JSON.stringify(profil)); } catch(e){}
+      try { sessionStorage.setItem('panzerp_oturum_aktif', 'true'); } catch(e){}
       if (pWait) pWait.classList.add('hidden');
       if (gate) gate.classList.add('hidden');
       if (appContainer) {
@@ -22356,6 +22362,7 @@
 
         const user = result?.user || auth.currentUser;
         if (user) {
+          sessionStorage.setItem('panzerp_oturum_aktif', 'true');
           const userEmail = (user.email || '').toLowerCase().trim();
           showToast(`✅ Google ile giriş başarılı: ${userEmail}`, 'success');
           await checkAuthGateStatus();
@@ -22738,6 +22745,7 @@
       // Standart Personel Girişi
       try {
         await auth.signInWithEmailAndPassword(email, pass);
+        sessionStorage.setItem('panzerp_oturum_aktif', 'true');
         showToast('Giriş başarılı!', 'success');
         await checkAuthGateStatus();
       } catch (err) {
@@ -22760,7 +22768,7 @@
             izinliModuller: ERP_ALL_MODULES.map(m => m.id),
             kayitTarihi: new Date().toISOString()
           };
-          try { localStorage.setItem('panzerp_aktif_kullanici', JSON.stringify(aktifKullanici)); } catch(e){}
+          try { sessionStorage.setItem('panzerp_oturum_aktif', 'true'); } catch(e){}
           const gate = document.getElementById('firebaseAuthGate');
           const appContainer = document.getElementById('app-container');
           if (gate) gate.classList.add('hidden');
@@ -22889,8 +22897,12 @@
     async function authFirebaseCikisYap() {
       if (!confirm('Oturumu kapatmak istediğinize emin misiniz?')) return;
       try {
-        await auth.signOut();
+        sessionStorage.removeItem('panzerp_oturum_aktif');
+        sessionStorage.clear();
+        localStorage.removeItem('panzerp_aktif_kullanici');
         aktifKullanici = null;
+        window.currentUser = null;
+        await auth.signOut();
         const gate = document.getElementById('firebaseAuthGate');
         const appContainer = document.getElementById('app-container');
         if (gate) gate.classList.remove('hidden');
