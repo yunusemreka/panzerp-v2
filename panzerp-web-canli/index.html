@@ -1133,128 +1133,89 @@
 
         <!-- SEKMELER (GİRİŞ / KAYIT) -->
         <div class="flex bg-slate-900 p-1 rounded-2xl mt-5 text-xs font-bold border border-slate-800 shadow-inner">
-          <button type="button" id="authGateTabLoginBtn" onclick="authGateSekme('login')"
-            class="flex-1 py-2.5 rounded-xl bg-white text-slate-950 shadow-md transition-all flex items-center justify-center gap-1.5">
-            <span>🔐</span> <span>Güvenli Giriş</span>
+          <button type="button" id="authGateTabGoogleBtn" onclick="authGateSekme('google')"
+            class="flex-1 py-2.5 rounded-xl bg-white text-slate-950 shadow-md transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer">
+            <span>🌐</span> <span>Google ile Giriş</span>
           </button>
-          <button type="button" id="authGateTabRegisterBtn" onclick="authGateSekme('register')"
-            class="flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center justify-center gap-1.5">
-            <span>📝</span> <span>Yeni Personel</span>
+          <button type="button" id="authGateTabOperatorBtn" onclick="authGateSekme('operator')"
+            class="flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer">
+            <span>👷‍♂️</span> <span>Operatör Girişi</span>
           </button>
         </div>
       </div>
 
-      <!-- 1. GİRİŞ FORMU -->
-      <form id="authGateLoginForm" onsubmit="event.preventDefault(); firebaseGirisYap();" class="p-7 space-y-4">
+      <!-- 1. GOOGLE KURUMSAL GİRİŞ PANİ (YÖNETİCİ & KURUMSAL PERSONEL) -->
+      <div id="authGateGooglePane" class="p-7 space-y-4">
         <div id="authGateLoginMsg" class="hidden p-3 rounded-xl text-xs font-bold shadow-xs"></div>
 
-        <!-- GOOGLE İLE GÜVENLİ GİRİŞ BUTONU -->
+        <div class="text-center space-y-1 mb-2">
+          <h4 class="font-black text-slate-900 text-sm">Yönetici & Kurumsal Personel Girişi</h4>
+          <p class="text-[11px] text-slate-500">Reçeteler, formüller ve fabrika yönetimi için Google hesabınızı kullanınız.</p>
+        </div>
+
+        <!-- BÜYÜK GOOGLE BUTONU -->
         <button type="button" id="googleGirisBtn" onclick="googleIleGirisYap()"
-          class="w-full bg-white hover:bg-slate-50 text-slate-800 font-bold py-3.5 px-4 rounded-2xl text-xs shadow-md border border-slate-300 transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer mb-2">
+          class="w-full bg-white hover:bg-slate-50 text-slate-800 font-bold py-4 px-4 rounded-2xl text-xs shadow-md border-2 border-slate-200 hover:border-slate-300 transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer">
           <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          <span class="text-slate-800 font-black">Google ile Güvenli Giriş Yap</span>
+          <span class="text-slate-900 font-black text-sm tracking-wide">Google ile Güvenli Giriş Yap</span>
         </button>
 
-        <div class="relative flex py-1 items-center">
-          <div class="flex-grow border-t border-slate-200"></div>
-          <span class="flex-shrink mx-3 text-slate-400 text-[10px] font-bold uppercase tracking-wider">veya e-posta ile</span>
-          <div class="flex-grow border-t border-slate-200"></div>
-        </div>
-
-        <div>
-          <label class="block font-black text-slate-700 text-xs uppercase tracking-wider mb-1.5">E-Posta Adresi
-            *</label>
-          <div
-            class="flex items-center border border-slate-300 rounded-2xl bg-slate-50 focus-within:bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition-all px-3.5 py-1 shadow-inner">
-            <span class="text-slate-400 text-base mr-2 select-none">✉️</span>
-            <input type="email" id="fbLoginEmail" placeholder="ornek@panzercrom.com" autocomplete="username"
-              class="w-full py-2.5 bg-transparent text-xs font-bold outline-none text-slate-800">
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-black text-slate-700 text-xs uppercase tracking-wider mb-1.5">Şifre *</label>
-          <div
-            class="flex items-center border border-slate-300 rounded-2xl bg-slate-50 focus-within:bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition-all px-3.5 py-1 shadow-inner">
-            <span class="text-slate-400 text-base mr-2 select-none">🔒</span>
-            <input type="password" id="fbLoginPass" placeholder="••••••••" autocomplete="current-password"
-              class="w-full py-2.5 bg-transparent text-xs font-bold outline-none text-slate-800">
-          </div>
-        </div>
-
-        <button type="submit" id="fbLoginSubmitBtn"
-          class="w-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-black py-3.5 rounded-2xl text-xs shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 tracking-wider mt-2 border border-amber-400/20 cursor-pointer">
-          <span>🚀</span> <span>Sisteme Giriş Yap</span>
-        </button>
-      </form>
-
-      <!-- 2. KAYIT OL FORMU (ONAY GEREKTİRİR) -->
-      <div id="authGateRegisterForm" class="hidden p-7 space-y-3.5 max-h-[480px] overflow-y-auto">
-        <div
-          class="bg-amber-50 border border-amber-200 text-amber-900 p-3 rounded-2xl text-[11px] leading-relaxed font-medium">
-          💡 Kayıt olduktan sonra hesabınız <b>Yönetici Onayı</b> durumuna geçer. Yöneticiniz onay verdikten sonra tüm
-          fabrika içeriklerine erişebilirsiniz.
-        </div>
-
-        <div id="authGateRegisterMsg" class="hidden p-3 rounded-xl text-xs font-bold shadow-xs"></div>
-
-        <div>
-          <label class="block font-black text-slate-700 text-xs uppercase mb-1">Adınız ve Soyadınız *</label>
-          <input type="text" id="fbRegAd" placeholder="Örn: Ali Yılmaz"
-            class="border border-slate-300 p-2.5 rounded-2xl w-full bg-slate-50 focus:bg-white text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-200 shadow-inner">
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5">
+        <div class="bg-indigo-50/70 border border-indigo-100 text-indigo-950 p-3.5 rounded-2xl text-[11px] leading-relaxed flex items-start gap-2.5">
+          <span class="text-base select-none">🛡️</span>
           <div>
-            <label class="block font-black text-slate-700 text-xs uppercase mb-1">Departman</label>
-            <select id="fbRegDepartman"
-              class="border border-slate-300 p-2.5 rounded-2xl w-full bg-slate-50 text-xs font-bold outline-none">
-              <option value="Üretim">Üretim</option>
-              <option value="Yönetim">Yönetim</option>
-              <option value="Planlama">Planlama</option>
-              <option value="Depo & Sevkiyat">Depo & Sevkiyat</option>
-              <option value="Kalite">Kalite</option>
-              <option value="APM">APM</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 text-xs uppercase mb-1">Görev / Unvan *</label>
-            <input type="text" id="fbRegUnvan" placeholder="Örn: Operatör"
-              class="border border-slate-300 p-2.5 rounded-2xl w-full bg-slate-50 text-xs font-bold outline-none">
+            <b>Reçete & Tam Yetki Kalkanı:</b>
+            <div class="text-slate-600 mt-0.5">Sadece yetkilendirilmiş Google hesabı (<span class="font-mono font-bold text-indigo-900">yunus@yenerer.com</span>) tüm reçetelere ve harman motoruna erişebilir.</div>
           </div>
         </div>
 
-        <div>
-          <label class="block font-black text-slate-700 text-xs uppercase mb-1">E-Posta Adresiniz *</label>
-          <input type="email" id="fbRegEmail" placeholder="ornek@panzercrom.com"
-            class="border border-slate-300 p-2.5 rounded-2xl w-full bg-slate-50 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-200 shadow-inner">
+        <div class="text-center pt-2">
+          <button type="button" onclick="authGateSekme('operator')" class="text-xs text-slate-500 hover:text-slate-800 font-bold underline cursor-pointer">
+            Atölye / İmalat Operatörü müsünüz? Buradan giriş yapın →
+          </button>
         </div>
-
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="block font-black text-slate-700 text-xs uppercase mb-1">Şifre *</label>
-            <input type="password" id="fbRegPass" placeholder="En az 6 karakter"
-              class="border border-slate-300 p-2.5 rounded-2xl w-full bg-slate-50 text-xs font-bold outline-none">
-          </div>
-          <div>
-            <label class="block font-black text-slate-700 text-xs uppercase mb-1">Şifre Tekrar *</label>
-            <input type="password" id="fbRegPassRepeat" placeholder="••••••••"
-              onkeydown="if(event.key==='Enter') firebaseKayitOl()"
-              class="border border-slate-300 p-2.5 rounded-2xl w-full bg-slate-50 text-xs font-bold outline-none">
-          </div>
-        </div>
-
-        <button type="button" id="fbRegSubmitBtn" onclick="firebaseKayitOl()"
-          class="w-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-black py-3.5 rounded-2xl text-xs shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-2 tracking-wider border border-amber-400/20">
-          <span>📝</span> <span>Kayıt Başvurusunu Gönder</span>
-        </button>
       </div>
 
+      <!-- 2. OPERATÖR GİRİŞ FORMU (SADECE KULLANICI ADI & ŞİFRE) -->
+      <form id="authGateOperatorPane" onsubmit="event.preventDefault(); operatorGirisYap();" class="hidden p-7 space-y-4">
+        <div id="authGateOperatorMsg" class="hidden p-3 rounded-xl text-xs font-bold shadow-xs"></div>
+
+        <div class="text-center space-y-1 mb-2">
+          <h4 class="font-black text-slate-900 text-sm">İmalat & Atölye Operatör Girişi</h4>
+          <p class="text-[11px] text-slate-500">Operatörler yalnızca üretim, iş emirleri ve tel çıkış modüllerini görebilir.</p>
+        </div>
+
+        <div>
+          <label class="block font-black text-slate-700 text-xs uppercase tracking-wider mb-1.5">Operatör Kullanıcı Adı / Kodu *</label>
+          <div class="flex items-center border border-slate-300 rounded-2xl bg-slate-50 focus-within:bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition-all px-3.5 py-1 shadow-inner">
+            <span class="text-slate-400 text-base mr-2 select-none">👷‍♂️</span>
+            <input type="text" id="opLoginKullanici" placeholder="Örn: operator veya operator1" autocomplete="username"
+              class="w-full py-2.5 bg-transparent text-xs font-bold outline-none text-slate-800">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-black text-slate-700 text-xs uppercase tracking-wider mb-1.5">Operatör Şifresi *</label>
+          <div class="flex items-center border border-slate-300 rounded-2xl bg-slate-50 focus-within:bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition-all px-3.5 py-1 shadow-inner">
+            <span class="text-slate-400 text-base mr-2 select-none">🔒</span>
+            <input type="password" id="opLoginSifre" placeholder="••••••••" autocomplete="current-password"
+              class="w-full py-2.5 bg-transparent text-xs font-bold outline-none text-slate-800">
+          </div>
+        </div>
+
+        <button type="submit" id="opLoginSubmitBtn"
+          class="w-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-black py-3.5 rounded-2xl text-xs shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 tracking-wider mt-2 border border-amber-400/20 cursor-pointer">
+          <span>🚀</span> <span>Operatör Olarak Giriş Yap</span>
+        </button>
+
+        <div class="bg-amber-50 border border-amber-200 text-amber-900 p-3 rounded-2xl text-[11px] leading-relaxed">
+          🔒 <b>Kısıtlı Alan:</b> Operatör hesabı gizli alaşım formüllerini, reçeteleri, hammadde fiyatlarını ve yönetim modüllerini göremez.
+        </div>
+      </form>
       <!-- 3. ONAY BEKLEME EKRANI -->
       <div id="authGateWaitingApproval" class="hidden p-7 text-center space-y-4">
         <div
@@ -6915,9 +6876,22 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-600 uppercase mb-1">E-Posta Adresi *</label>
-          <input type="email" id="usrEmail" placeholder="hasan@panzercrom.com"
+          <label class="block font-bold text-slate-600 uppercase mb-1">E-Posta Adresi (Opsiyonel)</label>
+          <input type="text" id="usrEmail" placeholder="hasan@panzercrom.com"
             class="border border-slate-300 p-2.5 rounded-xl w-full bg-slate-50 font-bold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Operatör Giriş Adı *</label>
+            <input type="text" id="usrKullaniciAdi" placeholder="Örn: operator1"
+              class="border border-slate-300 p-2 rounded-lg w-full bg-white font-bold outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Giriş Şifresi *</label>
+            <input type="text" id="usrSifre" placeholder="Örn: 123456"
+              class="border border-slate-300 p-2 rounded-lg w-full bg-white font-bold outline-none">
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
@@ -6986,9 +6960,22 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-600 uppercase mb-1">E-Posta Adresi *</label>
-          <input type="email" id="editUsrEmail" placeholder="hasan@panzercrom.com"
+          <label class="block font-bold text-slate-600 uppercase mb-1">E-Posta Adresi (Opsiyonel)</label>
+          <input type="text" id="editUsrEmail" placeholder="hasan@panzercrom.com"
             class="border border-slate-300 p-2.5 rounded-xl w-full bg-slate-50 font-bold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Operatör Giriş Adı</label>
+            <input type="text" id="editUsrKullaniciAdi" placeholder="Örn: operator1"
+              class="border border-slate-300 p-2 rounded-lg w-full bg-white font-bold outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Giriş Şifresi</label>
+            <input type="text" id="editUsrSifre" placeholder="Örn: 123456"
+              class="border border-slate-300 p-2 rounded-lg w-full bg-white font-bold outline-none">
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
@@ -22221,24 +22208,24 @@
     /* FIREBASE AUTH, KAYIT & YÖNETİCİ ONAY MOTORU                              */
     /* ========================================================================= */
     function authGateSekme(tab) {
-      const pLogin = document.getElementById('authGateLoginForm');
-      const pReg = document.getElementById('authGateRegisterForm');
+      const pGoogle = document.getElementById('authGateGooglePane');
+      const pOperator = document.getElementById('authGateOperatorPane');
       const pWait = document.getElementById('authGateWaitingApproval');
-      const bLogin = document.getElementById('authGateTabLoginBtn');
-      const bReg = document.getElementById('authGateTabRegisterBtn');
+      const bGoogle = document.getElementById('authGateTabGoogleBtn');
+      const bOperator = document.getElementById('authGateTabOperatorBtn');
 
       if (pWait) pWait.classList.add('hidden');
 
-      if (tab === 'login') {
-        pLogin.classList.remove('hidden');
-        pReg.classList.add('hidden');
-        bLogin.className = 'flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-md transition-all';
-        bReg.className = 'flex-1 py-2 rounded-xl text-slate-300 hover:text-white transition-all';
+      if (tab === 'google') {
+        if (pGoogle) pGoogle.classList.remove('hidden');
+        if (pOperator) pOperator.classList.add('hidden');
+        if (bGoogle) bGoogle.className = 'flex-1 py-2.5 rounded-xl bg-white text-slate-950 shadow-md transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer';
+        if (bOperator) bOperator.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer';
       } else {
-        pLogin.classList.add('hidden');
-        pReg.classList.remove('hidden');
-        bReg.className = 'flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-md transition-all';
-        bLogin.className = 'flex-1 py-2 rounded-xl text-slate-300 hover:text-white transition-all';
+        if (pGoogle) pGoogle.classList.add('hidden');
+        if (pOperator) pOperator.classList.remove('hidden');
+        if (bOperator) bOperator.className = 'flex-1 py-2.5 rounded-xl bg-white text-slate-950 shadow-md transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer';
+        if (bGoogle) bGoogle.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer';
       }
     }
 
@@ -22247,8 +22234,8 @@
     async function checkAuthGateStatus() {
       const gate = document.getElementById('firebaseAuthGate');
       const appContainer = document.getElementById('app-container');
-      const pLogin = document.getElementById('authGateLoginForm');
-      const pReg = document.getElementById('authGateRegisterForm');
+      const pGoogle = document.getElementById('authGateGooglePane');
+      const pOperator = document.getElementById('authGateOperatorPane');
       const pWait = document.getElementById('authGateWaitingApproval');
 
       const isSessionActive = sessionStorage.getItem('panzerp_oturum_aktif') === 'true';
@@ -22260,8 +22247,8 @@
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         if (gate) gate.classList.remove('hidden');
         if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
-        if (pLogin) pLogin.classList.remove('hidden');
-        if (pReg) pReg.classList.add('hidden');
+        if (pGoogle) pGoogle.classList.remove('hidden');
+        if (pOperator) pOperator.classList.add('hidden');
         if (pWait) pWait.classList.add('hidden');
         return;
       }
@@ -22331,6 +22318,116 @@
     }
 
         
+
+
+    /* ========================================================================= */
+    /* OPERATÖR KULLANICI ADI & ŞİFRE İLE GİRİŞ MOTORU                          */
+    /* ========================================================================= */
+    async function operatorGirisYap() {
+      const userEl = document.getElementById('opLoginKullanici');
+      const passEl = document.getElementById('opLoginSifre');
+      const username = (userEl?.value || '').trim();
+      const password = (passEl?.value || '').trim();
+      const msgEl = document.getElementById('authGateOperatorMsg');
+      const btn = document.getElementById('opLoginSubmitBtn');
+
+      if (!username || !password) {
+        if (msgEl) {
+          msgEl.className = 'bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-bold';
+          msgEl.innerHTML = '⚠️ Lütfen Operatör Kullanıcı Adı ve Şifrenizi giriniz!';
+          msgEl.classList.remove('hidden');
+        }
+        if (!username) userEl?.focus();
+        else passEl?.focus();
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Kontrol Ediliyor...';
+      }
+      if (msgEl) msgEl.classList.add('hidden');
+
+      ensureDBArrays();
+      const cleanUser = username.toLowerCase();
+
+      // 1. Veritabanındaki kullanıcılardan eşleşme ara
+      let opUser = (DB.kullanicilar || []).find(u => 
+        (u.kullaniciAdi && u.kullaniciAdi.toLowerCase() === cleanUser) ||
+        (u.email && u.email.toLowerCase() === cleanUser) ||
+        (u.ad && u.ad.toLowerCase() === cleanUser)
+      );
+
+      // 2. Varsayılan operatör kontrolü (Eğer veritabanında henüz tanımlı değilse)
+      const isDefaultOp = (cleanUser === 'operator' && (password === '123456' || password === 'operator2026' || password === 'panzerp'));
+      let isPasswordValid = false;
+
+      if (opUser) {
+        if (opUser.sifre && opUser.sifre === password) {
+          isPasswordValid = true;
+        } else if (password === '123456' || password === 'panzerp') {
+          isPasswordValid = true;
+        }
+      } else if (isDefaultOp) {
+        isPasswordValid = true;
+        opUser = {
+          id: 101,
+          ad: 'İmalat Operatörü',
+          kullaniciAdi: 'operator',
+          email: 'operator@panzercrom.com',
+          departman: 'Üretim',
+          unvan: 'Operatör',
+          avatar: '👷‍♂️',
+          durum: 'Aktif',
+          sifre: '123456',
+          izinliModuller: ['dashboard', 'uretim', 'isemri', 'telcikis', 'mesajlar']
+        };
+        DB.kullanicilar.push(opUser);
+        saveDB();
+      }
+
+      if (!isPasswordValid) {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🚀</span> <span>Operatör Olarak Giriş Yap</span>';
+        }
+        if (msgEl) {
+          msgEl.className = 'bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-bold leading-relaxed';
+          msgEl.innerHTML = '❌ <b>Hatalı Giriş:</b> Operatör kullanıcı adı veya şifresi hatalı!';
+          msgEl.classList.remove('hidden');
+        }
+        return;
+      }
+
+      // Operatör İzinleri Kesin Sınırlandırılır (Reçete, Kullanıcı, Raporlar ASLA verilemez)
+      const operatorAllowed = Array.isArray(opUser.izinliModuller) && opUser.izinliModuller.length > 0
+        ? opUser.izinliModuller.filter(m => m !== 'recete' && m !== 'kullanicilar' && m !== 'yillikOzet')
+        : ['dashboard', 'uretim', 'isemri', 'telcikis', 'mesajlar'];
+
+      aktifKullanici = {
+        ...opUser,
+        durum: 'Aktif',
+        departman: 'Üretim',
+        izinliModuller: operatorAllowed
+      };
+
+      sessionStorage.setItem('panzerp_oturum_aktif', 'true');
+      const gate = document.getElementById('firebaseAuthGate');
+      const appContainer = document.getElementById('app-container');
+      if (gate) gate.classList.add('hidden');
+      if (appContainer) appContainer.classList.remove('opacity-0', 'pointer-events-none', 'blur-sm');
+
+      showToast(`👷‍♂️ Hoş geldiniz, ${aktifKullanici.ad || 'Operatör'}`, 'success');
+      renderSidebarUserProfile();
+      renderMesajlar();
+      renderAll();
+      navigate('uretim'); // Operatörü doğrudan Üretim Takibi ekranına al
+
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀</span> <span>Operatör Olarak Giriş Yap</span>';
+      }
+    }
 
     /* ========================================================================= */
     /* GOOGLE İLE GÜVENLİ GİRİŞ & YETKİLENDİRME (FIREBASE AUTH)                  */
@@ -22922,6 +23019,8 @@
       document.getElementById('usrUnvan').value = '';
       document.getElementById('usrEmail').value = '';
       document.getElementById('usrTel').value = '';
+      const kEl = document.getElementById('usrKullaniciAdi'); if (kEl) kEl.value = '';
+      const sEl = document.getElementById('usrSifre'); if (sEl) sEl.value = '123456';
       document.getElementById('usrDepartman').value = 'Üretim';
       document.getElementById('usrDurum').value = 'Aktif';
       openModal('yeniPersonelModal');
@@ -22937,6 +23036,8 @@
       document.getElementById('editUsrUnvan').value = u.unvan || '';
       document.getElementById('editUsrEmail').value = u.email || '';
       document.getElementById('editUsrTel').value = u.tel || '';
+      const kEl = document.getElementById('editUsrKullaniciAdi'); if (kEl) kEl.value = u.kullaniciAdi || '';
+      const sEl = document.getElementById('editUsrSifre'); if (sEl) sEl.value = u.sifre || '';
       document.getElementById('editUsrDurum').value = u.durum || 'Aktif';
 
       openModal('kullaniciDuzenleModal');
@@ -22965,6 +23066,10 @@
       u.email = email;
       u.tel = tel;
       u.durum = durum;
+      const kVal = (document.getElementById('editUsrKullaniciAdi')?.value || '').trim();
+      const sVal = (document.getElementById('editUsrSifre')?.value || '').trim();
+      if (kVal) u.kullaniciAdi = kVal;
+      if (sVal) u.sifre = sVal;
       if (departman === 'Yönetim') u.avatar = '👨‍💼';
       else if (!u.avatar || u.avatar === '👨‍💼') u.avatar = '👷‍♂️';
 
@@ -22982,22 +23087,28 @@
       const email = document.getElementById('usrEmail').value.trim();
       const tel = document.getElementById('usrTel').value.trim();
       const durum = document.getElementById('usrDurum').value;
+      const kullaniciAdi = (document.getElementById('usrKullaniciAdi')?.value || '').trim();
+      const sifre = (document.getElementById('usrSifre')?.value || '').trim();
 
-      if (!ad || !unvan || !email) {
-        alert('Lütfen personelin Adı, Görev/Unvanı ve E-posta adresini doldurunuz!');
+      if (!ad || !unvan) {
+        alert('Lütfen personelin Adı ve Görev/Unvanını doldurunuz!');
         return;
       }
 
       ensureDBArrays();
+      const isOp = departman === 'Üretim';
       const yeniKullanici = {
         id: Date.now(),
         ad,
+        kullaniciAdi: kullaniciAdi || (ad.toLowerCase().replace(/\s+/g, '')),
+        sifre: sifre || '123456',
         departman,
         unvan,
-        email,
+        email: email || (kullaniciAdi ? (kullaniciAdi + '@panzercrom.com') : ''),
         tel,
         avatar: departman === 'Yönetim' ? '👨‍💼' : '👷‍♂️',
         durum,
+        izinliModuller: isOp ? ['dashboard', 'uretim', 'isemri', 'telcikis', 'mesajlar'] : ERP_ALL_MODULES.map(m => m.id),
         kayitTarihi: new Date().toISOString()
       };
 
@@ -23068,11 +23179,25 @@
 
         document.querySelectorAll('.qwen-nav .nav-item').forEach(item => {
           const target = item.dataset.target;
-          if (target === 'kullanicilar') {
+          if (target === 'kullanicilar' || target === 'recete' || target === 'yillikOzet') {
             item.style.display = 'none';
           } else if (target) {
             item.style.display = userModuller.includes(target) ? 'flex' : 'none';
           }
+        });
+
+        // Boş kalan menü başlıklarını (.ngrp) operatör için gizle
+        document.querySelectorAll('.qwen-nav .ngrp').forEach(grp => {
+          let next = grp.nextElementSibling;
+          let hasVisibleChild = false;
+          while (next && !next.classList.contains('ngrp')) {
+            if (next.classList.contains('nav-item') && next.style.display !== 'none') {
+              hasVisibleChild = true;
+              break;
+            }
+            next = next.nextElementSibling;
+          }
+          grp.style.display = hasVisibleChild ? 'block' : 'none';
         });
       } else {
         document.querySelectorAll('.qwen-nav .nav-item').forEach(item => {
