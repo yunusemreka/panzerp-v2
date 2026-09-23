@@ -22848,7 +22848,7 @@
         ensureDBArrays();
         const cleanEmail = email.toLowerCase().trim();
         // Sadece yetkili ana yönetici adresleri doğrudan Aktif olur, diğer yeni kayıt olan tüm personeller Onay Bekliyor durumunda kalır
-        const isMasterAdmin = cleanEmail === 'yunus@panzercrom.com' || cleanEmail === 'admin@panzercrom.com' || cleanEmail.startsWith('yunuskaya');
+        const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(cleanEmail) : (cleanEmail === 'yunus@yenerer.com' || cleanEmail === 'yunus@panzercrom.com' || cleanEmail === 'admin@panzercrom.com');
 
         // Varsa eski kaydı güncelle veya yeni ekle
         let userProfil = (DB.kullanicilar || []).find(u => u.email && u.email.toLowerCase() === cleanEmail);
