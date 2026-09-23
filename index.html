@@ -1148,6 +1148,24 @@
       <form id="authGateLoginForm" onsubmit="event.preventDefault(); firebaseGirisYap();" class="p-7 space-y-4">
         <div id="authGateLoginMsg" class="hidden p-3 rounded-xl text-xs font-bold shadow-xs"></div>
 
+        <!-- GOOGLE İLE GÜVENLİ GİRİŞ BUTONU -->
+        <button type="button" id="googleGirisBtn" onclick="googleIleGirisYap()"
+          class="w-full bg-white hover:bg-slate-50 text-slate-800 font-bold py-3.5 px-4 rounded-2xl text-xs shadow-md border border-slate-300 transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer mb-2">
+          <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span class="text-slate-800 font-black">Google ile Güvenli Giriş Yap</span>
+        </button>
+
+        <div class="relative flex py-1 items-center">
+          <div class="flex-grow border-t border-slate-200"></div>
+          <span class="flex-shrink mx-3 text-slate-400 text-[10px] font-bold uppercase tracking-wider">veya e-posta ile</span>
+          <div class="flex-grow border-t border-slate-200"></div>
+        </div>
+
         <div>
           <label class="block font-black text-slate-700 text-xs uppercase tracking-wider mb-1.5">E-Posta Adresi
             *</label>
@@ -1305,6 +1323,7 @@
         <div class="nav-item" data-target="telcikis">🏷️ <span>FCW Tel Çıkışı</span><em class="nbdg"
             id="bTelCikis"></em></div>
         <div class="nav-item" data-target="urun">📦 <span>Ürünler</span></div>
+          <div class="nav-item" data-target="recete" id="navItemRecete">🧪 <span>Reçeteler & Harman</span></div>
 
         <div class="ngrp">Stok & Talep</div>
         <div class="nav-item" data-target="hammadde">🧱 <span>Hammadde Stok</span><em class="nbdg red" id="bStok"></em>
@@ -2124,6 +2143,75 @@
               </thead>
               <tbody id="urunTable" class="divide-y divide-slate-50"></tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- REÇETE YÖNETİMİ & OTOMATİK HARMAN HESAPLAMA (GÜVENLİK KALKANI İLE KORUMALI) -->
+      <section id="recete" class="module-section">
+        <!-- 1. YETKİSİZ KULLANICI İÇİN GÜVENLİK KALKANI -->
+        <div id="receteGuvenlikKalkani" class="hidden p-8 max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-rose-200 shadow-2xl text-center">
+          <div class="w-20 h-20 mx-auto mb-4 bg-rose-50 border-2 border-rose-200 rounded-3xl flex items-center justify-center text-4xl shadow-inner text-rose-600">
+            🔒
+          </div>
+          <h2 class="text-2xl font-black text-slate-900 tracking-tight mb-2">Gizli Reçete & Harman Güvenlik Kalkanı</h2>
+          <p class="text-xs text-rose-700 font-bold bg-rose-50 border border-rose-200 rounded-xl p-3 mb-5 inline-block">
+            ⛔ Bu alana ve alaşım reçetelerine yalnızca yetkilendirilmiş Google hesabı (<span class="font-mono font-black">yunus@yenerer.com</span>) ile erişilebilir.
+          </p>
+          <p class="text-sm text-slate-600 leading-relaxed mb-6">
+            Fabrika alaşım formüllerinin ve gizli tel reçetelerinin ticari güvenliği için bu modül tam koruma altındadır. Reçeteleri görüntülemek, düzenlemek veya otomatik harman tartım fişi oluşturmak için lütfen <b>Google ile Güvenli Giriş</b> yapınız.
+          </p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button type="button" onclick="googleIleGirisYap()" class="w-full sm:w-auto bg-slate-950 hover:bg-slate-900 text-amber-400 font-bold px-6 py-3 rounded-2xl text-xs shadow-lg transition-all flex items-center justify-center gap-2 border border-amber-400/20 cursor-pointer">
+              <span>🚀</span> <span>Google ile Yetkili Girişi Yap</span>
+            </button>
+            <button type="button" onclick="navigate('dashboard')" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-2xl text-xs transition-all cursor-pointer">
+              Dashboard'a Dön
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. YETKİLİ YÖNETİCİ ARAYÜZÜ (SADECE yunus@yenerer.com / yunus@panzercrom.com) -->
+        <div id="receteYetkiliIcerik" class="space-y-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-3xl text-white shadow-xl border border-slate-700">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl">🧪</span>
+                <h2 class="text-xl md:text-2xl font-black tracking-tight text-white">Reçete & Otomatik Harman Portalı</h2>
+                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">🛡️ Yetkili Koruma Modu (Seçenek B)</span>
+              </div>
+              <p class="text-xs text-slate-300">
+                Yetkili Yönetici: <b class="text-amber-400 font-mono" id="receteAktifYetkiliEmail">yunus@yenerer.com</b> | Tüm gizli alaşım formülleri şifreli ve korumalıdır.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button onclick="receteYeniTanimlaModalAc()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                <span>➕</span> Yeni Reçete Tanımla
+              </button>
+              <button onclick="receteHizliHarmanHesaplayiciAc()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                <span>⚖️</span> Hızlı Harman Fişi Hesapla
+              </button>
+            </div>
+          </div>
+
+          <!-- REÇETE LİSTESİ VE DURUM ÖZETİ -->
+          <div class="card p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+              <div class="flex flex-wrap items-center gap-3">
+                <input type="text" id="receteAramaInput" oninput="renderReceteModulListesi()" placeholder="🔍 Ürün adı veya kodu ile ara..." class="border border-slate-300 rounded-xl px-4 py-2 text-xs font-bold text-slate-800 w-64 md:w-80 outline-none focus:ring-2 focus:ring-indigo-200">
+                <select id="receteFiltreDurum" onchange="renderReceteModulListesi()" class="border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none">
+                  <option value="all">Tüm Ürünler</option>
+                  <option value="tanimli">Sadece Reçetesi Olanlar (✅)</option>
+                  <option value="tanimsiz">Reçetesi Eksik Olanlar (⚠️)</option>
+                </select>
+              </div>
+              <div id="receteIstatistikRozet" class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl">
+                Yükleniyor...
+              </div>
+            </div>
+
+            <!-- Ürün Reçeteleri Grid -->
+            <div id="receteKartlariGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
           </div>
         </div>
       </section>
@@ -5467,6 +5555,51 @@
     </div>
   </div>
 
+  <!-- HIZLI HARMAN HESAPLAMA & TARTIM FİŞİ MODALI -->
+  <div id="hizliHarmanModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
+        <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><span>⚖️</span> Hızlı Harman Fişi Hesaplayıcı</h3>
+        <button onclick="closeModal('hizliHarmanModal')" class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200 cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Ürün Seçimi *</label>
+          <select id="hhUrunSec" onchange="hhHesapOzetiGuncelle()" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold bg-slate-50 focus:bg-white outline-none"></select>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Hedef Tel (Kg) *</label>
+            <input type="number" id="hhHedefKg" value="1000" min="10" step="10" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold outline-none" oninput="hhHesapOzetiGuncelle()">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Doluluk Oranı (%) *</label>
+            <input type="number" id="hhDoluluk" value="33" min="1" max="100" step="0.5" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold outline-none" oninput="hhHesapOzetiGuncelle()">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Parti (Batch) Sayısı *</label>
+            <input type="number" id="hhPartiSayisi" value="5" min="1" max="50" step="1" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold outline-none" oninput="hhHesapOzetiGuncelle()">
+          </div>
+        </div>
+        <div id="hhHesapOzeti" class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-xs text-indigo-950 space-y-1.5">
+          <!-- Dinamik hesap özeti -->
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Yazdırılacak Parti (Batch) *</label>
+          <select id="hhPartiSec" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold bg-slate-50 focus:bg-white outline-none">
+            <option value="1">Parti #1</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t">
+          <button type="button" onclick="closeModal('hizliHarmanModal')" class="px-4 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer">Kapat</button>
+          <button type="button" onclick="hizliHarmanFormuUret()" class="px-5 py-2.5 text-xs font-black text-amber-400 bg-slate-950 hover:bg-slate-900 rounded-xl shadow-md flex items-center gap-2 cursor-pointer border border-amber-400/20">
+            <span>🖨️</span> A4 Harman Tartım Fişi Oluştur
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="harmanModal" class="modal">
     <div class="modal-content !p-0" style="max-width: 850px;">
       <div class="flex justify-between items-center mb-0 no-print p-4 bg-slate-50 border-b rounded-t-16">
@@ -7639,13 +7772,19 @@
       const unvan = (typeof userOrEmail === 'object' ? (userOrEmail.unvan || '') : '').toLowerCase().trim();
       const ad = (typeof userOrEmail === 'object' ? (userOrEmail.ad || '') : '').toLowerCase().trim();
 
-      if (email === 'yunus@panzercrom.com' || email === 'admin@panzercrom.com' || email.includes('yunus') || email.includes('admin')) {
+      if (email === 'yunus@yenerer.com' || email === 'yunus@panzercrom.com' || email === 'admin@panzercrom.com' || email.includes('yunus') || email.includes('admin')) {
         return true;
       }
       if (dep === 'Yönetim' || unvan.includes('yönetici') || unvan.includes('admin') || ad.includes('yunus')) {
         return true;
       }
       return false;
+    }
+
+    function checkIsUserRecipeAdmin(userOrEmail) {
+      if (!userOrEmail) return false;
+      const email = (typeof userOrEmail === 'string' ? userOrEmail : (userOrEmail.email || '')).toLowerCase().trim();
+      return email === 'yunus@yenerer.com' || email === 'yunus@panzercrom.com' || email.startsWith('yunus@yenerer') || email.startsWith('yunus@panzer');
     }
 
     let aktifSohbetHedefi = {
@@ -8630,6 +8769,24 @@
           alert('⛔ Bu modüle sadece Sistem Yöneticisi erişebilir.');
           navigate('dashboard');
           return;
+        }
+      }
+
+      if (t === 'recete') {
+        const isRecAdmin = typeof checkIsUserRecipeAdmin === 'function' && checkIsUserRecipeAdmin(aktifKullanici);
+        const kalkan = document.getElementById('receteGuvenlikKalkani');
+        const icerik = document.getElementById('receteYetkiliIcerik');
+        if (!isRecAdmin) {
+          if (kalkan) kalkan.classList.remove('hidden');
+          if (icerik) icerik.classList.add('hidden');
+          const grid = document.getElementById('receteKartlariGrid');
+          if (grid) grid.innerHTML = '';
+        } else {
+          if (kalkan) kalkan.classList.add('hidden');
+          if (icerik) icerik.classList.remove('hidden');
+          const mailEl = document.getElementById('receteAktifYetkiliEmail');
+          if (mailEl) mailEl.textContent = (aktifKullanici && aktifKullanici.email) ? aktifKullanici.email : 'yunus@yenerer.com';
+          if (typeof renderReceteModulListesi === 'function') renderReceteModulListesi();
         }
       }
 
@@ -12631,13 +12788,22 @@
       container.innerHTML = html + '</div>';
     }
 
-    function receteAc() {
-      const urunId = parseInt(document.getElementById('receteUrunSec').value);
+    function receteAc(urunIdParam) {
+      if (typeof checkIsUserRecipeAdmin === 'function' && !checkIsUserRecipeAdmin(aktifKullanici)) {
+        alert('⛔ GİZLİ REÇETE KORUMASI: Bu alana ve alaşım formüllerine yalnızca yetkili Google hesabı (yunus@yenerer.com) ile erişilebilir!');
+        return;
+      }
+      let urunId = urunIdParam;
+      if (!urunId) {
+        const sel = document.getElementById('receteUrunSec');
+        urunId = sel ? parseInt(sel.value) : null;
+      }
       if (!urunId) { alert('Lütfen listeden bir ürün seçiniz!'); return; }
 
       receteUrunId = urunId;
-      const urun = DB.urunler.find(u => u.id === urunId);
-      document.getElementById('receteUrunBilgi').textContent = urun ? `${urun.kod} - ${urun.cap}` : '';
+      const urun = (DB.urunler || []).find(u => u.id === urunId);
+      const bilgiEl = document.getElementById('receteUrunBilgi');
+      if (bilgiEl) bilgiEl.textContent = urun ? `${urun.ad || urun.kod || ''} (${urun.kod || ''}) - ${urun.cap || ''}` : '';
 
       if (!DB.receteler[urunId]) DB.receteler[urunId] = [];
       receteRenderModal();
@@ -12685,6 +12851,10 @@
     }
 
     function receteKaydetModal() {
+      if (typeof checkIsUserRecipeAdmin === 'function' && !checkIsUserRecipeAdmin(aktifKullanici)) {
+        alert('⛔ Yetkiniz bulunmamaktadır.');
+        return;
+      }
       const liste = DB.receteler[receteUrunId] || [];
       const toplam = liste.reduce((s, r) => s + (parseFloat(r.oran) || 0), 0);
       if (liste.length > 0 && Math.abs(toplam - 100) > 0.1) { alert('HATA: Girilen oranların genel toplamı kesinlikle %100 olmalıdır! Mevcut Toplam: %' + toplam.toFixed(2)); return; }
@@ -22155,6 +22325,390 @@
     }
 
         
+
+    /* ========================================================================= */
+    /* GOOGLE İLE GÜVENLİ GİRİŞ & YETKİLENDİRME (FIREBASE AUTH)                  */
+    /* ========================================================================= */
+    async function googleIleGirisYap() {
+      const msgEl = document.getElementById('authGateLoginMsg');
+      const btn = document.getElementById('googleGirisBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> <span class="text-slate-800 font-bold">Google ile Bağlanılıyor...</span>';
+      }
+      if (msgEl) msgEl.classList.add('hidden');
+
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        
+        let result = null;
+        try {
+          result = await auth.signInWithPopup(provider);
+        } catch (popupErr) {
+          console.warn("Google signInWithPopup hatası, redirect deneniyor:", popupErr);
+          if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
+            await auth.signInWithRedirect(provider);
+            return;
+          }
+          throw popupErr;
+        }
+
+        const user = result?.user || auth.currentUser;
+        if (user) {
+          const userEmail = (user.email || '').toLowerCase().trim();
+          showToast(`✅ Google ile giriş başarılı: ${userEmail}`, 'success');
+          await checkAuthGateStatus();
+        }
+      } catch (err) {
+        console.error("Google Auth Hatası:", err);
+        if (msgEl) {
+          msgEl.className = 'bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-bold leading-relaxed';
+          if (err.code === 'auth/popup-closed-by-user') {
+            msgEl.innerHTML = '⚠️ <b>Google Girişi İptal Edildi:</b> Giriş penceresi kapatıldı.';
+          } else if (err.code === 'auth/unauthorized-domain') {
+            msgEl.innerHTML = '❌ <b>Yetkisiz Alan Adı:</b> Firebase Console > Auth > Settings > Authorized domains alanına mevcut alan adınız eklenmelidir.';
+          } else {
+            msgEl.innerHTML = '❌ <b>Google Giriş Hatası:</b> ' + (err.message || 'Bağlantı kurulamadı.');
+          }
+          msgEl.classList.remove('hidden');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span class="text-slate-800 font-black">Google ile Güvenli Giriş Yap</span>
+          `;
+        }
+      }
+    }
+
+    /* ========================================================================= */
+    /* REÇETE MODÜLÜ RENDER & HIZLI HARMAN MOTORU (SEÇENEK B)                   */
+    /* ========================================================================= */
+    function renderReceteModulListesi() {
+      if (typeof checkIsUserRecipeAdmin === 'function' && !checkIsUserRecipeAdmin(aktifKullanici)) {
+        const grid = document.getElementById('receteKartlariGrid');
+        if (grid) grid.innerHTML = '';
+        return;
+      }
+
+      const grid = document.getElementById('receteKartlariGrid');
+      const rozet = document.getElementById('receteIstatistikRozet');
+      const arama = (document.getElementById('receteAramaInput')?.value || '').toLowerCase().trim();
+      const filtre = document.getElementById('receteFiltreDurum')?.value || 'all';
+
+      if (!grid) return;
+      ensureDBArrays();
+
+      let urunler = [...(DB.urunler || [])];
+      let toplamReceteSayisi = 0;
+
+      urunler.forEach(u => {
+        const r = DB.receteler[u.id];
+        if (Array.isArray(r) && r.length > 0) toplamReceteSayisi++;
+      });
+
+      if (rozet) {
+        rozet.innerHTML = `📊 Toplam <b>${urunler.length}</b> Ürün &nbsp;|&nbsp; <b>${toplamReceteSayisi}</b> Tanımlı Reçete`;
+      }
+
+      if (arama) {
+        urunler = urunler.filter(u => 
+          (u.ad && u.ad.toLowerCase().includes(arama)) ||
+          (u.kod && u.kod.toLowerCase().includes(arama)) ||
+          (u.cap && u.cap.toLowerCase().includes(arama))
+        );
+      }
+
+      if (filtre === 'tanimli') {
+        urunler = urunler.filter(u => Array.isArray(DB.receteler[u.id]) && DB.receteler[u.id].length > 0);
+      } else if (filtre === 'tanimsiz') {
+        urunler = urunler.filter(u => !Array.isArray(DB.receteler[u.id]) || DB.receteler[u.id].length === 0);
+      }
+
+      if (urunler.length === 0) {
+        grid.innerHTML = '<div class="col-span-full p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 font-bold text-xs">Aranan kriterde ürün veya reçete bulunamadı.</div>';
+        return;
+      }
+
+      let html = '';
+      urunler.forEach(u => {
+        const rec = DB.receteler[u.id] || [];
+        const hasRecete = Array.isArray(rec) && rec.length > 0;
+        const toplamOran = rec.reduce((s, x) => s + (parseFloat(x.oran) || 0), 0);
+        const hmSayisi = rec.length;
+        const adGosterim = u.ad || u.kod || 'İsimsiz Ürün';
+
+        html += `
+          <div class="border border-slate-200 rounded-2xl p-4 bg-white shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5 mb-3">
+                <div>
+                  <h4 class="font-black text-slate-900 text-sm">${adGosterim}</h4>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">${u.kod || '-'}</span>
+                    <span class="text-[11px] text-slate-600 font-semibold">${u.cap || '-'}</span>
+                  </div>
+                </div>
+                <div>
+                  ${hasRecete 
+                    ? `<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg text-[10px] font-black flex items-center gap-1"><span>✅</span> %100 Hazır</span>`
+                    : `<span class="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg text-[10px] font-black flex items-center gap-1"><span>⚠️</span> Tanımsız</span>`
+                  }
+                </div>
+              </div>
+
+              <div class="text-xs text-slate-600 space-y-1 mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Hammadde Sayısı:</span>
+                  <b class="text-slate-800">${hmSayisi} Çeşit</b>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Formül Toplamı:</span>
+                  <b class="${Math.abs(toplamOran - 100) < 0.1 ? 'text-emerald-700' : 'text-rose-600'}">%${toplamOran.toFixed(2)}</b>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+              <button onclick="receteAc(${u.id})" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>🧪</span> Formülü Düzenle
+              </button>
+              <button onclick="receteHizliHarmanHesaplayiciAc(${u.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold py-2 px-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer" title="Otomatik Harman Tartım Fişi Oluştur">
+                <span>⚖️</span> Fiş Bas
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      grid.innerHTML = html;
+    }
+
+    function receteYeniTanimlaModalAc() {
+      if (typeof checkIsUserRecipeAdmin === 'function' && !checkIsUserRecipeAdmin(aktifKullanici)) {
+        alert('⛔ Yetkiniz bulunmamaktadır.');
+        return;
+      }
+      ensureDBArrays();
+      const urunler = DB.urunler || [];
+      if (urunler.length === 0) {
+        alert('Önce Ürünler modülünden ürün tanımlamalısınız.');
+        return;
+      }
+      const urunId = prompt('Reçetesini düzenlemek istediğiniz ürünün KODUNU veya LİSTEDEKİ SIRASINI giriniz (Veya doğrudan kart üzerindeki "Formülü Düzenle" butonunu kullanabilirsiniz):', urunler[0]?.kod);
+      if (!urunId) return;
+      const found = urunler.find(u => (u.kod && u.kod.toLowerCase() === urunId.toLowerCase()) || (u.ad && u.ad.toLowerCase() === urunId.toLowerCase()));
+      if (found) {
+        receteAc(found.id);
+      } else {
+        alert('Ürün bulunamadı: ' + urunId);
+      }
+    }
+
+    function receteHizliHarmanHesaplayiciAc(defaultUrunId = null) {
+      if (typeof checkIsUserRecipeAdmin === 'function' && !checkIsUserRecipeAdmin(aktifKullanici)) {
+        alert('⛔ Yetkiniz bulunmamaktadır.');
+        return;
+      }
+      ensureDBArrays();
+      const sel = document.getElementById('hhUrunSec');
+      if (!sel) return;
+      sel.innerHTML = '';
+
+      (DB.urunler || []).forEach(u => {
+        const hasRec = Array.isArray(DB.receteler[u.id]) && DB.receteler[u.id].length > 0;
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = `${u.ad || u.kod || ''} (${u.kod || ''}) - ${u.cap || ''} ${hasRec ? '✅' : '⚠️ Reçetesiz'}`;
+        sel.appendChild(opt);
+      });
+
+      if (defaultUrunId) {
+        sel.value = defaultUrunId;
+      }
+
+      hhHesapOzetiGuncelle();
+      openModal('hizliHarmanModal');
+    }
+
+    function hhHesapOzetiGuncelle() {
+      const urunId = parseInt(document.getElementById('hhUrunSec')?.value);
+      const hedef = parseFloat(document.getElementById('hhHedefKg')?.value) || 0;
+      const doluluk = parseFloat(document.getElementById('hhDoluluk')?.value) || 0;
+      const partiSayisi = parseInt(document.getElementById('hhPartiSayisi')?.value) || 1;
+      const ozetEl = document.getElementById('hhHesapOzeti');
+      const partiSel = document.getElementById('hhPartiSec');
+
+      if (partiSel) {
+        partiSel.innerHTML = '';
+        for (let b = 1; b <= Math.max(1, partiSayisi); b++) {
+          const opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = `Parti (Batch) #${b} / ${partiSayisi}`;
+          partiSel.appendChild(opt);
+        }
+      }
+
+      if (!ozetEl) return;
+      const toplamNetHarman = (hedef * doluluk) / 100;
+      const partiNetHarman = partiSayisi > 0 ? (toplamNetHarman / partiSayisi) : toplamNetHarman;
+      const hataPayi = partiNetHarman > 0 ? (partiNetHarman <= 500 ? 2 : 4) : 0;
+      const partiToplamHarman = partiNetHarman + hataPayi;
+
+      ozetEl.innerHTML = `
+        <div class="flex justify-between"><span>Toplam Hedef Tel:</span> <b>${hedef.toLocaleString('tr-TR')} Kg</b></div>
+        <div class="flex justify-between"><span>Doluluk Oranı:</span> <b>%${doluluk.toFixed(1)}</b></div>
+        <div class="flex justify-between"><span>Toplam Net Harman Tozu:</span> <b>${toplamNetHarman.toFixed(2)} Kg</b></div>
+        <div class="flex justify-between text-indigo-700 font-bold border-t border-indigo-200 pt-1.5 mt-1">
+          <span>Mikser / Parti Başına Kantar Tartımı:</span>
+          <span class="text-sm text-emerald-800 font-black">${partiToplamHarman.toFixed(2)} Kg</span>
+        </div>
+        <div class="text-[11px] text-slate-500 italic">Net ${partiNetHarman.toFixed(2)} kg + ${hataPayi} kg Emniyet Payı dahildir.</div>
+      `;
+    }
+
+    function hizliHarmanFormuUret() {
+      const urunId = parseInt(document.getElementById('hhUrunSec')?.value);
+      const hedef = parseFloat(document.getElementById('hhHedefKg')?.value) || 0;
+      const doluluk = parseFloat(document.getElementById('hhDoluluk')?.value) || 0;
+      const partiSayisi = parseInt(document.getElementById('hhPartiSayisi')?.value) || 1;
+      const batchNo = parseInt(document.getElementById('hhPartiSec')?.value) || 1;
+
+      if (!urunId) { alert('Lütfen bir ürün seçiniz!'); return; }
+      const urun = (DB.urunler || []).find(u => u.id === urunId);
+      const recete = DB.receteler[urunId] || [];
+      if (!Array.isArray(recete) || recete.length === 0) {
+        alert('HATA: Bu ürün için herhangi bir reçete tanımlanmamış! Önce reçete tanımlayınız.');
+        return;
+      }
+
+      const toplamNetHarman = (hedef * doluluk) / 100;
+      const partiNetHarman = partiSayisi > 0 ? (toplamNetHarman / partiSayisi) : toplamNetHarman;
+      const hataPayi = partiNetHarman > 0 ? (partiNetHarman <= 500 ? 2 : 4) : 0;
+      const partiToplamHarman = partiNetHarman + hataPayi;
+
+      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const batchLotNo = `LOT-${urun ? urun.kod : 'FCW'}-${dateStr}-B${batchNo}`;
+
+      let html = `
+    <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 195mm; margin: 0 auto; box-sizing: border-box; padding: 0;">
+      <!-- YAZDIRMA AKSİYON BAR -->
+      <div class="no-print mb-4 p-3 bg-slate-900 text-white rounded-xl shadow-md flex justify-between items-center gap-3 border border-slate-700">
+        <div class="flex items-center gap-2">
+          <span class="bg-amber-400 text-slate-900 font-black px-2.5 py-1 rounded text-xs">PARTİ #${batchNo} / ${partiSayisi}</span>
+          <span class="text-xs text-slate-300">Ürün: <b>${urun ? (urun.ad || urun.kod) : '-'}</b> &nbsp;|&nbsp; Lot: <b>${batchLotNo}</b></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer">
+            🖨️ A4 Dikey Olarak Yazdır
+          </button>
+        </div>
+      </div>
+
+      <!-- TEK A4 FORMU -->
+      <div style="background: white; border: 1px solid #cbd5e1; padding: 14px; border-radius: 8px;">
+        <div style="text-align: center; font-size: 19px; font-weight: bold; border-bottom: 3px double #334155; padding-bottom: 6px; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase;">
+          HARMAN TARTIM VE KARIŞTIRMA EMRİ (BATCH-${batchNo})
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12.5px;">
+          <tr>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold; width: 18%;">TARİH:</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-weight: bold; width: 32%;">${new Date().toLocaleDateString('tr-TR')}</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold; width: 18%;">FORM NO:</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-weight: bold; width: 32%;">HRM-${dateStr}-${batchNo}</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">ÜRÜN ADI:</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 14px;"><b>${urun ? (urun.ad || urun.kod) : '-'} (${urun ? urun.kod : ''})</b></td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">TEL HEDEFİ:</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px;"><b>${hedef.toLocaleString('tr-TR')} kg</b> (%${doluluk} Doluluk)</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">PARTİ BİLGİSİ:</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 13px; color: #1e3a8a;"><b>PARTİ #${batchNo} / ${partiSayisi} (BATCH-${batchNo})</b></td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">BATCH LOT NO:</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px;"><b>${batchLotNo}</b></td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">HAZIRLANACAK:</td>
+            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 13px;" colspan="3">Net <b>${partiNetHarman.toFixed(2)} kg</b> + ${hataPayi} kg Emniyet Payı = Kantarda Tartılacak Toplam: <b style="color: #166534; font-size: 14px;">${partiToplamHarman.toFixed(2)} Kg</b></td>
+          </tr>
+        </table>
+
+        <div style="border: 1px solid #94a3b8; padding: 6px 10px; margin-bottom: 12px; background: #f8fafc; border-radius: 4px; font-size: 11.5px;">
+          <b style="color: #b91c1c;">TARTIM VE KARIŞTIRMA TALİMATI:</b> <span>Hammadde tartımlarını sırasıyla ve hassas terazi ile yapınız. Karıştırma süresine (min. 20 dk) titizlikle uyunuz. Formül gizlidir.</span>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12.5px; text-align: center;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 42%;">HAMMADDE KODU / ADI</th>
+              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 26%;">EKLENECEK MİKTAR (BATCH #${batchNo})</th>
+              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 32%;">KULLANILAN LOT NUMARASI</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      let hesaplananBatchToplam = 0;
+      recete.forEach((r) => {
+        const miktar = (partiToplamHarman * (parseFloat(r.oran) || 0)) / 100;
+        hesaplananBatchToplam += miktar;
+        let hmInfo = (DB.hammaddeler || []).find(h => h.ad === r.hammadde);
+        let hKodu = hmInfo ? hmInfo.kod + ' - ' + hmInfo.ad : r.hammadde;
+
+        html += `<tr>
+          <td style="border: 1px solid #94a3b8; padding: 6px 8px; font-weight:bold; text-align: left; padding-left: 10px;">${hKodu}</td>
+          <td style="border: 1px solid #94a3b8; padding: 6px; font-size: 14px;"><b>${miktar.toFixed(2)} Kg</b></td>
+          <td style="border: 1px solid #94a3b8; padding: 6px;"></td>
+        </tr>`;
+      });
+
+      for (let x = 0; x < 2; x++) {
+        html += `<tr>
+          <td style="border: 1px solid #94a3b8; height: 28px;"></td>
+          <td style="border: 1px solid #94a3b8;"></td>
+          <td style="border: 1px solid #94a3b8;"></td>
+        </tr>`;
+      }
+
+      html += `
+            <tr style="background: #f1f5f9; font-weight: bold;">
+              <td style="border: 1px solid #94a3b8; padding: 6px; text-align: right; padding-right: 10px; font-size: 12.5px;">BATCH #${batchNo} KANTAR TOPLAMI:</td>
+              <td style="border: 1px solid #94a3b8; padding: 6px; font-size: 15px; color: #166534;">${hesaplananBatchToplam.toFixed(2)} Kg</td>
+              <td style="border: 1px solid #94a3b8; padding: 6px;"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table style="width: 100%; border: none; text-align: center; margin-top: 14px;">
+          <tr>
+            <td style="width: 50%; border: none; padding: 4px;">
+              <div style="border: 1px solid #94a3b8; padding: 10px; font-weight: bold; border-radius: 6px; font-size: 11.5px;">Harmanı Hazırlayan / Tartan (Batch #${batchNo})<br><br><br>İmza</div>
+            </td>
+            <td style="width: 50%; border: none; padding: 4px;">
+              <div style="border: 1px solid #94a3b8; padding: 10px; font-weight: bold; border-radius: 6px; font-size: 11.5px;">Üretim Onayı (Batch #${batchNo})<br><br><br>İmza</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+      `;
+
+      const harmanIcerik = document.getElementById('harmanIcerik');
+      if (harmanIcerik) harmanIcerik.innerHTML = html;
+      closeModal('hizliHarmanModal');
+      openModal('harmanModal');
+    }
 
     async function firebaseGirisYap() {
       const emailEl = document.getElementById('fbLoginEmail');
