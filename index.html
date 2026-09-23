@@ -8463,11 +8463,11 @@
                 aktifKullanici = guncel;
                 const gate = document.getElementById('firebaseAuthGate');
                 const appContainer = document.getElementById('app-container');
-                const pLogin = document.getElementById('authGateLoginForm');
-                const pReg = document.getElementById('authGateRegisterForm');
+                const pGoogle = document.getElementById('authGateGooglePane');
+                const pOperator = document.getElementById('authGateOperatorPane');
                 const pWait = document.getElementById('authGateWaitingApproval');
 
-                const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(guncel) : (targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com' || targetEmail.startsWith('yunuskaya'));
+                const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(guncel) : (targetEmail === 'yunus@yenerer.com' || targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com');
 
                 if (isMasterAdmin) {
                   guncel.durum = 'Aktif';
@@ -8481,8 +8481,8 @@
                 } else if (guncel.durum === 'Onay Bekliyor') {
                   if (gate) gate.classList.remove('hidden');
                   if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
-                  if (pLogin) pLogin.classList.add('hidden');
-                  if (pReg) pReg.classList.add('hidden');
+                  if (pGoogle) pGoogle.classList.add('hidden');
+                  if (pOperator) pOperator.classList.add('hidden');
                   if (pWait) pWait.classList.remove('hidden');
                 }
               }
@@ -22291,8 +22291,8 @@
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         if (gate) gate.classList.remove('hidden');
         if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
-        if (pLogin) pLogin.classList.add('hidden');
-        if (pReg) pReg.classList.add('hidden');
+        if (pGoogle) pGoogle.classList.add('hidden');
+        if (pOperator) pOperator.classList.add('hidden');
         if (pWait) pWait.classList.remove('hidden');
         return;
       }
