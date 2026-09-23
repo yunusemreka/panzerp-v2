@@ -1169,16 +1169,10 @@
           </div>
         </div>
 
-        <div class="flex flex-col gap-2 mt-2">
         <button type="submit" id="fbLoginSubmitBtn"
-          class="w-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-black py-3.5 rounded-2xl text-xs shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 tracking-wider border border-amber-400/20 cursor-pointer">
+          class="w-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-black py-3.5 rounded-2xl text-xs shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 tracking-wider mt-2 border border-amber-400/20 cursor-pointer">
           <span>🚀</span> <span>Sisteme Giriş Yap</span>
         </button>
-        <button type="button" onclick="hizliYoneticiGirisiYap()"
-          class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-2xl text-xs shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 tracking-wider border border-amber-600/30 cursor-pointer">
-          <span>⚡</span> <span>Hızlı Yönetici Girişi (Yunus Kaya)</span>
-        </button>
-      </div>
       </form>
 
       <!-- 2. KAYIT OL FORMU (ONAY GEREKTİRİR) -->
@@ -2285,16 +2279,62 @@
         </div>
 
         <div class="card p-5">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-            <h3 class="font-bold text-slate-800 text-lg">📋 İş Emri Listesi</h3>
-            <select id="ieFiltre" onchange="isEmriListele()"
-              class="border border-slate-300 p-2 rounded-lg w-full md:w-48 bg-white shadow-sm focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium text-slate-600">
-              <option>Tüm Durumlar</option>
-              <option>Planlandı</option>
-              <option>Üretimde</option>
-              <option>Tamamlandı</option>
-              <option>İptal</option>
-            </select>
+          <div class="border-b border-slate-100 pb-4 mb-4">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+              <div>
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                  <span>📋</span> <span>İş Emri Takip & Yönetim Listesi</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Üretimde olan, planlanan ve tamamlanan iş emirlerini anlık filtreleyin.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                <div class="relative flex-1 sm:w-64">
+                  <span class="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+                  <input type="text" id="ieAramaInput" oninput="isEmriListele()"
+                    placeholder="İE No, Ürün, Lot, Müşteri ara..."
+                    class="border border-slate-300 pl-8 pr-3 py-2 rounded-xl text-xs w-full bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none">
+                </div>
+                <select id="ieHatFiltre" onchange="isEmriListele()"
+                  class="border border-slate-300 p-2 rounded-xl bg-slate-50 text-xs font-semibold text-slate-700 outline-none">
+                  <option value="">Tüm Hatlar</option>
+                  <option value="Kaba Çekme 1">Kaba Çekme 1</option>
+                  <option value="Kaba Çekme 2">Kaba Çekme 2</option>
+                  <option value="İnce Çekme">İnce Çekme</option>
+                  <option value="Kaba + İnce Çekme">Kaba 2 + İnce Çekme</option>
+                  <option value="Bidon Sarma">Bidon Sarma</option>
+                  <option value="Hassas Sarma">Hassas Sarma</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- DURUM SEKMELERİ (ÜRETİMDE, PLANLANDI, TAMAMLANDI, İPTAL) -->
+            <div class="flex flex-wrap gap-2 pt-1" id="ieSekmelerBar">
+              <button type="button" id="ieSekme_hepsi" onclick="ieSekmeDegistir('hepsi')"
+                class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-sm flex items-center gap-1.5 cursor-pointer">
+                <span>📋</span> <span>Tüm İş Emirleri</span>
+                <span id="ieSayi_hepsi" class="bg-white/20 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
+              </button>
+              <button type="button" id="ieSekme_Uretimde" onclick="ieSekmeDegistir('Üretimde')"
+                class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 flex items-center gap-1.5 cursor-pointer">
+                <span>⚙️</span> <span>Üretimde Olanlar</span>
+                <span id="ieSayi_Uretimde" class="bg-amber-200 text-amber-900 text-[10px] px-1.5 py-0.2 rounded-full font-black">0</span>
+              </button>
+              <button type="button" id="ieSekme_Planlandi" onclick="ieSekmeDegistir('Planlandı')"
+                class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-indigo-50 text-indigo-900 border border-indigo-200 hover:bg-indigo-100 flex items-center gap-1.5 cursor-pointer">
+                <span>⏳</span> <span>Planlananlar</span>
+                <span id="ieSayi_Planlandi" class="bg-indigo-200 text-indigo-900 text-[10px] px-1.5 py-0.2 rounded-full font-black">0</span>
+              </button>
+              <button type="button" id="ieSekme_Tamamlandi" onclick="ieSekmeDegistir('Tamamlandı')"
+                class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5 cursor-pointer">
+                <span>✅</span> <span>Tamamlananlar</span>
+                <span id="ieSayi_Tamamlandi" class="bg-emerald-200 text-emerald-900 text-[10px] px-1.5 py-0.2 rounded-full font-black">0</span>
+              </button>
+              <button type="button" id="ieSekme_Iptal" onclick="ieSekmeDegistir('İptal')"
+                class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer">
+                <span>❌</span> <span>İptal Edilenler</span>
+                <span id="ieSayi_Iptal" class="bg-slate-200 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full">0</span>
+              </button>
+            </div>
           </div>
           <div id="ieList" class="text-sm text-slate-500">Henüz iş emri yok</div>
         </div>
@@ -2446,11 +2486,39 @@
 
       <!-- HAMMADDE STOK -->
       <section id="hammadde" class="module-section">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">
-          <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">📦 Hammadde Stok Yönetimi</h2>
-          <button onclick="exportHammaddeExcel()"
-            class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-sm transition-colors flex items-center gap-2"><span
-              class="text-lg">📊</span> Excel İndir</button>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+              <span class="bg-indigo-100 text-indigo-700 p-2 rounded-2xl text-2xl shadow-sm">📦</span> 
+              <span>Hammadde & Sarf Malzeme Stok Yönetimi</span>
+            </h2>
+            <p class="text-sm text-slate-500 mt-1">Üretim toz/alaşım hammaddeleri ile fabrika sarf malzemelerini (nozul, torç, mekanik, ambalaj) ayrı ayrı yönetin.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="exportHammaddeExcel()"
+              class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-sm transition-colors flex items-center gap-1.5 text-xs">
+              <span>📊</span> <span>Excel İndir</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ANA SEKMELER: HAMMADDE / SARF MALZEME / TÜMÜ -->
+        <div class="flex flex-wrap gap-2 mb-6" id="hmAnaSekmelerBar">
+          <button type="button" id="hmTab_Hammadde" onclick="hmTurSekmeDegistir('Hammadde')"
+            class="px-5 py-2.5 rounded-2xl text-xs font-black transition-all bg-slate-900 text-white shadow-md flex items-center gap-2 cursor-pointer">
+            <span>🧱</span> <span>Üretim Hammaddeleri</span>
+            <span id="hmSayi_Hammadde" class="bg-white/20 text-white text-[11px] px-2 py-0.5 rounded-full">0</span>
+          </button>
+          <button type="button" id="hmTab_Sarf" onclick="hmTurSekmeDegistir('Sarf Malzeme')"
+            class="px-5 py-2.5 rounded-2xl text-xs font-black transition-all bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 flex items-center gap-2 cursor-pointer">
+            <span>🛠️</span> <span>Sarf Malzemeler</span>
+            <span id="hmSayi_Sarf" class="bg-amber-200 text-amber-900 text-[11px] px-2 py-0.5 rounded-full font-black">0</span>
+          </button>
+          <button type="button" id="hmTab_hepsi" onclick="hmTurSekmeDegistir('hepsi')"
+            class="px-5 py-2.5 rounded-2xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center gap-2 cursor-pointer">
+            <span>📦</span> <span>Tüm Stoklar</span>
+            <span id="hmSayi_hepsi" class="bg-slate-200 text-slate-700 text-[11px] px-2 py-0.5 rounded-full">0</span>
+          </button>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -2474,32 +2542,63 @@
         </div>
 
         <div class="card p-6 mb-6 border-t-4 border-amber-400 bg-gradient-to-r from-white to-amber-50/20">
-          <h3 class="font-bold mb-5 text-slate-800 flex items-center gap-2"><span
-              class="bg-amber-100 text-amber-600 p-1.5 rounded-lg text-sm">➕</span> Yeni Hammadde Tanımla</h3>
-          <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-            <input id="hmYeniKod" class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm"
-              placeholder="Hammadde Kodu">
-            <input id="hmYeniAd"
-              class="border border-slate-300 p-2.5 rounded-lg w-full md:col-span-2 bg-white shadow-sm"
-              placeholder="Hammadde Adı">
-            <select id="hmYeniKat" class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm">
-              <option>Ferro Alaşım</option>
-              <option>Karbür</option>
-              <option>Toz Metal</option>
-              <option>Bağlayıcı</option>
-              <option>Oksit</option>
-              <option>Diğer</option>
-            </select>
-            <input id="hmYeniMin" type="number"
-              class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm" placeholder="Min. Stok (kg)"
-              value="50">
-            <input id="hmYeniLok" class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm"
-              placeholder="Lokasyon / Raf">
-            <input id="hmYeniBirim" class="border border-slate-300 p-2.5 rounded-lg w-full bg-white shadow-sm"
-              placeholder="Birim" value="kg">
-            <input id="hmYeniAcik"
-              class="border border-slate-300 p-2.5 rounded-lg w-full md:col-span-5 bg-white shadow-sm"
-              placeholder="Detaylı Açıklama (Opsiyonel)">
+          <h3 class="font-bold mb-5 text-slate-800 flex items-center gap-2">
+              <span class="bg-amber-100 text-amber-600 p-1.5 rounded-lg text-sm">➕</span> 
+              <span>Yeni Hammadde veya Sarf Malzeme Tanımla</span>
+            </h3>
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-3.5">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Stok Türü *</label>
+              <select id="hmYeniTur" onchange="hmYeniTurDegisti(this.value)"
+                class="border border-amber-300 p-2.5 rounded-xl w-full bg-amber-50/60 font-bold text-slate-900 text-xs shadow-inner">
+                <option value="Hammadde">🧱 Hammadde</option>
+                <option value="Sarf Malzeme">🛠️ Sarf Malzeme</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Kod / Stok No *</label>
+              <input id="hmYeniKod" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm text-xs font-mono font-bold"
+                placeholder="Örn: TOZ-01 / SRF-10">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Malzeme Adı & Tanımı *</label>
+              <input id="hmYeniAd"
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm text-xs font-bold"
+                placeholder="Örn: Ferro Krom Tozu / Nozul Ø16mm">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Kategori</label>
+              <select id="hmYeniKat" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm text-xs font-medium">
+                <option value="Ferro Alaşım">Ferro Alaşım</option>
+                <option value="Karbür">Karbür</option>
+                <option value="Toz Metal">Toz Metal</option>
+                <option value="Bağlayıcı">Bağlayıcı</option>
+                <option value="Oksit">Oksit</option>
+                <option value="Şerit / Strip">Şerit / Strip</option>
+                <option value="Diğer Hammadde">Diğer Hammadde</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Min. Stok & Birim</label>
+              <div class="flex gap-1.5">
+                <input id="hmYeniMin" type="number"
+                  class="border border-slate-300 p-2.5 rounded-xl w-2/3 bg-white shadow-sm text-xs font-bold" placeholder="Min"
+                  value="50">
+                <input id="hmYeniBirim" class="border border-slate-300 p-2.5 rounded-xl w-1/3 bg-white shadow-sm text-xs font-bold"
+                  placeholder="Birim" value="kg">
+              </div>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Lokasyon / Raf</label>
+              <input id="hmYeniLok" class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm text-xs"
+                placeholder="Örn: Toz Ambarı Raf A-3">
+            </div>
+            <div class="md:col-span-4">
+              <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Açıklama / Teknik Özellik</label>
+              <input id="hmYeniAcik"
+                class="border border-slate-300 p-2.5 rounded-xl w-full bg-white shadow-sm text-xs"
+                placeholder="Tedarikçi, tane boyutu, torç modeli vb. detaylar...">
+            </div>
           </div>
           <div class="mt-5 flex justify-end">
             <button onclick="hammaddeEkle()"
@@ -5582,7 +5681,15 @@
           class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200">✕</button>
       </div>
       <div class="space-y-4 no-print">
-        <div class="input-group"><label>Hammadde Adı</label><input id="hmEdAd"
+        <div class="input-group">
+          <label>Stok Türü</label>
+          <select id="hmEdTur" onchange="hmEdTurDegisti(this.value)"
+            class="border border-slate-300 p-3 rounded-lg w-full bg-slate-50 font-bold">
+            <option value="Hammadde">🧱 Hammadde</option>
+            <option value="Sarf Malzeme">🛠️ Sarf Malzeme</option>
+          </select>
+        </div>
+        <div class="input-group"><label>Malzeme Adı</label><input id="hmEdAd"
             class="border border-slate-300 p-3 rounded-lg w-full bg-slate-50"></div>
         <div class="input-group"><label>Minimum Stok Uyarı Sınırı (kg)</label><input id="hmEdMin" type="number"
             class="border border-slate-300 p-3 rounded-lg w-full bg-slate-50"></div>
@@ -7556,6 +7663,21 @@
       if (!DB.makineler || !Array.isArray(DB.makineler)) DB.makineler = [];
       if (!DB.operatorler || !Array.isArray(DB.operatorler)) DB.operatorler = [];
       if (!DB.hammaddeler || !Array.isArray(DB.hammaddeler)) DB.hammaddeler = [];
+      // Hammadde & Sarf Malzeme Tür Ayrımı Otomatik Senkronizasyonu
+      DB.hammaddeler.forEach(h => {
+        if (!h.tur) {
+          const kat = (h.kategori || '').toLowerCase();
+          const ad = (h.ad || '').toLowerCase();
+          if (kat.includes('sarf') || kat.includes('meme') || kat.includes('nozul') || kat.includes('hortum') || 
+              kat.includes('ambalaj') || kat.includes('bakım') || ad.includes('meme') || ad.includes('nozul') || 
+              ad.includes('hortum') || ad.includes('torç') || ad.includes('spool') || ad.includes('bidon') || 
+              ad.includes('eldiven') || ad.includes('zımpara') || ad.includes('filtre')) {
+            h.tur = 'Sarf Malzeme';
+          } else {
+            h.tur = 'Hammadde';
+          }
+        }
+      });
       if (!DB.hmHareketler || !Array.isArray(DB.hmHareketler)) DB.hmHareketler = [];
       if (!DB.ktmUrunler || !Array.isArray(DB.ktmUrunler)) DB.ktmUrunler = [];
       if (!DB.ktmHareketler || !Array.isArray(DB.ktmHareketler)) DB.ktmHareketler = [];
@@ -11002,13 +11124,97 @@
       showToast(`"${anaIe.no}" iş emrine bağlı Ek Sipariş Emri taslağı hazırlandı. Miktar girip kaydedebilirsiniz.`, 'info');
     }
 
+    
+    /* ========================================================================= */
+    /* İŞ EMİRLERİ SEKMELİ YÖNETİM & SÜZME MOTORU                               */
+    /* ========================================================================= */
+    let ieAktifSekme = 'hepsi';
+
+    function ieSekmeDegistir(sekme) {
+      ieAktifSekme = sekme;
+      ['hepsi', 'Uretimde', 'Planlandi', 'Tamamlandi', 'Iptal'].forEach(s => {
+        const btn = document.getElementById('ieSekme_' + s);
+        if (!btn) return;
+        const sVal = s === 'hepsi' ? 'hepsi' : (s === 'Uretimde' ? 'Üretimde' : (s === 'Planlandi' ? 'Planlandı' : (s === 'Tamamlandi' ? 'Tamamlandı' : 'İptal')));
+        if (sVal === sekme) {
+          if (s === 'Uretimde') {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-amber-500 text-slate-950 shadow-md flex items-center gap-1.5 cursor-pointer';
+          } else if (s === 'Planlandi') {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-indigo-600 text-white shadow-md flex items-center gap-1.5 cursor-pointer';
+          } else if (s === 'Tamamlandi') {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-emerald-600 text-white shadow-md flex items-center gap-1.5 cursor-pointer';
+          } else if (s === 'Iptal') {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-rose-600 text-white shadow-md flex items-center gap-1.5 cursor-pointer';
+          } else {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-slate-900 text-white shadow-md flex items-center gap-1.5 cursor-pointer';
+          }
+        } else {
+          if (s === 'Uretimde') {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 flex items-center gap-1.5 cursor-pointer';
+          } else if (s === 'Planlandi') {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-indigo-50 text-indigo-900 border border-indigo-200 hover:bg-indigo-100 flex items-center gap-1.5 cursor-pointer';
+          } else if (s === 'Tamamlandi') {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5 cursor-pointer';
+          } else {
+            btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer';
+          }
+        }
+      });
+      isEmriListele();
+    }
+  
     function isEmriListele() {
-      const filtreElement = document.getElementById('ieFiltre');
-      const filtre = filtreElement ? filtreElement.value : 'Tüm Durumlar';
+      ensureDBArrays();
       const container = document.getElementById('ieList');
       if (!container) return;
 
-      const list = (DB.isEmirleri || []).filter(i => filtre === 'Tüm Durumlar' || i.durum === filtre);
+      const tumEmirler = DB.isEmirleri || [];
+      const countHepsi = tumEmirler.length;
+      const countUretimde = tumEmirler.filter(i => i.durum === 'Üretimde').length;
+      const countPlanlandi = tumEmirler.filter(i => i.durum === 'Planlandı').length;
+      const countTamamlandi = tumEmirler.filter(i => i.durum === 'Tamamlandı').length;
+      const countIptal = tumEmirler.filter(i => i.durum === 'İptal').length;
+
+      // Sayaç rozetlerini güncelle
+      const sHepsi = document.getElementById('ieSayi_hepsi');
+      const sUretim = document.getElementById('ieSayi_Uretimde');
+      const sPlan = document.getElementById('ieSayi_Planlandi');
+      const sTamam = document.getElementById('ieSayi_Tamamlandi');
+      const sIptal = document.getElementById('ieSayi_Iptal');
+
+      if (sHepsi) sHepsi.textContent = countHepsi;
+      if (sUretim) sUretim.textContent = countUretimde;
+      if (sPlan) sPlan.textContent = countPlanlandi;
+      if (sTamam) sTamam.textContent = countTamamlandi;
+      if (sIptal) sIptal.textContent = countIptal;
+
+      // Filtreleme
+      const arama = (document.getElementById('ieAramaInput')?.value || '').toLowerCase().trim();
+      const seciliHat = document.getElementById('ieHatFiltre')?.value || '';
+
+      let list = [...tumEmirler];
+
+      // Durum Sekmesi Filtresi
+      if (ieAktifSekme && ieAktifSekme !== 'hepsi') {
+        list = list.filter(i => i.durum === ieAktifSekme);
+      }
+
+      // Hat Filtresi
+      if (seciliHat) {
+        list = list.filter(i => (i.hat || '').includes(seciliHat));
+      }
+
+      // Arama Filtresi (İE No, Lot, Ürün Adı, Müşteri)
+      if (arama) {
+        list = list.filter(i => {
+          const no = (i.no || '').toLowerCase();
+          const lot = (i.lotNo || '').toLowerCase();
+          const urunAd = (i.urunAdi || i.safUrunAdi || '').toLowerCase();
+          const musteri = (i.musteri || '').toLowerCase();
+          const harman = (i.harmanNo || '').toLowerCase();
+          return no.includes(arama) || lot.includes(arama) || urunAd.includes(arama) || musteri.includes(arama) || harman.includes(arama);
+        });
+      }
       if (list.length === 0) { container.innerHTML = '<div class="text-slate-500 font-medium bg-slate-50 p-4 rounded-lg text-center border border-slate-100">Henüz iş emri yok veya filtreye uygun sonuç bulunamadı.</div>'; return; }
 
       let html = '<div class="table-responsive border border-slate-200 rounded-xl"><table class="divide-y divide-slate-100"><thead class="bg-slate-50 text-slate-700 font-bold"><tr><th class="py-3">IE No</th><th class="py-3">Parti / Lot No</th><th class="py-3">Tarih</th><th class="py-3">Plan. Başl. / Bitiş</th><th class="py-3">Ürün</th><th class="py-3">Hedef</th><th class="py-3">Üretim / Paketleme İlerlemesi</th><th class="py-3">Harman</th><th class="py-3">Durum</th><th class="py-3 text-right">İşlem</th></tr></thead><tbody class="divide-y divide-slate-50">';
@@ -12553,6 +12759,133 @@
       XLSX.writeFile(wb, "Hammadde_Stok_Raporu_" + new Date().toISOString().slice(0, 10) + ".xlsx");
     }
 
+    
+    /* ========================================================================= */
+    /* HAMMADDE & SARF MALZEME AYRIMI & SEKMELİ YÖNETİM MOTORU                  */
+    /* ========================================================================= */
+    let hmAktifTurFiltre = 'Hammadde';
+
+    function hmTurSekmeDegistir(tur) {
+      hmAktifTurFiltre = tur;
+      ['Hammadde', 'Sarf', 'hepsi'].forEach(t => {
+        const btn = document.getElementById('hmTab_' + t);
+        if (!btn) return;
+        const tVal = t === 'hepsi' ? 'hepsi' : (t === 'Hammadde' ? 'Hammadde' : 'Sarf Malzeme');
+        if (tVal === tur) {
+          if (t === 'Hammadde') {
+            btn.className = 'px-5 py-2.5 rounded-2xl text-xs font-black transition-all bg-indigo-700 text-white shadow-md flex items-center gap-2 cursor-pointer';
+          } else if (t === 'Sarf') {
+            btn.className = 'px-5 py-2.5 rounded-2xl text-xs font-black transition-all bg-amber-500 text-slate-950 shadow-md flex items-center gap-2 cursor-pointer';
+          } else {
+            btn.className = 'px-5 py-2.5 rounded-2xl text-xs font-black transition-all bg-slate-900 text-white shadow-md flex items-center gap-2 cursor-pointer';
+          }
+        } else {
+          if (t === 'Hammadde') {
+            btn.className = 'px-5 py-2.5 rounded-2xl text-xs font-bold transition-all bg-indigo-50 text-indigo-900 border border-indigo-200 hover:bg-indigo-100 flex items-center gap-2 cursor-pointer';
+          } else if (t === 'Sarf') {
+            btn.className = 'px-5 py-2.5 rounded-2xl text-xs font-bold transition-all bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 flex items-center gap-2 cursor-pointer';
+          } else {
+            btn.className = 'px-5 py-2.5 rounded-2xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center gap-2 cursor-pointer';
+          }
+        }
+      });
+
+      // Kategori Filtresi Seçeneklerini Güncelle
+      hmKategoriFiltresiniGuncelle(tur);
+      hammaddeListele();
+    }
+
+    function hmKategoriFiltresiniGuncelle(tur) {
+      const katEl = document.getElementById('hmKatFiltre');
+      if (!katEl) return;
+      let opts = '<option value="Tüm Kategoriler">Tüm Kategoriler</option>';
+      if (tur === 'Hammadde') {
+        opts += '<option value="Ferro Alaşım">Ferro Alaşım</option>' +
+                '<option value="Karbür">Karbür</option>' +
+                '<option value="Toz Metal">Toz Metal</option>' +
+                '<option value="Bağlayıcı">Bağlayıcı</option>' +
+                '<option value="Oksit">Oksit</option>' +
+                '<option value="Şerit / Strip">Şerit / Strip</option>' +
+                '<option value="Diğer">Diğer Hammadde</option>';
+      } else if (tur === 'Sarf Malzeme') {
+        opts += '<option value="Torç & Kaynak Sarfı (Meme/Nozul)">Torç & Kaynak Sarfı (Meme/Nozul)</option>' +
+                '<option value="Mekanik & Hat Bakım">Mekanik & Hat Bakım</option>' +
+                '<option value="Hortum & Pnömatik">Hortum & Pnömatik</option>' +
+                '<option value="Ambalaj & Paketleme">Ambalaj & Paketleme</option>' +
+                '<option value="İş Güvenliği & KKD">İş Güvenliği & KKD</option>' +
+                '<option value="Diğer">Diğer Sarf</option>';
+      } else {
+        opts += '<option value="Ferro Alaşım">Ferro Alaşım</option>' +
+                '<option value="Karbür">Karbür</option>' +
+                '<option value="Toz Metal">Toz Metal</option>' +
+                '<option value="Bağlayıcı">Bağlayıcı</option>' +
+                '<option value="Oksit">Oksit</option>' +
+                '<option value="Torç & Kaynak Sarfı (Meme/Nozul)">Torç & Kaynak Sarfı</option>' +
+                '<option value="Mekanik & Hat Bakım">Mekanik & Bakım</option>' +
+                '<option value="Ambalaj & Paketleme">Ambalaj</option>' +
+                '<option value="Diğer">Diğer</option>';
+      }
+      katEl.innerHTML = opts;
+    }
+
+    function hmYeniTurDegisti(tur) {
+      const katEl = document.getElementById('hmYeniKat');
+      const birimEl = document.getElementById('hmYeniBirim');
+      const minEl = document.getElementById('hmYeniMin');
+      if (!katEl) return;
+
+      if (tur === 'Sarf Malzeme') {
+        katEl.innerHTML = `
+          <option value="Torç & Kaynak Sarfı (Meme/Nozul)">Torç & Kaynak Sarfı (Meme/Nozul)</option>
+          <option value="Mekanik & Hat Bakım">Mekanik & Hat Bakım</option>
+          <option value="Hortum & Pnömatik">Hortum & Pnömatik</option>
+          <option value="Ambalaj & Paketleme">Ambalaj & Paketleme</option>
+          <option value="İş Güvenliği & KKD">İş Güvenliği & KKD</option>
+          <option value="Elektrik & Elektronik">Elektrik & Elektronik</option>
+          <option value="Diğer Sarf">Diğer Sarf</option>
+        `;
+        if (birimEl) birimEl.value = 'Adet';
+        if (minEl && (minEl.value === '50' || !minEl.value)) minEl.value = '10';
+      } else {
+        katEl.innerHTML = `
+          <option value="Ferro Alaşım">Ferro Alaşım</option>
+          <option value="Karbür">Karbür</option>
+          <option value="Toz Metal">Toz Metal</option>
+          <option value="Bağlayıcı">Bağlayıcı</option>
+          <option value="Oksit">Oksit</option>
+          <option value="Şerit / Strip">Şerit / Strip</option>
+          <option value="Diğer Hammadde">Diğer Hammadde</option>
+        `;
+        if (birimEl) birimEl.value = 'kg';
+        if (minEl && (minEl.value === '10' || !minEl.value)) minEl.value = '50';
+      }
+    }
+
+    function hmEdTurDegisti(tur) {
+      const katEl = document.getElementById('hmEdKat');
+      if (!katEl) return;
+      if (tur === 'Sarf Malzeme') {
+        katEl.innerHTML = `
+          <option value="Torç & Kaynak Sarfı (Meme/Nozul)">Torç & Kaynak Sarfı (Meme/Nozul)</option>
+          <option value="Mekanik & Hat Bakım">Mekanik & Hat Bakım</option>
+          <option value="Hortum & Pnömatik">Hortum & Pnömatik</option>
+          <option value="Ambalaj & Paketleme">Ambalaj & Paketleme</option>
+          <option value="İş Güvenliği & KKD">İş Güvenliği & KKD</option>
+          <option value="Diğer Sarf">Diğer Sarf</option>
+        `;
+      } else {
+        katEl.innerHTML = `
+          <option value="Ferro Alaşım">Ferro Alaşım</option>
+          <option value="Karbür">Karbür</option>
+          <option value="Toz Metal">Toz Metal</option>
+          <option value="Bağlayıcı">Bağlayıcı</option>
+          <option value="Oksit">Oksit</option>
+          <option value="Şerit / Strip">Şerit / Strip</option>
+          <option value="Diğer">Diğer</option>
+        `;
+      }
+    }
+  
     function hammaddeEkle() {
       const kod = document.getElementById('hmYeniKod').value.trim();
       const ad = document.getElementById('hmYeniAd').value.trim();
@@ -12560,6 +12893,7 @@
       if ((DB.hammaddeler || []).some(h => h.kod === kod)) { alert('Bu hammadde kodu sistemde zaten kayıtlı!'); return; }
       DB.hammaddeler.push({
         id: Date.now(), kod, ad,
+        tur: document.getElementById('hmYeniTur')?.value || 'Hammadde',
         kategori: document.getElementById('hmYeniKat').value,
         stok: 0,
         minStok: parseFloat(document.getElementById('hmYeniMin').value) || 0,
@@ -12573,53 +12907,112 @@
     }
 
     function hammaddeListele() {
+      ensureDBArrays();
       const katElement = document.getElementById('hmKatFiltre');
       const durElement = document.getElementById('hmDurFiltre');
       const araElement = document.getElementById('hmAra');
 
       const kat = katElement ? katElement.value : 'Tüm Kategoriler';
       const dur = durElement ? durElement.value : 'Tüm Durumlar';
-      const ara = araElement ? araElement.value.toLowerCase() : '';
+      const ara = araElement ? araElement.value.toLowerCase().trim() : '';
 
       const tbody = document.getElementById('hmTable');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      (DB.hammaddeler || []).forEach(h => {
+      const tumStoklar = DB.hammaddeler || [];
+
+      // Sekme Sayaçları (Hammadde, Sarf, Hepsi)
+      const countHammadde = tumStoklar.filter(h => (h.tur || 'Hammadde') === 'Hammadde').length;
+      const countSarf = tumStoklar.filter(h => (h.tur || 'Hammadde') === 'Sarf Malzeme').length;
+      const countHepsi = tumStoklar.length;
+
+      const elSayiHm = document.getElementById('hmSayi_Hammadde');
+      const elSayiSarf = document.getElementById('hmSayi_Sarf');
+      const elSayiHepsi = document.getElementById('hmSayi_hepsi');
+      if (elSayiHm) elSayiHm.textContent = countHammadde;
+      if (elSayiSarf) elSayiSarf.textContent = countSarf;
+      if (elSayiHepsi) elSayiHepsi.textContent = countHepsi;
+
+      // Filtreleme
+      let list = tumStoklar.filter(h => {
+        const itemTur = h.tur || 'Hammadde';
+        if (hmAktifTurFiltre && hmAktifTurFiltre !== 'hepsi' && itemTur !== hmAktifTurFiltre) return false;
+        if (kat !== 'Tüm Kategoriler' && h.kategori !== kat) return false;
+        
         const stok = parseFloat(h.stok) || 0;
         const minStok = parseFloat(h.minStok) || 0;
         const yuzde = minStok > 0 ? (stok / minStok) * 100 : 100;
-
         let durum = 'Yeterli';
         if (stok <= 0) durum = 'Tükenmiş';
         else if (yuzde <= 50) durum = 'Kritik';
         else if (yuzde <= 100) durum = 'Düşük';
 
-        if (kat !== 'Tüm Kategoriler' && h.kategori !== kat) return;
-        if (dur !== 'Tüm Durumlar' && durum !== dur) return;
-        if (ara && !(h.ad || '').toLowerCase().includes(ara) && !(h.kod || '').toLowerCase().includes(ara)) return;
+        if (dur !== 'Tüm Durumlar' && durum !== dur) return false;
 
-        const badge = durum === 'Yeterli' ? 'badge-success' : durum === 'Düşük' ? 'badge-warning' : 'badge-danger';
-
-        tbody.innerHTML += `<tr class="hover:bg-slate-50 transition-colors">
-      <td class="py-3"><b class="text-slate-800 bg-slate-100 px-2 py-1 rounded">${h.kod || '-'}</b></td>
-      <td class="py-3 font-medium text-slate-700">${h.ad || '-'}</td>
-      <td class="py-3 text-slate-500">${h.kategori || '-'}</td>
-      <td class="py-3 font-black text-lg ${stok <= 0 ? 'text-red-500' : 'text-slate-700'}">${stok.toFixed(2)} <span class="text-xs font-normal text-slate-400">${h.birim || 'kg'}</span></td>
-      <td class="py-3 font-bold text-slate-400">${minStok} <span class="text-xs font-normal">${h.birim || 'kg'}</span></td>
-      <td class="py-3">${h.lokasyon || '-'}</td>
-      <td class="py-3"><span class="badge ${badge}">${durum}</span></td>
-      <td class="py-3 whitespace-nowrap">
-        <button onclick="hmDuzenle(${h.id})" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors mr-1 shadow-sm">✏️ Düzenle</button>
-        <button onclick="hmSil(${h.id})" class="text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm">🗑️</button>
-      </td>
-    </tr>`;
+        if (ara) {
+          const ad = (h.ad || '').toLowerCase();
+          const kod = (h.kod || '').toLowerCase();
+          const lok = (h.lokasyon || '').toLowerCase();
+          const acik = (h.aciklama || '').toLowerCase();
+          return ad.includes(ara) || kod.includes(ara) || lok.includes(ara) || acik.includes(ara);
+        }
+        return true;
       });
 
-      if (document.getElementById('hmCesit')) document.getElementById('hmCesit').textContent = (DB.hammaddeler || []).length;
-      if (document.getElementById('hmToplam')) document.getElementById('hmToplam').innerHTML = (DB.hammaddeler || []).reduce((s, h) => s + (parseFloat(h.stok) || 0), 0).toFixed(2) + ' <span class="text-sm font-normal text-slate-400">kg</span>';
-      if (document.getElementById('hmDusuk')) document.getElementById('hmDusuk').textContent = (DB.hammaddeler || []).filter(h => (parseFloat(h.stok) || 0) > 0 && (parseFloat(h.stok) || 0) <= (parseFloat(h.minStok) || 0)).length;
-      if (document.getElementById('hmKritik')) document.getElementById('hmKritik').textContent = (DB.hammaddeler || []).filter(h => (parseFloat(h.stok) || 0) <= 0 || (parseFloat(h.stok) || 0) <= (parseFloat(h.minStok) || 0) * 0.5).length;
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-400 font-medium">Bu filtre veya aramaya uygun stok kaydı bulunamadı.</td></tr>';
+      } else {
+        list.forEach(h => {
+          const stok = parseFloat(h.stok) || 0;
+          const minStok = parseFloat(h.minStok) || 0;
+          const yuzde = minStok > 0 ? (stok / minStok) * 100 : 100;
+
+          let durum = 'Yeterli';
+          if (stok <= 0) durum = 'Tükenmiş';
+          else if (yuzde <= 50) durum = 'Kritik';
+          else if (yuzde <= 100) durum = 'Düşük';
+
+          const badge = durum === 'Yeterli' ? 'badge-success' : durum === 'Düşük' ? 'badge-warning' : 'badge-danger';
+          const isHammadde = (h.tur || 'Hammadde') === 'Hammadde';
+          const turBadge = isHammadde 
+            ? '<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 w-max"><span>🧱</span> Hammadde</span>'
+            : '<span class="bg-amber-50 text-amber-800 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 w-max"><span>🛠️</span> Sarf Malzeme</span>';
+
+          tbody.innerHTML += `<tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-3 whitespace-nowrap">${turBadge}</td>
+            <td class="py-3"><b class="text-slate-800 bg-slate-100 px-2 py-1 rounded text-xs font-mono font-bold">${escapeHtml(h.kod || '-')}</b></td>
+            <td class="py-3 font-bold text-slate-800 text-sm">${escapeHtml(h.ad || '-')}</td>
+            <td class="py-3 text-slate-600 text-xs font-medium">${escapeHtml(h.kategori || '-')}</td>
+            <td class="py-3 font-black text-base ${stok <= 0 ? 'text-red-500' : 'text-slate-800'}">${stok.toLocaleString('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })} <span class="text-xs font-semibold text-slate-400">${escapeHtml(h.birim || (isHammadde ? 'kg' : 'Adet'))}</span></td>
+            <td class="py-3 font-bold text-slate-500 text-xs">${minStok} <span class="text-[11px] font-normal">${escapeHtml(h.birim || (isHammadde ? 'kg' : 'Adet'))}</span></td>
+            <td class="py-3 text-xs text-slate-600">${escapeHtml(h.lokasyon || '-')}</td>
+            <td class="py-3 whitespace-nowrap"><span class="badge ${badge}">${durum}</span></td>
+            <td class="py-3 whitespace-nowrap text-right">
+              <button onclick="hmDuzenle(${h.id})" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors mr-1 shadow-xs">✏️ Düzenle</button>
+              <button onclick="hmSil(${h.id})" class="text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-xs">🗑️</button>
+            </td>
+          </tr>`;
+        });
+      }
+
+      // Üst Özet Kartlarını Aktif Türe veya Toplama Göre Hesapla
+      const bazList = hmAktifTurFiltre && hmAktifTurFiltre !== 'hepsi' 
+        ? tumStoklar.filter(h => (h.tur || 'Hammadde') === hmAktifTurFiltre)
+        : tumStoklar;
+
+      const toplamCesit = bazList.length;
+      const toplamStokMiktar = bazList.reduce((s, h) => s + (parseFloat(h.stok) || 0), 0);
+      const dusukSayi = bazList.filter(h => (parseFloat(h.stok) || 0) > 0 && (parseFloat(h.stok) || 0) <= (parseFloat(h.minStok) || 0)).length;
+      const kritikSayi = bazList.filter(h => (parseFloat(h.stok) || 0) <= 0 || (parseFloat(h.stok) || 0) <= (parseFloat(h.minStok) || 0) * 0.5).length;
+
+      if (document.getElementById('hmCesit')) document.getElementById('hmCesit').textContent = toplamCesit;
+      if (document.getElementById('hmToplam')) {
+        const birimLabel = hmAktifTurFiltre === 'Sarf Malzeme' ? 'Adet' : (hmAktifTurFiltre === 'Hammadde' ? 'kg' : 'kg/Adet');
+        document.getElementById('hmToplam').innerHTML = toplamStokMiktar.toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ` <span class="text-xs font-normal text-slate-500">${birimLabel}</span>`;
+      }
+      if (document.getElementById('hmDusuk')) document.getElementById('hmDusuk').textContent = dusukSayi;
+      if (document.getElementById('hmKritik')) document.getElementById('hmKritik').textContent = kritikSayi;
     }
 
     function hmHareketModal() {
@@ -12775,6 +13168,8 @@
       const h = DB.hammaddeler.find(x => x.id === id);
       if (!h) return;
       editId = id;
+      document.getElementById('hmEdTur').value = h.tur || 'Hammadde';
+      hmEdTurDegisti(h.tur || 'Hammadde');
       document.getElementById('hmEdAd').value = h.ad;
       document.getElementById('hmEdMin').value = h.minStok;
       document.getElementById('hmEdKat').value = h.kategori;
@@ -12786,6 +13181,7 @@
     function hmDuzenleKaydet() {
       const h = DB.hammaddeler.find(x => x.id === editId);
       if (!h) return;
+      h.tur = document.getElementById('hmEdTur')?.value || 'Hammadde';
       h.ad = document.getElementById('hmEdAd').value;
       h.minStok = parseFloat(document.getElementById('hmEdMin').value) || 0;
       h.kategori = document.getElementById('hmEdKat').value;
@@ -21758,31 +22154,7 @@
       renderAll();
     }
 
-        function hizliYoneticiGirisiYap() {
-      ensureDBArrays();
-      aktifKullanici = {
-        id: 1,
-        ad: 'Yunus Kaya',
-        email: 'yunus@panzercrom.com',
-        departman: 'Yönetim',
-        unvan: 'Sistem Yöneticisi',
-        avatar: '👨‍💼',
-        durum: 'Aktif',
-        izinliModuller: ERP_ALL_MODULES.map(m => m.id),
-        kayitTarihi: new Date().toISOString()
-      };
-      try { localStorage.setItem('panzerp_aktif_kullanici', JSON.stringify(aktifKullanici)); } catch(e){}
-      const gate = document.getElementById('firebaseAuthGate');
-      const appContainer = document.getElementById('app-container');
-      if (gate) gate.classList.add('hidden');
-      if (appContainer) {
-        appContainer.classList.remove('opacity-0', 'pointer-events-none', 'blur-sm');
-      }
-      showToast('⚡ Yönetici girişi yapıldı: Hoş geldiniz Yunus Bey.', 'success');
-      renderSidebarUserProfile();
-      renderMesajlar();
-      renderAll();
-    }
+        
 
     async function firebaseGirisYap() {
       const emailEl = document.getElementById('fbLoginEmail');
@@ -21816,13 +22188,16 @@
         await checkAuthGateStatus();
       } catch (err) {
         console.warn("Firebase Auth Giriş Hatası:", err);
-        // Sistem Yöneticisi veya geçerli anahtar ile yerel kurtarma girişi
+        // Sıkı Giriş Doğrulaması: Şifresiz giriş kesinlikle yasaktır!
         const isMaster = checkIsUserAdmin(email) || email.toLowerCase().includes('yunus') || email.toLowerCase().includes('admin');
-        if (isMaster || pass === '123456' || pass === 'panzerp' || pass === '1234') {
-          console.info("🛡️ Yönetici yetkisi ile yerel giriş sağlandı.");
+        const isMasterPassValid = (pass === 'Panzer2026!' || pass === '123456' || pass === 'panzerp');
+
+        // Yalnızca geçerli yönetici e-postası VE doğru yönetici parolası girildiyse yerel onay ver
+        if (isMaster && isMasterPassValid) {
+          console.info("🛡️ Doğrulanmış Yönetici Parolası ile yerel yetki sağlandı.");
           aktifKullanici = {
             id: 1,
-            ad: email.includes('yunus') ? 'Yunus Kaya' : 'Sistem Yöneticisi',
+            ad: email.toLowerCase().includes('yunus') ? 'Yunus Kaya' : 'Sistem Yöneticisi',
             email: email || 'yunus@panzercrom.com',
             departman: 'Yönetim',
             unvan: 'Sistem Yöneticisi',
@@ -21836,10 +22211,18 @@
           const appContainer = document.getElementById('app-container');
           if (gate) gate.classList.add('hidden');
           if (appContainer) appContainer.classList.remove('opacity-0', 'pointer-events-none', 'blur-sm');
-          showToast('🛡️ Yönetici yetkisi ile giriş sağlandı.', 'success');
+          showToast('🛡️ Yönetici parolası doğrulandı. Hoş geldiniz.', 'success');
           renderSidebarUserProfile();
           renderMesajlar();
           renderAll();
+          return;
+        } else if (isMaster && !isMasterPassValid) {
+          // Yönetici e-postası girilmiş ama şifre yanlış -> Kesinlikle engelle
+          if (msgEl) {
+            msgEl.className = 'bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-bold leading-relaxed';
+            msgEl.innerHTML = '❌ <b>Hatalı Şifre:</b> Yönetici parolası doğrulanamadı! Lütfen şifrenizi kontrol edip tekrar deneyin.';
+            msgEl.classList.remove('hidden');
+          }
           return;
         }
         if (msgEl) {
