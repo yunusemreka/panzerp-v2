@@ -11736,7 +11736,10 @@
       let html = `
     <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 190mm; margin: 0 auto; box-sizing: border-box; line-height: 1.2;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #334155; padding-bottom: 6px; margin-bottom: 10px;">
-          <div style="font-size: 13px; font-weight: bold; color: #475569;">PANZERCROM® ERP</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="logo.png" alt="Panzercrom Logo" style="max-height: 38px; max-width: 140px; object-fit: contain; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display:none; font-size: 13px; font-weight: bold; color: #475569;">PANZERCROM®</span>
+          </div>
           <div style="text-align: center; font-size: 18px; font-weight: bold; letter-spacing: 0.5px;">FCW İŞ EMRİ FORMU</div>
           <div style="font-size: 12px; font-weight: bold; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 2px 8px; rounded: 4px;">${revNoStr}</div>
         </div>
@@ -12167,8 +12170,10 @@
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border-bottom: 2px solid #0f172a; padding-bottom: 6px;">
               <tr>
                 <td style="width: 25%; vertical-align: middle; text-align: left;">
-                  <div style="font-weight: 900; font-size: 16px; letter-spacing: 1px; color: #0f172a;">PANZERCROM</div>
-                  <div style="font-size: 9px; font-weight: bold; color: #64748b; letter-spacing: 0.5px;">AŞINMA TEKNOLOJİLERİ</div>
+                  <img src="logo.png" alt="Panzercrom Logo" style="max-height: 48px; max-width: 160px; object-fit: contain; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                  <div style="display:none;">
+                    <div style="font-weight: 900; font-size: 16px; letter-spacing: 1px; color: #0f172a;">PANZERCROM</div>
+                  </div>
                 </td>
                 <td style="width: 50%; vertical-align: middle; text-align: center;">
                   <div style="font-size: 16px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -18744,9 +18749,13 @@
       printContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; color: #0f172a; padding: 12px; max-width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 12px;">
-            <div>
-              <h1 style="font-size: 18px; font-weight: 900; margin: 0; color: #0f172a; letter-spacing: 0.5px;">PANZERCROM AŞINMA PLAKALARI VE KAYNAK TEKNOLOJİLERİ</h1>
-              <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Üretim, Bakım & Satınalma Malzeme Talep ve Sevkiyat Takip Formu</p>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="logo.png" alt="Panzercrom Logo" style="max-height: 48px; max-width: 150px; object-fit: contain; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+              <div style="display:none; font-weight: 900; font-size: 18px; color: #0f172a;">PANZERCROM</div>
+              <div>
+                <h1 style="font-size: 16px; font-weight: 900; margin: 0; color: #0f172a; letter-spacing: 0.5px;">MALZEME TALEP VE SEVKİYAT TAKİP FORMU</h1>
+                <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Üretim, Bakım & Satınalma Malzeme Takip Belgesi</p>
+              </div>
             </div>
             <div style="text-align: right;">
               <span style="display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 6px; font-weight: 900; font-size: 13px; font-family: monospace;">
