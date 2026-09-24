@@ -1281,10 +1281,11 @@
         <div class="nav-item" data-target="planlama">📅 <span>Üretim Planlama</span></div>
         <div class="nav-item" data-target="uretim">🏭 <span>Üretim Takibi</span></div>
         <div class="nav-item" data-target="isemri">📝 <span>İş Emirleri</span><em class="nbdg" id="bEmir"></em></div>
+        <div class="nav-item" data-target="harman" id="navItemHarman">⚖️ <span>Harmanlar</span><em class="nbdg amber" id="bHarman"></em></div>
         <div class="nav-item" data-target="telcikis">🏷️ <span>FCW Tel Çıkışı</span><em class="nbdg"
             id="bTelCikis"></em></div>
         <div class="nav-item" data-target="urun">📦 <span>Ürünler</span></div>
-          <div class="nav-item" data-target="recete" id="navItemRecete">🧪 <span>Reçeteler & Harman</span></div>
+        <div class="nav-item" data-target="recete" id="navItemRecete">🧪 <span>Ürün Reçeteleri</span></div>
 
         <div class="ngrp">Stok & Talep</div>
         <div class="nav-item" data-target="hammadde">🧱 <span>Hammadde Stok</span><em class="nbdg red" id="bStok"></em>
@@ -2386,6 +2387,101 @@
             </div>
           </div>
           <div id="ieList" class="text-sm text-slate-500">Henüz iş emri yok</div>
+        </div>
+      </section>
+ 
+      <!-- HARMANLAR: İŞ EMİRLERİNE AİT OTOMATİK HARMAN TAKİBİ & TARTIM EMRİ MODÜLÜ -->
+      <section id="harman" class="module-section">
+        <!-- Üst Banner & Aksiyonlar -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 p-6 rounded-3xl text-white shadow-xl border border-slate-700 mb-6">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-2xl">⚖️</span>
+              <h2 class="text-xl md:text-2xl font-black tracking-tight text-white">Harman Hazırlama & Tartım Takibi</h2>
+              <span class="bg-amber-400 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">Otomatik İş Emri Entegrasyonu</span>
+            </div>
+            <p class="text-xs text-slate-300">
+              İş emirlerine ait otomatik partilenen harmanlar, kantar tartım talimatları ve A4 harman hazırlama formları.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="receteHizliHarmanHesaplayiciAc()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer">
+              <span>⚖️</span> Serbest Harman Formu Oluştur
+            </button>
+            <button onclick="navigate('recete')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer">
+              <span>🧪</span> Reçetelere Git
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Özet Kartları -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div class="card p-4 bg-white rounded-2xl border border-amber-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">⏳ Bekleyen Harman Partileri</div>
+              <div class="text-2xl font-black text-slate-800 mt-1" id="hrmKpiBekleyenAdet">0 Parti</div>
+              <div class="text-xs text-slate-500 font-semibold" id="hrmKpiBekleyenKg">0.00 Kg Tartılacak</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold border border-amber-200">
+              ⏳
+            </div>
+          </div>
+          <div class="card p-4 bg-white rounded-2xl border border-emerald-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">✅ Tamamlanan Partiler</div>
+              <div class="text-2xl font-black text-slate-800 mt-1" id="hrmKpiTamamlananAdet">0 Parti</div>
+              <div class="text-xs text-slate-500 font-semibold" id="hrmKpiTamamlananKg">0.00 Kg Tartıldı & Stoktan Düşüldü</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold border border-emerald-200">
+              ✔️
+            </div>
+          </div>
+          <div class="card p-4 bg-white rounded-2xl border border-indigo-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">📦 Toplam İş Emri Harmanı</div>
+              <div class="text-2xl font-black text-slate-800 mt-1" id="hrmKpiToplamParti">0 Parti</div>
+              <div class="text-xs text-slate-500 font-semibold">Tüm aktif iş emirleri</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold border border-indigo-200">
+              📋
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtre ve Sekme Kontrolleri -->
+        <div class="card p-6 bg-white rounded-3xl border border-slate-200 shadow-sm mb-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-5">
+            <div class="flex items-center gap-2">
+              <button type="button" id="hrmTabBtnBekleyen" onclick="hrmSekmeDegistir('bekleyen')" class="px-4 py-2 rounded-xl text-xs font-black transition-all bg-amber-500 text-white shadow-sm flex items-center gap-1.5 cursor-pointer">
+                <span>⏳</span> Bekleyen Harmanlar <span id="hrmRozetBekleyen" class="bg-amber-700 text-white px-2 py-0.5 rounded-full text-[10px] ml-1">0</span>
+              </button>
+              <button type="button" id="hrmTabBtnTamamlanan" onclick="hrmSekmeDegistir('tamamlanan')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer">
+                <span>✅</span> Tamamlananlar <span id="hrmRozetTamamlanan" class="bg-slate-300 text-slate-800 px-2 py-0.5 rounded-full text-[10px] ml-1">0</span>
+              </button>
+              <button type="button" id="hrmTabBtnTumu" onclick="hrmSekmeDegistir('tumu')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                Tümü
+              </button>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <input type="text" id="hrmAramaInput" oninput="harmanListele()" placeholder="🔍 İş emri no, mamul veya lot ara..." class="border border-slate-300 rounded-xl px-4 py-2 text-xs font-bold text-slate-800 w-full sm:w-72 outline-none focus:ring-2 focus:ring-amber-200">
+            </div>
+          </div>
+
+          <!-- Bekleyen Harmanlar Listesi -->
+          <div id="hrmBekleyenWrap">
+            <h3 class="text-sm font-black text-amber-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <span>⏳</span> Tartım ve Hazırlık Bekleyen Harmanlar
+            </h3>
+            <div id="hrmBekleyen" class="space-y-3"></div>
+          </div>
+
+          <!-- Tamamlanan Harmanlar Listesi -->
+          <div id="hrmTamamlananWrap" class="hidden">
+            <h3 class="text-sm font-black text-emerald-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <span>✅</span> Tamamlanan & Stoktan Düşülen Harmanlar
+            </h3>
+            <div id="hrmTamamlanan" class="space-y-3"></div>
+          </div>
         </div>
       </section>
 
@@ -5503,7 +5599,11 @@
         <button onclick="closeModal('ieDetayModal')"
           class="text-slate-400 bg-white border border-slate-200 p-1.5 rounded-lg hover:bg-slate-100">✕</button>
       </div>
-      <div class="no-print p-3 bg-white border-b flex justify-end gap-2">
+      <div class="no-print p-3 bg-white border-b flex flex-wrap justify-end gap-2">
+        <button onclick="harmanFormuOlusturTekParti(editId, 1)"
+          class="bg-amber-500 text-slate-950 px-4 py-2 rounded-xl font-bold hover:bg-amber-400 shadow-sm flex items-center gap-1.5 text-xs transition-transform active:scale-95 cursor-pointer">
+          <span class="text-sm">⚖️</span> Harman Hazırlama Formu (A4)
+        </button>
         <button onclick="formuPdfOlarakIndir('ieDetayIcerik', 'FCW_Is_Emri_Formu')"
           class="bg-rose-700 text-white px-4 py-2 rounded-xl font-bold hover:bg-rose-800 shadow-sm flex items-center gap-1.5 text-xs transition-transform active:scale-95">
           <span class="text-sm">📥</span> PDF İndir
@@ -7869,6 +7969,13 @@
       } else if (DB.malzemeStokKartlari.length === 0 && typeof DEFAULT_MALZEME_STOK_KARTLARI !== 'undefined' && Array.isArray(DEFAULT_MALZEME_STOK_KARTLARI)) {
         DB.malzemeStokKartlari = [...DEFAULT_MALZEME_STOK_KARTLARI];
       }
+
+      // İş Emirleri Harman Partileri ve Durumları Otomatik Kontrolü
+      (DB.isEmirleri || []).forEach(ie => {
+        if (typeof otomatikIsEmriHarmanlariniOlustur === 'function') {
+          otomatikIsEmriHarmanlariniOlustur(ie);
+        }
+      });
     }
 
     /* GLOBAL TARİH FORMATLAYICI: GG-AA-YYYY */
@@ -8744,7 +8851,7 @@
         if (!isYonetici) {
           const userModuller = Array.isArray(aktifKullanici.izinliModuller) && aktifKullanici.izinliModuller.length > 0
             ? aktifKullanici.izinliModuller
-            : ['dashboard', 'uretim', 'isemri', 'mesajlar'];
+            : ['dashboard', 'uretim', 'isemri', 'harman', 'mesajlar'];
 
           if (t === 'apmplakalar' && (userModuller.includes('apmisemri') || userModuller.includes('apmplakalar'))) {
             // izinli
@@ -8770,6 +8877,7 @@
         planlama: 'ÜRETİM PLANLAMA & GANTT ŞEMASI',
         uretim: 'ÜRETİM TAKİBİ',
         isemri: 'İŞ EMİRLERİ',
+        harman: 'HARMAN YÖNETİMİ & TARTIM TAKİBİ',
         telcikis: 'FCW TEL ÇIKIŞI & SEVKİYAT',
         urun: 'ÜRÜN YÖNETİMİ',
         recete: 'REÇETE YÖNETİMİ',
@@ -8819,6 +8927,9 @@
       }
 
       renderAll();
+      if (t === 'harman') {
+        if (typeof harmanListele === 'function') harmanListele();
+      }
       if (t === 'malzemetalep') {
         if (typeof renderMalzemeTalepleri === 'function') renderMalzemeTalepleri();
         if (typeof malzemeTalepKalemleriRender === 'function') {
@@ -10633,6 +10744,66 @@
       return `IE-${year}-${nextSeq.toString().padStart(3, '0')}`;
     }
 
+    function otomatikIsEmriHarmanlariniOlustur(ie) {
+      if (!ie) return null;
+      const urun = (DB.urunler || []).find(u => 
+        u.id == ie.urunId || 
+        (u.kod && ie.safUrunAdi && u.kod.toLowerCase() === ie.safUrunAdi.toLowerCase()) ||
+        (u.ad && ie.safUrunAdi && u.ad.toLowerCase() === ie.safUrunAdi.toLowerCase()) ||
+        (u.kod && ie.urunAdi && ie.urunAdi.toLowerCase().includes(u.kod.toLowerCase())) ||
+        (u.ad && ie.urunAdi && ie.urunAdi.toLowerCase().includes(u.ad.toLowerCase()))
+      );
+      if (urun && !ie.urunId) ie.urunId = urun.id;
+
+      const partiSayisi = Math.max(1, parseInt(ie.partiSayisi) || 1);
+      ie.partiSayisi = partiSayisi;
+
+      if (!ie.doluluk || parseFloat(ie.doluluk) <= 0) {
+        ie.doluluk = (urun && urun.doluluk) ? parseFloat(urun.doluluk) : 33.0;
+      }
+      const dolulukOrani = parseFloat(ie.doluluk) || 33.0;
+      const hedefKg = parseFloat(ie.hedef) || 0;
+      const toplamNetHarman = (hedefKg * dolulukOrani) / 100;
+      const partiNetHarman = partiSayisi > 0 ? (toplamNetHarman / partiSayisi) : toplamNetHarman;
+      const hataPayi = partiNetHarman > 0 ? (partiNetHarman <= 500 ? 2 : 4) : 0;
+      const partiToplamHarman = partiNetHarman + hataPayi;
+      const genelHarmanMiktari = partiToplamHarman * partiSayisi;
+
+      if (!ie.partiDurumlari || typeof ie.partiDurumlari !== 'object') {
+        ie.partiDurumlari = {};
+      }
+      for (let b = 1; b <= partiSayisi; b++) {
+        if (!ie.partiDurumlari[b]) {
+          ie.partiDurumlari[b] = 'Bekliyor';
+        }
+      }
+
+      let tamamlananCount = 0;
+      for (let b = 1; b <= partiSayisi; b++) {
+        if (ie.partiDurumlari[b] === 'Tamamlandı') tamamlananCount++;
+      }
+      if (tamamlananCount === partiSayisi && partiSayisi > 0) {
+        ie.harmanDurum = 'Tamamlandı';
+      } else if (tamamlananCount > 0) {
+        ie.harmanDurum = 'Kısmen Tamamlandı';
+      } else {
+        ie.harmanDurum = 'Bekliyor';
+      }
+
+      return {
+        urun,
+        partiSayisi,
+        dolulukOrani,
+        hedefKg,
+        toplamNetHarman,
+        partiNetHarman,
+        hataPayi,
+        partiToplamHarman,
+        genelHarmanMiktari,
+        tamamlananCount
+      };
+    }
+
     function isEmriKaydet() {
       let no = document.getElementById('ieNo').value.trim();
       if (!no) { alert('İş Emri No zorunlu alandır!'); return; }
@@ -10721,6 +10892,7 @@
           ie.planBaslangic = document.getElementById('iePlanBaslangic').value || tarihVal;
           ie.planBitis = document.getElementById('iePlanBitis').value || document.getElementById('ieTeslim').value || tarihVal;
           ie.ciftKademe = isCiftKademe;
+          otomatikIsEmriHarmanlariniOlustur(ie);
 
           showToast(`İş Emri (${no}) başarıyla güncellendi (Rev. #${revNo}).`, 'success');
           bildirimGonder("İş Emri Revize Edildi", `${no} nolu iş emri revize edildi (Rev. #${revNo}).`, 'info');
@@ -10735,7 +10907,7 @@
           no = otomatikYeniNo;
         }
 
-        DB.isEmirleri.push({
+        const yeniIe = {
           id: Date.now(),
           no: no,
           revizyonNo: 0,
@@ -10764,8 +10936,11 @@
           durum: 'Planlandı',
           uretim: 0,
           ciftKademe: isCiftKademe,
-          harmanDurum: 'Bekliyor'
-        });
+          harmanDurum: 'Bekliyor',
+          partiDurumlari: {}
+        };
+        otomatikIsEmriHarmanlariniOlustur(yeniIe);
+        DB.isEmirleri.push(yeniIe);
 
         bildirimGonder("Yeni İş Emri Oluşturuldu", `İş Emri No: ${no}\nÜrün: ${safUrunAdi}\nÇap: ${finalCap}\nHedef: ${document.getElementById('ieHedef').value} kg\nHarman No: ${harmanNoVal || '-'}\nEtiket: ${etiketTuruVal}\nMüşteri: ${musteriVal || '-'}`, 'success', true);
       }
@@ -11498,9 +11673,18 @@
         <td class="py-3 font-bold text-amber-700 bg-amber-50/50 px-2 py-1 rounded text-xs">
           <div>${pSayi} Parti</div>
           ${i.harmanNo ? `<div class="text-[9px] font-mono text-slate-500 font-normal mt-0.5">${pSayi > 1 ? `${i.harmanNo}-1..${pSayi}` : i.harmanNo}</div>` : ''}
+          <div class="mt-1">
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${i.harmanDurum === 'Tamamlandı' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : (i.harmanDurum === 'Kısmen Tamamlandı' ? 'bg-blue-100 text-blue-800 border border-blue-300' : 'bg-amber-100 text-amber-800 border border-amber-300')}">
+              ${i.harmanDurum === 'Tamamlandı' ? '✅ Tamamlandı' : (i.harmanDurum === 'Kısmen Tamamlandı' ? '⏳ Kısmen Hazır' : '⏳ Bekliyor')}
+            </span>
+          </div>
+          <button onclick="harmanFormuOlusturTekParti(${i.id}, 1)" class="mt-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black px-2 py-1 rounded-md text-[10px] transition-all flex items-center gap-1 shadow-sm cursor-pointer" title="Otomatik Harman Tartım ve Karıştırma Fişini Aç / Yazdır (A4)">
+            <span>⚖️</span> Harman Fişi
+          </button>
         </td>
         <td class="py-3">${durumSelect}</td>
         <td class="py-3 text-right whitespace-nowrap">
+          <button onclick="harmanFormuOlusturTekParti(${i.id}, 1)" class="text-amber-800 bg-amber-100 hover:bg-amber-400 hover:text-slate-950 p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1 cursor-pointer" title="Harman Tartım Formunu Aç / Yazdır (A4)">⚖️ Harman</button>
           <button onclick="isEmriSevkModalAc(${i.id})" class="text-emerald-700 bg-emerald-50 hover:bg-emerald-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="Kademeli Sevkiyat ve Paketleme (Hazırla > Paketle > Sevk)">🚚 Sevk</button>
           <button onclick="isEmriNotModalAc(${i.id})" class="text-indigo-700 bg-indigo-50 hover:bg-indigo-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="İş Emri Notu / Ek Sipariş">📝 Not / Ek</button>
           <button onclick="isEmriDuzenle(${i.id})" class="text-amber-700 bg-amber-50 hover:bg-amber-600 hover:text-white p-2 rounded-lg font-bold text-xs transition-colors shadow-sm mr-1" title="İş Emrini Düzenle / Revize Et">✏️ Düzenle</button>
@@ -11698,28 +11882,93 @@
       showToast(`Parti #${batchNo} harman geçmişinden silindi / beklemeye alındı.`, 'info');
     }
 
+    function hrmSekmeDegistir(tab) {
+      const bSec = document.getElementById('hrmBekleyenTabBtn');
+      const tSec = document.getElementById('hrmTamamlananTabBtn');
+      const cB = document.getElementById('hrmBekleyen');
+      const cT = document.getElementById('hrmTamamlanan');
+
+      if (tab === 'tamamlanan') {
+        if (bSec) { bSec.classList.remove('bg-amber-400', 'text-slate-950', 'shadow-sm'); bSec.classList.add('text-slate-600', 'hover:bg-slate-100'); }
+        if (tSec) { tSec.classList.add('bg-emerald-600', 'text-white', 'shadow-sm'); tSec.classList.remove('text-slate-600', 'hover:bg-slate-100'); }
+        if (cB) cB.classList.add('hidden');
+        if (cT) cT.classList.remove('hidden');
+      } else {
+        if (bSec) { bSec.classList.add('bg-amber-400', 'text-slate-950', 'shadow-sm'); bSec.classList.remove('text-slate-600', 'hover:bg-slate-100'); }
+        if (tSec) { tSec.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm'); tSec.classList.add('text-slate-600', 'hover:bg-slate-100'); }
+        if (cB) cB.classList.remove('hidden');
+        if (cT) cT.classList.add('hidden');
+      }
+    }
+
     function harmanListele() {
       const cB = document.getElementById('hrmBekleyen');
       const cT = document.getElementById('hrmTamamlanan');
       if (!cB || !cT) return;
 
-      const ls = (DB.isEmirleri || []).filter(i => (DB.ozelReceteler[i.id] && DB.ozelReceteler[i.id].length > 0) || ((DB.receteler[i.urunId] || []).length > 0));
+      const arama = (document.getElementById('hrmAramaInput')?.value || '').trim().toLowerCase();
+
+      // İş emirlerinin harman partilerini garantile
+      (DB.isEmirleri || []).forEach(i => {
+        if (typeof otomatikIsEmriHarmanlariniOlustur === 'function') {
+          otomatikIsEmriHarmanlariniOlustur(i);
+        }
+      });
+
+      const ls = (DB.isEmirleri || []).filter(i => {
+        const hasCustom = DB.ozelReceteler && DB.ozelReceteler[i.id] && DB.ozelReceteler[i.id].length > 0;
+        const hasStd = DB.receteler && DB.receteler[i.urunId] && DB.receteler[i.urunId].length > 0;
+        const u = (DB.urunler || []).find(x => 
+          x.id == i.urunId || 
+          (x.kod && i.safUrunAdi && x.kod.toLowerCase() === i.safUrunAdi.toLowerCase()) ||
+          (x.ad && i.safUrunAdi && x.ad.toLowerCase() === i.safUrunAdi.toLowerCase())
+        );
+        const hasStdUrun = u && DB.receteler && DB.receteler[u.id] && DB.receteler[u.id].length > 0;
+        return hasCustom || hasStd || hasStdUrun;
+      });
+
       let hB = '', hT = '';
+      let bekleyenPartiAdet = 0;
+      let bekleyenPartiKg = 0;
+      let tamamlananPartiAdet = 0;
+      let tamamlananPartiKg = 0;
 
       ls.forEach(i => {
-        const u = (DB.urunler || []).find(x => x.id == i.urunId);
-        const doluluk = parseFloat(i.doluluk) || 0;
-        const partiSayisi = parseInt(i.partiSayisi) || 1;
-        const toplamNet = (i.hedef * doluluk) / 100;
+        const u = (DB.urunler || []).find(x => 
+          x.id == i.urunId || 
+          (x.kod && i.safUrunAdi && x.kod.toLowerCase() === i.safUrunAdi.toLowerCase()) ||
+          (x.ad && i.safUrunAdi && x.ad.toLowerCase() === i.safUrunAdi.toLowerCase())
+        );
+        const doluluk = parseFloat(i.doluluk) || (u && u.doluluk ? parseFloat(u.doluluk) : 33.0);
+        const partiSayisi = Math.max(1, parseInt(i.partiSayisi) || 1);
+        const toplamNet = (parseFloat(i.hedef || 0) * doluluk) / 100;
         const partiNet = partiSayisi > 0 ? (toplamNet / partiSayisi) : toplamNet;
         const emniyet = partiNet > 0 ? (partiNet <= 500 ? 2 : 4) : 0;
         const partiToplam = partiNet + emniyet;
 
-        if (!i.partiDurumlari) i.partiDurumlari = {};
+        if (!i.partiDurumlari || typeof i.partiDurumlari !== 'object') i.partiDurumlari = {};
 
         for (let b = 1; b <= partiSayisi; b++) {
           const isCompleted = i.partiDurumlari[b] === 'Tamamlandı';
-          const batchLotNo = partiSayisi > 1 ? `LOT-${u ? u.kod : ''}-${(i.tarih || '').replace(/-/g, '')}-B${b}` : `LOT-${u ? u.kod : ''}-${(i.tarih || '').replace(/-/g, '')}`;
+          const batchLotNo = partiSayisi > 1 ? `LOT-${u ? (u.kod || u.ad) : (i.safUrunAdi || '')}-${(i.tarih || '').replace(/-/g, '')}-B${b}` : `LOT-${u ? (u.kod || u.ad) : (i.safUrunAdi || '')}-${(i.tarih || '').replace(/-/g, '')}`;
+
+          if (isCompleted) {
+            tamamlananPartiAdet++;
+            tamamlananPartiKg += partiToplam;
+          } else {
+            bekleyenPartiAdet++;
+            bekleyenPartiKg += partiToplam;
+          }
+
+          if (arama) {
+            const matchesArama = (i.no || '').toLowerCase().includes(arama) ||
+              (i.safUrunAdi || '').toLowerCase().includes(arama) ||
+              (i.urunAdi || '').toLowerCase().includes(arama) ||
+              (u && ((u.kod || '').toLowerCase().includes(arama) || (u.ad || '').toLowerCase().includes(arama))) ||
+              (i.harmanNo || '').toLowerCase().includes(arama) ||
+              batchLotNo.toLowerCase().includes(arama);
+            if (!matchesArama) continue;
+          }
 
           if (isCompleted) {
             hT += `<div class="border border-emerald-200 rounded-xl p-4 bg-white shadow-sm mb-3 transition-transform hover:-translate-y-0.5">
@@ -11729,7 +11978,7 @@
                             <span class="bg-emerald-600 text-white font-black text-xs px-2.5 py-1 rounded-md">PARTİ #${b}/${partiSayisi}</span>
                             <b class="text-emerald-800 text-base">${i.no}</b> 
                             <span class="text-slate-400 mx-1">|</span> 
-                            <span class="font-bold text-slate-700">${u ? u.kod + ' - ' + u.cap : '-'}</span>
+                            <span class="font-bold text-slate-700">${u ? (u.kod || u.ad) + ' - ' + (u.cap || i.cap || '') : (i.safUrunAdi || i.urunAdi || '-')}</span>
                           </div>
                           <div class="flex items-center gap-2">
                             <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">✅ Stoktan Düşüldü</span>
@@ -11740,7 +11989,7 @@
                         <div>
                           Tartılan Harman: <b class="text-emerald-700 text-sm">${partiToplam.toFixed(2)} Kg</b> (Net ${partiNet.toFixed(2)} kg + ${emniyet} kg Emniyet) &nbsp;|&nbsp; Lot: <b>${batchLotNo}</b>
                         </div>
-                        <button onclick="harmanFormuOlusturTekParti(${i.id}, ${b})" class="bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors w-full md:w-auto flex items-center justify-center gap-1">
+                        <button onclick="harmanFormuOlusturTekParti(${i.id}, ${b})" class="bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors w-full md:w-auto flex items-center justify-center gap-1 cursor-pointer">
                           📄 Formu Gör / Yazdır (A4)
                         </button>
                       </div>
@@ -11752,7 +12001,7 @@
                             <span class="bg-amber-400 text-slate-900 font-black text-xs px-2.5 py-1 rounded-md">PARTİ #${b}/${partiSayisi}</span>
                             <b class="text-slate-800 text-base">${i.no}</b> 
                             <span class="text-slate-400 mx-1">|</span> 
-                            <span class="font-bold text-slate-700">${u ? u.kod + ' - ' + u.cap : '-'}</span>
+                            <span class="font-bold text-slate-700">${u ? (u.kod || u.ad) + ' - ' + (u.cap || i.cap || '') : (i.safUrunAdi || i.urunAdi || '-')}</span>
                           </div>
                           <div class="text-right">
                             <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">⏳ Hazırlık Bekliyor</span>
@@ -11762,10 +12011,10 @@
                         Tartılacak Miktar: Net <b>${partiNet.toFixed(2)} kg</b> + ${emniyet} kg Emniyet Payı = <b class="text-emerald-700 text-sm">${partiToplam.toFixed(2)} Kg Harman</b> &nbsp;|&nbsp; Batch Lot: <b>${batchLotNo}</b>
                       </div>
                       <div class="flex flex-col md:flex-row gap-2">
-                          <button onclick="harmanFormuOlusturTekParti(${i.id}, ${b})" class="bg-amber-100 text-amber-900 border border-amber-300 px-3 py-2 rounded-lg text-xs font-bold hover:bg-amber-200 transition-colors flex-1 flex justify-center items-center gap-1.5">
+                          <button onclick="harmanFormuOlusturTekParti(${i.id}, ${b})" class="bg-amber-100 text-amber-900 border border-amber-300 px-3 py-2 rounded-lg text-xs font-bold hover:bg-amber-200 transition-colors flex-1 flex justify-center items-center gap-1.5 cursor-pointer">
                             📄 Formu Görüntüle / Yazdır (A4)
                           </button>
-                          <button onclick="harmanPartiTamamla(${i.id}, ${b})" class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-sm transition-colors flex-1 flex justify-center items-center gap-1.5">
+                          <button onclick="harmanPartiTamamla(${i.id}, ${b})" class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-sm transition-colors flex-1 flex justify-center items-center gap-1.5 cursor-pointer">
                             ✔️ Tamamlandı İşaretle & Stoktan Düş
                           </button>
                       </div>
@@ -11773,8 +12022,31 @@
           }
         }
       });
+
       cB.innerHTML = hB || '<div class="text-slate-500 font-medium text-center p-6 bg-white rounded-lg border border-slate-100">Bekleyen harman formu bulunmuyor. İş emri oluşturup ürünlere reçete atadığınızda burada görünecektir.</div>';
       cT.innerHTML = hT || '<div class="text-slate-500 font-medium text-center p-6 bg-white rounded-lg border border-slate-100">Tamamlanan harman formu bulunmuyor.</div>';
+
+      // KPI Kartlarını ve Rozetleri Güncelle
+      const elKpiBekleyenAdet = document.getElementById('hrmKpiBekleyenAdet');
+      if (elKpiBekleyenAdet) elKpiBekleyenAdet.innerText = bekleyenPartiAdet;
+      const elKpiBekleyenKg = document.getElementById('hrmKpiBekleyenKg');
+      if (elKpiBekleyenKg) elKpiBekleyenKg.innerText = bekleyenPartiKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' kg';
+
+      const elKpiTamamlananAdet = document.getElementById('hrmKpiTamamlananAdet');
+      if (elKpiTamamlananAdet) elKpiTamamlananAdet.innerText = tamamlananPartiAdet;
+      const elKpiTamamlananKg = document.getElementById('hrmKpiTamamlananKg');
+      if (elKpiTamamlananKg) elKpiTamamlananKg.innerText = tamamlananPartiKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' kg';
+
+      const elKpiToplamParti = document.getElementById('hrmKpiToplamParti');
+      if (elKpiToplamParti) elKpiToplamParti.innerText = bekleyenPartiAdet + tamamlananPartiAdet;
+
+      const elRozetBekleyen = document.getElementById('hrmRozetBekleyen');
+      if (elRozetBekleyen) elRozetBekleyen.innerText = bekleyenPartiAdet;
+      const elRozetTamamlanan = document.getElementById('hrmRozetTamamlanan');
+      if (elRozetTamamlanan) elRozetTamamlanan.innerText = tamamlananPartiAdet;
+
+      const bHarman = document.getElementById('bHarman');
+      if (bHarman) bHarman.innerText = bekleyenPartiAdet;
     }
 
     function generateHarmanFormuHtml(params) {
