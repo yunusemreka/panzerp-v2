@@ -11990,7 +11990,7 @@
                       </div>
                       <div class="flex flex-col md:flex-row justify-between items-start md:items-center text-xs text-slate-600 mt-2 gap-2">
                         <div>
-                          Tartılan Harman: <b class="text-emerald-700 text-sm">${partiToplam.toFixed(2)} Kg</b> (Net ${partiNet.toFixed(2)} kg + ${emniyet} kg Emniyet) &nbsp;|&nbsp; Lot: <b>${batchLotNo}</b>
+                          Tartılan Harman: <b class="text-emerald-700 text-sm">${partiToplam.toFixed(2)} Kg</b> &nbsp;|&nbsp; Lot: <b>${batchLotNo}</b>
                         </div>
                         <button onclick="harmanFormuOlusturTekParti(${i.id}, ${b})" class="bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors w-full md:w-auto flex items-center justify-center gap-1 cursor-pointer">
                           📄 Formu Gör / Yazdır (A4)
@@ -12011,7 +12011,7 @@
                           </div>
                       </div>
                       <div class="text-xs text-slate-600 mb-3">
-                        Tartılacak Miktar: Net <b>${partiNet.toFixed(2)} kg</b> + ${emniyet} kg Emniyet Payı = <b class="text-emerald-700 text-sm">${partiToplam.toFixed(2)} Kg Harman</b> &nbsp;|&nbsp; Batch Lot: <b>${batchLotNo}</b>
+                        Tartılacak Hedef: <b class="text-emerald-700 text-sm">${partiToplam.toFixed(2)} Kg Harman</b> &nbsp;|&nbsp; Batch Lot: <b>${batchLotNo}</b>
                       </div>
                       <div class="flex flex-col md:flex-row gap-2">
                           <button onclick="harmanFormuOlusturTekParti(${i.id}, ${b})" class="bg-amber-100 text-amber-900 border border-amber-300 px-3 py-2 rounded-lg text-xs font-bold hover:bg-amber-200 transition-colors flex-1 flex justify-center items-center gap-1.5 cursor-pointer">
@@ -12216,8 +12216,7 @@
                 </td>
                 <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">TARTIM HEDEFİ:</td>
                 <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-size: 11.5px;">
-                  Net <b>${partiNetHarman.toFixed(2)} kg</b> + ${hataPayi} kg Emniyet = 
-                  <b style="color: #166534; font-size: 13.5px; background: #dcfce7; padding: 1px 6px; border-radius: 4px; border: 1px solid #86efac;">${partiToplamHarman.toFixed(2)} Kg</b>
+                  <b style="color: #166534; font-size: 13.5px; background: #dcfce7; padding: 1px 8px; border-radius: 4px; border: 1px solid #86efac; font-weight: 900;">${partiToplamHarman.toFixed(2)} Kg</b>
                 </td>
               </tr>
             </table>
@@ -12225,8 +12224,8 @@
             <!-- TALİMAT VE ÖZEL NOT KUTUSU -->
             <div style="border: 1px solid #94a3b8; padding: 5px 8px; margin-bottom: 8px; background: #f8fafc; border-radius: 4px; font-size: 10.5px; line-height: 1.4;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span><b style="color: #b91c1c;">⚠️ TARTIM VE GÜVENLİK TALİMATI:</b> Hammaddeleri belirtilen lokasyondan alıp hassas kantar ile tartınız. Toz maskesi ve koruyucu eldiven kullanınız.</span>
-                <span style="font-weight: bold; color: #1e3a8a; background: #e0e7ff; padding: 1px 6px; border-radius: 3px;">Mikser: Asgari 20 Dk Karıştırma</span>
+                <span><b style="color: #b91c1c;">⚠️ NOT:</b> <b style="color: #0f172a;">HAMMADDELERİ ALDIĞINIZ RAFA VE KONUMA GERİ KOYUN.</b></span>
+                <span style="font-weight: bold; color: #1e3a8a; background: #e0e7ff; padding: 1px 8px; border-radius: 3px;">Mikser: Asgari 60 Dk Karıştırma</span>
               </div>
               ${ozelNot ? `<div style="margin-top: 3px; color: #475569;"><b>Özel Üretim Notu:</b> <i>${escapeHtml(ozelNot)}</i></div>` : ''}
             </div>
@@ -12273,7 +12272,7 @@
                 <td style="width: 33.3%; border: none; padding: 2px;">
                   <div style="border: 1px solid #94a3b8; padding: 6px; border-radius: 4px; background: #f8fafc; min-height: 60px;">
                     <b>Üretim / Mikser Operatörü</b><br>
-                    <span style="font-size: 9px; color: #64748b;">(Karıştırma Onayı - Min. 20 Dk)</span><br><br>
+                    <span style="font-size: 9px; color: #64748b;">(Karıştırma Onayı - Min. 60 Dk)</span><br><br>
                     İmza: .......................................
                   </div>
                 </td>
