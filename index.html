@@ -2150,7 +2150,7 @@
                 <span>➕</span> Yeni Reçete Tanımla
               </button>
               <button onclick="receteHizliHarmanHesaplayiciAc()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer">
-                <span>⚖️</span> Hızlı Harman Fişi Hesapla
+                <span>⚖️</span> Harman Hazırlama Formu Oluştur
               </button>
             </div>
           </div>
@@ -5519,23 +5519,23 @@
 
   <!-- HIZLI HARMAN HESAPLAMA & TARTIM FİŞİ MODALI -->
   <div id="hizliHarmanModal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-content" style="max-width: 620px;">
       <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
-        <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><span>⚖️</span> Hızlı Harman Fişi Hesaplayıcı</h3>
+        <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><span>⚖️</span> Harman Hazırlama Formu Oluşturucu</h3>
         <button onclick="closeModal('hizliHarmanModal')" class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200 cursor-pointer">✕</button>
       </div>
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Ürün Seçimi *</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Reçetesi Kullanılacak Ürün *</label>
           <select id="hhUrunSec" onchange="hhHesapOzetiGuncelle()" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold bg-slate-50 focus:bg-white outline-none"></select>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Hedef Tel (Kg) *</label>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Hedef Tel (Kg)</label>
             <input type="number" id="hhHedefKg" value="1000" min="10" step="10" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold outline-none" oninput="hhHesapOzetiGuncelle()">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Doluluk Oranı (%) *</label>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Doluluk Oranı (%)</label>
             <input type="number" id="hhDoluluk" value="33" min="1" max="100" step="0.5" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold outline-none" oninput="hhHesapOzetiGuncelle()">
           </div>
           <div>
@@ -5543,19 +5543,39 @@
             <input type="number" id="hhPartiSayisi" value="5" min="1" max="50" step="1" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold outline-none" oninput="hhHesapOzetiGuncelle()">
           </div>
         </div>
+
+        <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div class="flex-1">
+            <span class="font-bold text-amber-950">Veya Doğrudan Parti Harmanı Girin:</span>
+            <p class="text-[11px] text-amber-800/90 mt-0.5">Hedef tel yerine mikser parti kapasitesini doğrudan belirleyin.</p>
+          </div>
+          <div class="flex items-center gap-1.5 w-full sm:w-auto">
+            <input type="number" id="hhManuelPartiHarmanKg" placeholder="Örn: 70" step="0.5" class="w-28 border border-amber-300 bg-white rounded-lg p-2 text-xs font-black text-amber-950 outline-none" oninput="hhManuelPartiGirildi(this.value)">
+            <span class="font-bold text-amber-900 text-xs">Kg/Batch</span>
+          </div>
+        </div>
+
         <div id="hhHesapOzeti" class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-xs text-indigo-950 space-y-1.5">
           <!-- Dinamik hesap özeti -->
         </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Yazdırılacak Parti (Batch) *</label>
-          <select id="hhPartiSec" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold bg-slate-50 focus:bg-white outline-none">
-            <option value="1">Parti #1</option>
-          </select>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Yazdırılacak Parti (Batch) *</label>
+            <select id="hhPartiSec" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold bg-slate-50 focus:bg-white outline-none">
+              <option value="1">Parti #1</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">İş Emri / Referans No (Opsiyonel)</label>
+            <input type="text" id="hhRefNo" placeholder="Örn: İE-2026-088 veya Özel Harman" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-bold bg-white outline-none">
+          </div>
         </div>
+
         <div class="flex justify-end gap-2 pt-2 border-t">
           <button type="button" onclick="closeModal('hizliHarmanModal')" class="px-4 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer">Kapat</button>
           <button type="button" onclick="hizliHarmanFormuUret()" class="px-5 py-2.5 text-xs font-black text-amber-400 bg-slate-950 hover:bg-slate-900 rounded-xl shadow-md flex items-center gap-2 cursor-pointer border border-amber-400/20">
-            <span>🖨️</span> A4 Harman Tartım Fişi Oluştur
+            <span>🖨️</span> A4 Harman Hazırlama Formu Oluştur
           </button>
         </div>
       </div>
@@ -11757,6 +11777,244 @@
       cT.innerHTML = hT || '<div class="text-slate-500 font-medium text-center p-6 bg-white rounded-lg border border-slate-100">Tamamlanan harman formu bulunmuyor.</div>';
     }
 
+    function generateHarmanFormuHtml(params) {
+      const {
+        urun,
+        isEmriNo,
+        batchNo = 1,
+        partiSayisi = 1,
+        batchLotNo = '',
+        hedefKg = 0,
+        dolulukOrani = 0,
+        partiNetHarman = 0,
+        hataPayi = 0,
+        partiToplamHarman = 0,
+        recete = [],
+        ozelNot = '',
+        isCompleted = false,
+        isEmriId = null
+      } = params;
+
+      const dateNow = new Date();
+      const dateFormatted = dateNow.toLocaleDateString('tr-TR');
+      const timeFormatted = dateNow.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      const formRefNo = isEmriNo || `HRM-${dateNow.toISOString().slice(0, 10).replace(/-/g, '')}-B${batchNo}`;
+
+      let rowsHtml = '';
+      let hesaplananToplam = 0;
+
+      recete.forEach((r, idx) => {
+        const oran = parseFloat(r.oran) || 0;
+        const miktar = (partiToplamHarman * oran) / 100;
+        hesaplananToplam += miktar;
+
+        const rawVal = (r.hammadde || '').trim();
+        const hmList = (typeof DB !== 'undefined' && DB && Array.isArray(DB.hammaddeler)) ? DB.hammaddeler : [];
+        let hmInfo = hmList.find(h => 
+          (h.ad && h.ad.toLowerCase().trim() === rawVal.toLowerCase()) ||
+          (h.kod && h.kod.toLowerCase().trim() === rawVal.toLowerCase())
+        ) || hmList.find(h => 
+          (h.ad && h.ad.toLowerCase().includes(rawVal.toLowerCase())) ||
+          (h.kod && rawVal.toLowerCase().includes(h.kod.toLowerCase()))
+        );
+
+        const hmKod = hmInfo && hmInfo.kod ? hmInfo.kod : (rawVal.startsWith('HM-') || rawVal.startsWith('TOZ-') || rawVal.startsWith('RM') ? rawVal : '-');
+        const hmAd = hmInfo && hmInfo.ad ? hmInfo.ad : rawVal;
+        const hmLokasyon = hmInfo && hmInfo.lokasyon && hmInfo.lokasyon.trim() ? hmInfo.lokasyon.trim() : 'Lokasyon Yok';
+
+        rowsHtml += `
+          <tr style="background: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+            <td style="border: 1px solid #94a3b8; padding: 6px 4px; font-weight: bold; color: #64748b; font-size: 11px;">${idx + 1}</td>
+            <td style="border: 1px solid #94a3b8; padding: 6px 8px; text-align: left; font-family: monospace; font-weight: bold; font-size: 11.5px; color: #0f172a;">
+              <span style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0;">${escapeHtml(hmKod)}</span>
+            </td>
+            <td style="border: 1px solid #94a3b8; padding: 6px 8px; text-align: left; font-weight: bold; color: #1e293b; font-size: 12px;">
+              ${escapeHtml(hmAd)}
+            </td>
+            <td style="border: 1px solid #94a3b8; padding: 6px 8px; text-align: left; font-size: 11px; color: #334155;">
+              <span style="display: inline-block; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 1.5px 7px; font-weight: 700;">
+                📍 ${escapeHtml(hmLokasyon)}
+              </span>
+            </td>
+            <td style="border: 1px solid #94a3b8; padding: 6px 8px; font-size: 14px; font-weight: 900; color: #166534; background: #f0fdf4; text-align: right; font-family: monospace;">
+              ${miktar.toFixed(2)} Kg
+            </td>
+            <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #ffffff;">
+              <div style="border: 1px dashed #cbd5e1; height: 22px; border-radius: 3px;"></div>
+            </td>
+            <td style="border: 1px solid #94a3b8; padding: 4px; text-align: center;">
+              <div style="border: 1px solid #cbd5e1; width: 18px; height: 18px; margin: 0 auto; border-radius: 3px;"></div>
+            </td>
+          </tr>
+        `;
+      });
+
+      for (let x = 0; x < 2; x++) {
+        rowsHtml += `
+          <tr>
+            <td style="border: 1px solid #94a3b8; height: 25px; color: #cbd5e1; font-size: 10px;">${recete.length + x + 1}</td>
+            <td style="border: 1px solid #94a3b8;"></td>
+            <td style="border: 1px solid #94a3b8;"></td>
+            <td style="border: 1px solid #94a3b8;"></td>
+            <td style="border: 1px solid #94a3b8; background: #f8fafc;"></td>
+            <td style="border: 1px solid #94a3b8;"></td>
+            <td style="border: 1px solid #94a3b8;"></td>
+          </tr>
+        `;
+      }
+
+      return `
+        <div style="font-family: Arial, -apple-system, sans-serif; color: #0f172a; max-width: 195mm; margin: 0 auto; box-sizing: border-box; padding: 0;">
+          
+          <!-- EKRAN AKSİYON ÇUBUĞU (YAZDIRMADA GİZLENİR) -->
+          <div class="no-print mb-4 p-3 bg-slate-900 text-white rounded-xl shadow-md flex flex-wrap justify-between items-center gap-3 border border-slate-700">
+            <div class="flex items-center gap-2">
+              <span class="bg-amber-400 text-slate-900 font-black px-2.5 py-1 rounded text-xs">PARTİ #${batchNo} / ${partiSayisi}</span>
+              <span class="text-xs text-slate-300">Mamul: <b>${urun ? (urun.ad || urun.kod) : '-'}</b> &nbsp;|&nbsp; Lot: <b>${batchLotNo}</b></span>
+              ${isCompleted ? '<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-xs font-bold">✅ Stoktan Düşüldü</span>' : '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-bold">⏳ Hazırlık Bekliyor</span>'}
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="formuTemizYazdir('harmanIcerik')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer">
+                🖨️ A4 Olarak Yazdır
+              </button>
+              <button onclick="formuPdfOlarakIndir('harmanIcerik', 'Harman_Hazirlama_Formu_${batchLotNo}')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer">
+                📥 PDF İndir
+              </button>
+              ${(isEmriId && !isCompleted) ? `
+                <button onclick="harmanPartiTamamla(${isEmriId}, ${batchNo})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer">
+                  ✔️ Tamamla & Stoktan Düş
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- TEK SAYFA BASKI ALANI (A4 PORTRAIT) -->
+          <div style="background: white; border: 1.5px solid #0f172a; padding: 14px; border-radius: 6px;">
+            
+            <!-- ÜST ŞİRKET & FORM LOGO BAŞLIĞI -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border-bottom: 2px solid #0f172a; padding-bottom: 6px;">
+              <tr>
+                <td style="width: 25%; vertical-align: middle; text-align: left;">
+                  <div style="font-weight: 900; font-size: 16px; letter-spacing: 1px; color: #0f172a;">PANZERCROM</div>
+                  <div style="font-size: 9px; font-weight: bold; color: #64748b; letter-spacing: 0.5px;">AŞINMA TEKNOLOJİLERİ</div>
+                </td>
+                <td style="width: 50%; vertical-align: middle; text-align: center;">
+                  <div style="font-size: 16px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
+                    HARMAN HAZIRLAMA VE TARTIM FORMU
+                  </div>
+                  <div style="font-size: 10.5px; font-weight: bold; color: #1e3a8a; margin-top: 2px;">
+                    PARTİ #${batchNo} / ${partiSayisi} &nbsp;·&nbsp; BATCH-${batchNo}
+                  </div>
+                </td>
+                <td style="width: 25%; vertical-align: middle; text-align: right; font-size: 9.5px; color: #475569;">
+                  <div><b>Doküman No:</b> FRM-PRD-HRM</div>
+                  <div><b>Revizyon No:</b> 03</div>
+                  <div><b>Sayfa:</b> 1 / 1</div>
+                </td>
+              </tr>
+            </table>
+
+            <!-- GENEL BİLGİ KARTLARI TABLOSU -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 11px;">
+              <tr>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold; width: 16%;">DÜZENLEME TARİHİ:</td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-weight: bold; width: 34%;">${dateFormatted} ${timeFormatted}</td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold; width: 16%;">İŞ EMRİ / REF NO:</td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-weight: bold; width: 34%; font-family: monospace; font-size: 12px; color: #1e3a8a;">${escapeHtml(formRefNo)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">HEDEF MAMUL:</td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-size: 12px;">
+                  <b>${urun ? (urun.ad || urun.kod) : '-'}</b> <span style="font-family: monospace; color: #475569; font-size: 11px;">(${urun ? urun.kod : ''} ${urun && urun.cap ? '· ' + urun.cap : ''})</span>
+                </td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">TEL ÜRETİM HEDEFİ:</td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px;">
+                  <b>${hedefKg ? hedefKg.toLocaleString('tr-TR') : '1.000'} kg Tel</b> (${dolulukOrani ? '%' + dolulukOrani + ' Doluluk' : '-'})
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">BATCH LOT NO:</td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-weight: bold; font-family: monospace; font-size: 12px; color: #b45309;">
+                  ${escapeHtml(batchLotNo)}
+                </td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; background: #f1f5f9; font-weight: bold;">TARTIM HEDEFİ:</td>
+                <td style="border: 1px solid #94a3b8; padding: 4px 6px; font-size: 11.5px;">
+                  Net <b>${partiNetHarman.toFixed(2)} kg</b> + ${hataPayi} kg Emniyet = 
+                  <b style="color: #166534; font-size: 13.5px; background: #dcfce7; padding: 1px 6px; border-radius: 4px; border: 1px solid #86efac;">${partiToplamHarman.toFixed(2)} Kg</b>
+                </td>
+              </tr>
+            </table>
+
+            <!-- TALİMAT VE ÖZEL NOT KUTUSU -->
+            <div style="border: 1px solid #94a3b8; padding: 5px 8px; margin-bottom: 8px; background: #f8fafc; border-radius: 4px; font-size: 10.5px; line-height: 1.4;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b style="color: #b91c1c;">⚠️ TARTIM VE GÜVENLİK TALİMATI:</b> Hammaddeleri belirtilen lokasyondan alıp hassas kantar ile tartınız. Toz maskesi ve koruyucu eldiven kullanınız.</span>
+                <span style="font-weight: bold; color: #1e3a8a; background: #e0e7ff; padding: 1px 6px; border-radius: 3px;">Mikser: Asgari 20 Dk Karıştırma</span>
+              </div>
+              ${ozelNot ? `<div style="margin-top: 3px; color: #475569;"><b>Özel Üretim Notu:</b> <i>${escapeHtml(ozelNot)}</i></div>` : ''}
+            </div>
+
+            <!-- HAMMADDE TARTIM TABLOSU -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 11px; text-align: center;">
+              <thead>
+                <tr style="background: #1e293b; color: white;">
+                  <th style="border: 1px solid #64748b; padding: 6px 3px; width: 4%;">#</th>
+                  <th style="border: 1px solid #64748b; padding: 6px 6px; width: 14%; text-align: left; padding-left: 8px;">HAMMADDE KODU</th>
+                  <th style="border: 1px solid #64748b; padding: 6px 6px; width: 28%; text-align: left; padding-left: 8px;">ÜRÜN / MALZEME ADI</th>
+                  <th style="border: 1px solid #64748b; padding: 6px 6px; width: 18%; text-align: left; padding-left: 8px;">DEPO LOKASYONU / RAF</th>
+                  <th style="border: 1px solid #64748b; padding: 6px 6px; width: 15%; background: #0f172a; color: #fbbf24; text-align: right; padding-right: 8px;">TARTILACAK MİKTAR</th>
+                  <th style="border: 1px solid #64748b; padding: 6px 4px; width: 15%;">KULLANILAN LOT NO</th>
+                  <th style="border: 1px solid #64748b; padding: 6px 3px; width: 6%;">ONAY</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+                <tr style="background: #f1f5f9; font-weight: bold;">
+                  <td colspan="4" style="border: 1px solid #94a3b8; padding: 6px 8px; text-align: right; font-size: 11.5px; text-transform: uppercase;">
+                    BATCH #${batchNo} KANTARDA TARTILACAK TOPLAM HARMAN:
+                  </td>
+                  <td style="border: 1px solid #94a3b8; padding: 6px 8px; font-size: 15px; font-weight: 900; color: #166534; background: #dcfce7; text-align: right; font-family: monospace;">
+                    ${hesaplananToplam.toFixed(2)} Kg
+                  </td>
+                  <td colspan="2" style="border: 1px solid #94a3b8; padding: 4px; font-size: 10px; color: #64748b; text-align: center;">
+                    Tolerans: ±0.05 Kg
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- İMZA VE ONAY KUTULARI -->
+            <table style="width: 100%; border: none; text-align: center; margin-top: 10px; font-size: 10.5px;">
+              <tr>
+                <td style="width: 33.3%; border: none; padding: 2px;">
+                  <div style="border: 1px solid #94a3b8; padding: 6px; border-radius: 4px; background: #f8fafc; min-height: 60px;">
+                    <b>Harmanı Hazırlayan / Tartan</b><br>
+                    <span style="font-size: 9px; color: #64748b;">(Tarih / Saat / Paraf)</span><br><br>
+                    İmza: .......................................
+                  </div>
+                </td>
+                <td style="width: 33.3%; border: none; padding: 2px;">
+                  <div style="border: 1px solid #94a3b8; padding: 6px; border-radius: 4px; background: #f8fafc; min-height: 60px;">
+                    <b>Üretim / Mikser Operatörü</b><br>
+                    <span style="font-size: 9px; color: #64748b;">(Karıştırma Onayı - Min. 20 Dk)</span><br><br>
+                    İmza: .......................................
+                  </div>
+                </td>
+                <td style="width: 33.3%; border: none; padding: 2px;">
+                  <div style="border: 1px solid #94a3b8; padding: 6px; border-radius: 4px; background: #f8fafc; min-height: 60px;">
+                    <b>Vardiya Sorumlusu / Kalite</b><br>
+                    <span style="font-size: 9px; color: #64748b;">(Nihai Parti Kabulü)</span><br><br>
+                    İmza: .......................................
+                  </div>
+                </td>
+              </tr>
+            </table>
+
+          </div>
+        </div>
+      `;
+    }
+
     function harmanFormuOlustur(isEmriId = null) {
       harmanFormuOlusturTekParti(isEmriId, 1);
     }
@@ -11785,121 +12043,23 @@
       const batchLotNo = partiSayisi > 1 ? `${lotNoBase}-B${batchNo}` : lotNoBase;
       const isCompleted = i.partiDurumlari[batchNo] === 'Tamamlandı';
 
-      let html = `
-    <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 195mm; margin: 0 auto; box-sizing: border-box; padding: 0;">
-      
-      <!-- YAZDIRMA AKSİYON BAR (EKRANDA GÖRÜNÜR, BASKIDA GİZLENİR) -->
-      <div class="no-print mb-4 p-3 bg-slate-900 text-white rounded-xl shadow-md flex justify-between items-center gap-3 border border-slate-700">
-        <div class="flex items-center gap-2">
-          <span class="bg-amber-400 text-slate-900 font-black px-2.5 py-1 rounded text-xs">PARTİ #${batchNo} / ${partiSayisi}</span>
-          <span class="text-xs text-slate-300">İş Emri: <b>${i.no}</b> &nbsp;|&nbsp; Lot: <b>${batchLotNo}</b></span>
-          ${isCompleted ? '<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-xs font-bold">✅ Stoktan Düşüldü</span>' : '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-bold">⏳ Hazırlık Bekliyor</span>'}
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95">
-            🖨️ A4 Dikey Olarak Yazdır
-          </button>
-          ${!isCompleted ? `
-            <button onclick="harmanPartiTamamla(${i.id}, ${batchNo})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95">
-              ✔️ Tamamla & Stoktan Düş
-            </button>
-          ` : ''}
-        </div>
-      </div>
-
-      <!-- TEK A4 FORMU -->
-      <div style="background: white; border: 1px solid #cbd5e1; padding: 14px; border-radius: 8px;">
-        
-        <div style="text-align: center; font-size: 19px; font-weight: bold; border-bottom: 3px double #334155; padding-bottom: 6px; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase;">
-          HARMAN HAZIRLAMA FORMU (BATCH-${batchNo})
-        </div>
-        
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12.5px;">
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold; width: 18%;">TARİH:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-weight: bold; width: 32%;">${new Date().toLocaleDateString('tr-TR')}</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold; width: 18%;">İŞ EMRİ NO:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-weight: bold; width: 32%;">${i.no}</td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">ÜRÜN ADI:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 14px;"><b>${urun ? urun.kod : '-'}</b></td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">TEL HEDEFİ:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px;"><b>${i.hedef.toLocaleString('tr-TR')} kg</b> (%${dolulukOrani} Doluluk)</td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">PARTİ BİLGİSİ:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 13px; color: #1e3a8a;"><b>PARTİ #${batchNo} / ${partiSayisi} (BATCH-${batchNo})</b></td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">BATCH LOT NO:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px;"><b>${batchLotNo}</b></td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">HAZIRLANACAK:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 13px;" colspan="3">Net <b>${partiNetHarman.toFixed(2)} kg</b> + ${hataPayi} kg Emniyet Payı = Kantarda Tartılacak Toplam: <b style="color: #166534; font-size: 14px;">${partiToplamHarman.toFixed(2)} Kg</b> ${isCompleted ? ' <span style="color:#166534; font-weight:bold; font-size:12px;">(✅ Stoktan Düşüldü)</span>' : ''}</td>
-          </tr>
-        </table>
-
-        <div style="border: 1px solid #94a3b8; padding: 6px 10px; margin-bottom: 12px; background: #f8fafc; border-radius: 4px; font-size: 11.5px;">
-          <b style="color: #b91c1c;">ÖZEL NOTLAR / UYARILAR:</b> <span style="font-style: italic;">${ozelNot || 'Belirtilmedi'}</span>
-        </div>
-
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12.5px; text-align: center;">
-          <thead>
-            <tr>
-              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 42%;">HAMMADDE KODU / ADI</th>
-              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 26%;">EKLENECEK MİKTAR (BATCH #${batchNo})</th>
-              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 32%;">KULLANILAN LOT NUMARASI</th>
-            </tr>
-          </thead>
-          <tbody>
-  `;
-
-      let hesaplananBatchToplam = 0;
-      recete.forEach((r) => {
-        const miktar = (partiToplamHarman * (parseFloat(r.oran) || 0)) / 100;
-        hesaplananBatchToplam += miktar;
-
-        let hmInfo = (DB.hammaddeler || []).find(h => h.ad === r.hammadde);
-        let hKodu = hmInfo ? hmInfo.kod + ' - ' + hmInfo.ad : r.hammadde;
-
-        html += `<tr>
-        <td style="border: 1px solid #94a3b8; padding: 6px 8px; font-weight:bold; text-align: left; padding-left: 10px;">${hKodu}</td>
-        <td style="border: 1px solid #94a3b8; padding: 6px; font-size: 14px;"><b>${miktar.toFixed(2)} Kg</b></td>
-        <td style="border: 1px solid #94a3b8; padding: 6px;"></td>
-    </tr>`;
+      const html = generateHarmanFormuHtml({
+        urun,
+        isEmriNo: i.no,
+        batchNo,
+        partiSayisi,
+        batchLotNo,
+        hedefKg: i.hedef,
+        dolulukOrani,
+        partiNetHarman,
+        hataPayi,
+        partiToplamHarman,
+        recete,
+        ozelNot,
+        isCompleted,
+        isEmriId: i.id
       });
 
-      for (let x = 0; x < 2; x++) {
-        html += `<tr>
-        <td style="border: 1px solid #94a3b8; height: 28px;"></td>
-        <td style="border: 1px solid #94a3b8;"></td>
-        <td style="border: 1px solid #94a3b8;"></td>
-      </tr>`;
-      }
-
-      html += `
-            <tr style="background: #f1f5f9; font-weight: bold;">
-              <td style="border: 1px solid #94a3b8; padding: 6px; text-align: right; padding-right: 10px; font-size: 12.5px;">BATCH #${batchNo} KANTAR TOPLAMI:</td>
-              <td style="border: 1px solid #94a3b8; padding: 6px; font-size: 15px; color: #166534;">${hesaplananBatchToplam.toFixed(2)} Kg</td>
-              <td style="border: 1px solid #94a3b8; padding: 6px;"></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <table style="width: 100%; border: none; text-align: center; margin-top: 14px;">
-          <tr>
-            <td style="width: 50%; border: none; padding: 4px;">
-              <div style="border: 1px solid #94a3b8; padding: 10px; font-weight: bold; border-radius: 6px; font-size: 11.5px;">Harmanı Hazırlayan / Tartan (Batch #${batchNo})<br><br><br>İmza</div>
-            </td>
-            <td style="width: 50%; border: none; padding: 4px;">
-              <div style="border: 1px solid #94a3b8; padding: 10px; font-weight: bold; border-radius: 6px; font-size: 11.5px;">Üretim Onayı (Batch #${batchNo})<br><br><br>İmza</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-    </div>
-  `;
       document.getElementById('harmanIcerik').innerHTML = html;
       closeModal('ieDetayModal');
       document.getElementById('harmanModal').classList.add('active');
@@ -22602,8 +22762,8 @@
               <button onclick="receteAc(${u.id})" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
                 <span>🧪</span> Formülü Düzenle
               </button>
-              <button onclick="receteHizliHarmanHesaplayiciAc(${u.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold py-2 px-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer" title="Otomatik Harman Tartım Fişi Oluştur">
-                <span>⚖️</span> Fiş Bas
+              <button onclick="receteHizliHarmanHesaplayiciAc(${u.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold py-2 px-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer" title="Otomatik Harman Hazırlama ve Tartım Formu Oluştur">
+                <span>⚖️</span> Harman Formu
               </button>
             </div>
           </div>
@@ -22696,12 +22856,34 @@
       `;
     }
 
+    function hhManuelPartiGirildi(val) {
+      const kg = parseFloat(val);
+      const ozetEl = document.getElementById('hhHesapOzeti');
+      if (!ozetEl) return;
+      if (!isNaN(kg) && kg > 0) {
+        const emniyet = kg <= 500 ? 2 : 4;
+        const toplam = kg + emniyet;
+        ozetEl.innerHTML = `
+          <div class="flex justify-between font-bold text-amber-900"><span>Doğrudan Belirlenen Parti Harmanı:</span> <b>${kg.toFixed(2)} Kg</b></div>
+          <div class="flex justify-between"><span>Emniyet Payı:</span> <b>+${emniyet} Kg</b></div>
+          <div class="flex justify-between text-indigo-700 font-bold border-t border-indigo-200 pt-1.5 mt-1">
+            <span>Mikser / Parti Başına Kantar Tartımı:</span>
+            <span class="text-sm text-emerald-800 font-black">${toplam.toFixed(2)} Kg</span>
+          </div>
+          <div class="text-[11px] text-amber-800 italic">Girilen sabit parti harmanı reçete oranlarına göre otomatik tartım tablosuna yansıtılacaktır.</div>
+        `;
+      } else {
+        hhHesapOzetiGuncelle();
+      }
+    }
+
     function hizliHarmanFormuUret() {
       const urunId = parseInt(document.getElementById('hhUrunSec')?.value);
       const hedef = parseFloat(document.getElementById('hhHedefKg')?.value) || 0;
       const doluluk = parseFloat(document.getElementById('hhDoluluk')?.value) || 0;
       const partiSayisi = parseInt(document.getElementById('hhPartiSayisi')?.value) || 1;
       const batchNo = parseInt(document.getElementById('hhPartiSec')?.value) || 1;
+      const refNo = (document.getElementById('hhRefNo')?.value || '').trim();
 
       if (!urunId) { alert('Lütfen bir ürün seçiniz!'); return; }
       const urun = (DB.urunler || []).find(u => u.id === urunId);
@@ -22711,119 +22893,41 @@
         return;
       }
 
-      const toplamNetHarman = (hedef * doluluk) / 100;
-      const partiNetHarman = partiSayisi > 0 ? (toplamNetHarman / partiSayisi) : toplamNetHarman;
-      const hataPayi = partiNetHarman > 0 ? (partiNetHarman <= 500 ? 2 : 4) : 0;
-      const partiToplamHarman = partiNetHarman + hataPayi;
+      const manuelPartiKg = parseFloat(document.getElementById('hhManuelPartiHarmanKg')?.value) || 0;
+      let partiNetHarman = 0;
+      let hataPayi = 0;
+      let partiToplamHarman = 0;
+
+      if (manuelPartiKg > 0) {
+        partiNetHarman = manuelPartiKg;
+        hataPayi = partiNetHarman <= 500 ? 2 : 4;
+        partiToplamHarman = partiNetHarman + hataPayi;
+      } else {
+        const toplamNetHarman = (hedef * doluluk) / 100;
+        partiNetHarman = partiSayisi > 0 ? (toplamNetHarman / partiSayisi) : toplamNetHarman;
+        hataPayi = partiNetHarman > 0 ? (partiNetHarman <= 500 ? 2 : 4) : 0;
+        partiToplamHarman = partiNetHarman + hataPayi;
+      }
 
       const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       const batchLotNo = `LOT-${urun ? urun.kod : 'FCW'}-${dateStr}-B${batchNo}`;
 
-      let html = `
-    <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 195mm; margin: 0 auto; box-sizing: border-box; padding: 0;">
-      <!-- YAZDIRMA AKSİYON BAR -->
-      <div class="no-print mb-4 p-3 bg-slate-900 text-white rounded-xl shadow-md flex justify-between items-center gap-3 border border-slate-700">
-        <div class="flex items-center gap-2">
-          <span class="bg-amber-400 text-slate-900 font-black px-2.5 py-1 rounded text-xs">PARTİ #${batchNo} / ${partiSayisi}</span>
-          <span class="text-xs text-slate-300">Ürün: <b>${urun ? (urun.ad || urun.kod) : '-'}</b> &nbsp;|&nbsp; Lot: <b>${batchLotNo}</b></span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer">
-            🖨️ A4 Dikey Olarak Yazdır
-          </button>
-        </div>
-      </div>
-
-      <!-- TEK A4 FORMU -->
-      <div style="background: white; border: 1px solid #cbd5e1; padding: 14px; border-radius: 8px;">
-        <div style="text-align: center; font-size: 19px; font-weight: bold; border-bottom: 3px double #334155; padding-bottom: 6px; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase;">
-          HARMAN TARTIM VE KARIŞTIRMA EMRİ (BATCH-${batchNo})
-        </div>
-        
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12.5px;">
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold; width: 18%;">TARİH:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-weight: bold; width: 32%;">${new Date().toLocaleDateString('tr-TR')}</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold; width: 18%;">FORM NO:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-weight: bold; width: 32%;">HRM-${dateStr}-${batchNo}</td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">ÜRÜN ADI:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 14px;"><b>${urun ? (urun.ad || urun.kod) : '-'} (${urun ? urun.kod : ''})</b></td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">TEL HEDEFİ:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px;"><b>${hedef.toLocaleString('tr-TR')} kg</b> (%${doluluk} Doluluk)</td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">PARTİ BİLGİSİ:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 13px; color: #1e3a8a;"><b>PARTİ #${batchNo} / ${partiSayisi} (BATCH-${batchNo})</b></td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">BATCH LOT NO:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px;"><b>${batchLotNo}</b></td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; background: #f1f5f9; font-weight: bold;">HAZIRLANACAK:</td>
-            <td style="border: 1px solid #94a3b8; padding: 5px 8px; font-size: 13px;" colspan="3">Net <b>${partiNetHarman.toFixed(2)} kg</b> + ${hataPayi} kg Emniyet Payı = Kantarda Tartılacak Toplam: <b style="color: #166534; font-size: 14px;">${partiToplamHarman.toFixed(2)} Kg</b></td>
-          </tr>
-        </table>
-
-        <div style="border: 1px solid #94a3b8; padding: 6px 10px; margin-bottom: 12px; background: #f8fafc; border-radius: 4px; font-size: 11.5px;">
-          <b style="color: #b91c1c;">TARTIM VE KARIŞTIRMA TALİMATI:</b> <span>Hammadde tartımlarını sırasıyla ve hassas terazi ile yapınız. Karıştırma süresine (min. 20 dk) titizlikle uyunuz. Formül gizlidir.</span>
-        </div>
-
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12.5px; text-align: center;">
-          <thead>
-            <tr>
-              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 42%;">HAMMADDE KODU / ADI</th>
-              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 26%;">EKLENECEK MİKTAR (BATCH #${batchNo})</th>
-              <th style="border: 1px solid #94a3b8; padding: 6px; background: #334155; color: white; width: 32%;">KULLANILAN LOT NUMARASI</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-
-      let hesaplananBatchToplam = 0;
-      recete.forEach((r) => {
-        const miktar = (partiToplamHarman * (parseFloat(r.oran) || 0)) / 100;
-        hesaplananBatchToplam += miktar;
-        let hmInfo = (DB.hammaddeler || []).find(h => h.ad === r.hammadde);
-        let hKodu = hmInfo ? hmInfo.kod + ' - ' + hmInfo.ad : r.hammadde;
-
-        html += `<tr>
-          <td style="border: 1px solid #94a3b8; padding: 6px 8px; font-weight:bold; text-align: left; padding-left: 10px;">${hKodu}</td>
-          <td style="border: 1px solid #94a3b8; padding: 6px; font-size: 14px;"><b>${miktar.toFixed(2)} Kg</b></td>
-          <td style="border: 1px solid #94a3b8; padding: 6px;"></td>
-        </tr>`;
+      const html = generateHarmanFormuHtml({
+        urun,
+        isEmriNo: refNo || `HRM-${dateStr}-B${batchNo}`,
+        batchNo,
+        partiSayisi,
+        batchLotNo,
+        hedefKg: hedef,
+        dolulukOrani: doluluk,
+        partiNetHarman,
+        hataPayi,
+        partiToplamHarman,
+        recete,
+        ozelNot: 'Kantar ve mikser karıştırma talimatlarına titizlikle uyunuz. Formül ticari sırdır.',
+        isCompleted: false,
+        isEmriId: null
       });
-
-      for (let x = 0; x < 2; x++) {
-        html += `<tr>
-          <td style="border: 1px solid #94a3b8; height: 28px;"></td>
-          <td style="border: 1px solid #94a3b8;"></td>
-          <td style="border: 1px solid #94a3b8;"></td>
-        </tr>`;
-      }
-
-      html += `
-            <tr style="background: #f1f5f9; font-weight: bold;">
-              <td style="border: 1px solid #94a3b8; padding: 6px; text-align: right; padding-right: 10px; font-size: 12.5px;">BATCH #${batchNo} KANTAR TOPLAMI:</td>
-              <td style="border: 1px solid #94a3b8; padding: 6px; font-size: 15px; color: #166534;">${hesaplananBatchToplam.toFixed(2)} Kg</td>
-              <td style="border: 1px solid #94a3b8; padding: 6px;"></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <table style="width: 100%; border: none; text-align: center; margin-top: 14px;">
-          <tr>
-            <td style="width: 50%; border: none; padding: 4px;">
-              <div style="border: 1px solid #94a3b8; padding: 10px; font-weight: bold; border-radius: 6px; font-size: 11.5px;">Harmanı Hazırlayan / Tartan (Batch #${batchNo})<br><br><br>İmza</div>
-            </td>
-            <td style="width: 50%; border: none; padding: 4px;">
-              <div style="border: 1px solid #94a3b8; padding: 10px; font-weight: bold; border-radius: 6px; font-size: 11.5px;">Üretim Onayı (Batch #${batchNo})<br><br><br>İmza</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-      `;
 
       const harmanIcerik = document.getElementById('harmanIcerik');
       if (harmanIcerik) harmanIcerik.innerHTML = html;
