@@ -2697,6 +2697,7 @@
             <table class="divide-y divide-slate-100">
               <thead class="bg-slate-50">
                 <tr>
+                  <th>Tür</th>
                   <th>Kod</th>
                   <th>Ad</th>
                   <th>Kategori</th>
@@ -2704,7 +2705,7 @@
                   <th>Min</th>
                   <th>Lokasyon</th>
                   <th>Durum</th>
-                  <th>İşlem</th>
+                  <th class="text-right">İşlem</th>
                 </tr>
               </thead>
               <tbody id="hmTable" class="divide-y divide-slate-50"></tbody>
@@ -5775,13 +5776,19 @@
           class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200">✕</button>
       </div>
       <div class="space-y-4 no-print">
-        <div class="input-group">
-          <label>Stok Türü</label>
-          <select id="hmEdTur" onchange="hmEdTurDegisti(this.value)"
-            class="border border-slate-300 p-3 rounded-lg w-full bg-slate-50 font-bold">
-            <option value="Hammadde">🧱 Hammadde</option>
-            <option value="Sarf Malzeme">🛠️ Sarf Malzeme</option>
-          </select>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="input-group">
+            <label>Stok Türü</label>
+            <select id="hmEdTur" onchange="hmEdTurDegisti(this.value)"
+              class="border border-slate-300 p-2.5 rounded-lg w-full bg-slate-50 font-bold text-xs">
+              <option value="Hammadde">🧱 Hammadde</option>
+              <option value="Sarf Malzeme">🛠️ Sarf Malzeme</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Malzeme Kodu *</label>
+            <input id="hmEdKod" class="border border-slate-300 p-2.5 rounded-lg w-full bg-slate-50 font-mono font-bold text-xs" placeholder="Örn: RM251">
+          </div>
         </div>
         <div class="input-group"><label>Malzeme Adı</label><input id="hmEdAd"
             class="border border-slate-300 p-3 rounded-lg w-full bg-slate-50"></div>
@@ -13341,9 +13348,11 @@
       editId = id;
       document.getElementById('hmEdTur').value = h.tur || 'Hammadde';
       hmEdTurDegisti(h.tur || 'Hammadde');
-      document.getElementById('hmEdAd').value = h.ad;
-      document.getElementById('hmEdMin').value = h.minStok;
-      document.getElementById('hmEdKat').value = h.kategori;
+      const elKod = document.getElementById('hmEdKod');
+      if (elKod) elKod.value = h.kod || '';
+      document.getElementById('hmEdAd').value = h.ad || '';
+      document.getElementById('hmEdMin').value = h.minStok || 0;
+      document.getElementById('hmEdKat').value = h.kategori || 'Ferro Alaşım';
       document.getElementById('hmEdLok').value = h.lokasyon || '';
       document.getElementById('hmEdAcik').value = h.aciklama || '';
       document.getElementById('hmDuzenleModal').classList.add('active');
@@ -13352,13 +13361,21 @@
     function hmDuzenleKaydet() {
       const h = DB.hammaddeler.find(x => x.id === editId);
       if (!h) return;
+      const yeniKod = document.getElementById('hmEdKod')?.value?.trim();
+      const yeniAd = document.getElementById('hmEdAd')?.value?.trim();
+      if (!yeniKod || !yeniAd) {
+        alert('Malzeme Kodu ve Adı boş bırakılamaz!');
+        return;
+      }
       h.tur = document.getElementById('hmEdTur')?.value || 'Hammadde';
-      h.ad = document.getElementById('hmEdAd').value;
+      h.kod = yeniKod;
+      h.ad = yeniAd;
       h.minStok = parseFloat(document.getElementById('hmEdMin').value) || 0;
       h.kategori = document.getElementById('hmEdKat').value;
       h.lokasyon = document.getElementById('hmEdLok').value;
       h.aciklama = document.getElementById('hmEdAcik').value;
       saveDB(); closeModal('hmDuzenleModal'); renderAll();
+      showToast('Stok kartı başarıyla güncellendi.', 'success');
     }
 
     function hmSil(id) {
