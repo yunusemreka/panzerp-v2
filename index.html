@@ -1888,7 +1888,12 @@
         </div>
 
         <div class="card p-5">
-          <h3 class="font-bold mb-4 text-slate-800 border-b pb-2">📋 Geçmiş Üretim Kayıtları</h3>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2 mb-4">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+              <span>📋</span> Geçmiş Üretim Kayıtları
+              <span id="utKayitSayisiBadge" class="bg-indigo-100 text-indigo-700 text-xs font-black px-2.5 py-0.5 rounded-full">0 Kayıt</span>
+            </h3>
+          </div>
 
           <div class="flex flex-col md:flex-row gap-3 mb-5 bg-slate-50 p-3 rounded-xl border border-slate-100">
             <select id="utFiltreUrun"
@@ -1901,7 +1906,14 @@
             <input type="date" id="utFiltreBit"
               class="border border-slate-300 p-2.5 rounded-lg text-sm w-full md:w-1/4 bg-white shadow-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none">
             <button onclick="uretimListele()"
-              class="bg-slate-800 text-white px-5 py-2.5 rounded-lg font-bold w-full md:w-auto hover:bg-slate-700 transition-colors shadow-sm">Filtrele</button>
+              class="bg-slate-800 text-white px-5 py-2.5 rounded-lg font-bold w-full md:w-auto hover:bg-slate-700 transition-colors shadow-sm flex items-center justify-center gap-1.5">
+              <span>🔍</span> Filtrele
+            </button>
+            <button onclick="utFiltreSifirla()"
+              class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2.5 rounded-lg font-bold w-full md:w-auto transition-colors shadow-xs flex items-center justify-center gap-1.5 text-xs"
+              title="Tüm zamanların kayıtlarını göster">
+              <span>♾️</span> Tüm Zamanlar
+            </button>
           </div>
 
           <div id="utFiltreOzet" class="mb-4"></div>
@@ -3821,8 +3833,14 @@
                   class="border border-slate-300 p-2.5 pl-9 rounded-lg w-full bg-white outline-none focus:ring-2 focus:ring-blue-100 uppercase text-sm">
               </div>
               <button onclick="apmUretimListele()"
-                class="bg-slate-800 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-slate-700 transition-colors w-full md:w-auto text-sm shadow-sm">Kayıtları
-                Filtrele</button>
+                class="bg-slate-800 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-slate-700 transition-colors w-full md:w-auto text-sm shadow-sm flex items-center justify-center gap-1.5">
+                <span>🔍</span> Kayıtları Filtrele
+              </button>
+              <button onclick="apmFiltreSifirla()"
+                class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2.5 rounded-lg font-bold w-full md:w-auto transition-colors shadow-xs flex items-center justify-center gap-1.5 text-xs"
+                title="Tüm zamanların APM üretim kayıtlarını göster">
+                <span>♾️</span> Tüm Zamanlar
+              </button>
             </div>
 
             <div id="apmFiltreOzet" class="mb-4"></div>
@@ -7566,10 +7584,16 @@
     function temizSafUrunAdi(hamAd) {
       if (!hamAd) return '';
       return hamAd
-        .replace(/Ø\s*[0-9]+([\.,][0-9]+)?\s*(mm)?/gi, '') // Ø2.4mm, Ø 2.4 mm temizle
-        .replace(/[0-9]+([\.,][0-9]+)?\s*mm/gi, '')          // 2.4mm, 2.4 mm temizle
-        .replace(/\([^\)]*\)/g, '')                         // Parantez ve içindekileri (FCW-10 vb.) temizle
-        .replace(/\s*-\s*$/, '')                            // Sondaki tireyi temizle
+        .replace(/[\r\n]+/g, ' ')
+        .replace(/[\u2010\u2011\u2012\u2013\u2014\u2015\u2212]/g, '-')
+        .replace(/:\s*[0-9]+(?:[.,][0-9]+)?\s*(?:kg)?/gi, '')
+        .replace(/(?:[Øø\u00d8\u00f8\ufffd]|\bçap\b|\bcap\b)\s*[0-9]+(?:[.,][0-9]+)?(?:\s*mm)?/gi, '')
+        .replace(/[0-9]+(?:[.,][0-9]+)?\s*mm\b/gi, '')
+        .replace(/\s*-\s*[0-9]+[.,][0-9]+\s*$/gi, '')
+        .replace(/\([^\)]*\)/g, '')
+        .replace(/\s*-\s*L28\b/gi, '')
+        .replace(/[\s\-_–—]+$/, '')
+        .replace(/\s+/g, ' ')
         .trim();
     }
 
@@ -9291,13 +9315,20 @@
       document.getElementById('apmTarih').focus();
     }
 
+    function apmFiltreSifirla() {
+      const bEl = document.getElementById('apmFiltreBas'); if (bEl) bEl.value = '';
+      const tEl = document.getElementById('apmFiltreBit'); if (tEl) tEl.value = '';
+      const mEl = document.getElementById('apmFiltreMakine'); if (mEl) mEl.value = '';
+      apmUretimListele();
+    }
+
     function apmUretimListele() {
       const tbody = document.getElementById('apmGecmisTable');
       if (!tbody) return;
 
-      const fBas = document.getElementById('apmFiltreBas').value;
-      const fBit = document.getElementById('apmFiltreBit').value;
-      const fMak = document.getElementById('apmFiltreMakine').value.toUpperCase();
+      const fBas = document.getElementById('apmFiltreBas') ? document.getElementById('apmFiltreBas').value : '';
+      const fBit = document.getElementById('apmFiltreBit') ? document.getElementById('apmFiltreBit').value : '';
+      const fMak = document.getElementById('apmFiltreMakine') ? document.getElementById('apmFiltreMakine').value.toUpperCase() : '';
 
       let liste = [...(DB.apmUretim || [])].sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
 
@@ -9329,9 +9360,15 @@
 
       tbody.innerHTML = html || '<tr><td colspan="6" class="py-8 text-slate-500 font-semibold text-center">Filtre kriterlerinize uygun geçmiş üretim kaydı bulunamadı.</td></tr>';
 
+      const isAllTime = (!fBas && !fBit && !fMak);
       let ozetHtml = `<div class="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm flex flex-col md:flex-row gap-6">
         <div class="flex-shrink-0">
-            <div class="text-xs font-bold text-blue-600 uppercase mb-1">FİLTRELENEN TOPLAM</div>
+            <div class="text-xs font-bold text-blue-600 uppercase mb-1 flex items-center gap-2">
+              <span>FİLTRELENEN TOPLAM (${liste.length} Kayıt)</span>
+              <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${isAllTime ? 'bg-blue-600 text-white' : 'bg-amber-100 text-amber-800'}">
+                ${isAllTime ? '♾️ ALL TIME' : '🔍 FİLTRELİ'}
+              </span>
+            </div>
             <div class="text-2xl font-black text-blue-800">${genelToplam.toFixed(4)} <span class="text-sm font-normal">m²</span></div>
         </div>
         <div class="flex-1 md:border-l md:border-blue-200 md:pl-6">
@@ -10030,13 +10067,13 @@
         }
       }
 
-      // Otomatik olarak formdaki ilk boş satırlara bu ürünü yerleştir
-      if (urunAd) {
+      // Otomatik olarak formdaki ilk boş satırlara bu saf ürünü yerleştir
+      if (safAd) {
         const asamaList = ['kaba', 'ince', 'bidon', 'hassas', 'harman'];
         asamaList.forEach(asama => {
           if (utDraftKalemler[asama] && utDraftKalemler[asama].length > 0) {
             if (!utDraftKalemler[asama][0].urun) {
-              utDraftKalemler[asama][0].urun = urunAd;
+              utDraftKalemler[asama][0].urun = safAd;
             }
           }
         });
@@ -10044,18 +10081,45 @@
       }
     }
 
-    function utFiltreDoldur() {
-      utIsEmriSeciciDoldur();
-      const sel = document.getElementById('utFiltreUrun'); if (!sel) return;
-      sel.innerHTML = '<option value="">Tüm Ürünler</option>';
-      (DB.urunler || []).forEach(u => { const val = `${u.kod} - ${u.cap}`; sel.innerHTML += `<option value="${val}">${val}</option>`; });
-    }
-
     function uretimOzetGuncelle() {
       const tAylik = document.getElementById('utOzetAylik'), tTum = document.getElementById('utOzetTum'); if (!tAylik || !tTum) return;
       const now = new Date(), y = now.getFullYear(), m = String(now.getMonth() + 1).padStart(2, '0'), monthPrefix = `${y}-${m}`;
       let aylikGrp = {}, tumGrp = {};
-      function addMetric(grp, urunAd, metric, miktar) { if (!urunAd || !miktar) return; let ad = urunAd.trim(); if (!grp[ad]) grp[ad] = { s25: 0, s40: 0, kaba: 0, ince: 0, bidon: 0, hassas: 0, harman: 0 }; grp[ad][metric] += parseFloat(miktar); }
+
+      function addMetric(grp, rawUrunAd, metric, miktar) {
+        if (!rawUrunAd || !miktar) return;
+        const ad = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(rawUrunAd) : rawUrunAd.trim();
+        if (!ad) return;
+        if (!grp[ad]) grp[ad] = { s25: 0, s40: 0, kaba: 0, ince: 0, bidon: 0, hassas: 0, harman: 0 };
+        grp[ad][metric] += parseFloat(miktar) || 0;
+      }
+
+      function processItemToGrp(grp, asamaKey, rawStr, totalMiktar) {
+        if (!rawStr) return;
+        const str = String(rawStr).trim();
+        if (str.includes('|')) {
+          const parts = str.split('|').map(p => p.trim()).filter(Boolean);
+          let anyMatched = false;
+          parts.forEach(p => {
+            const match = p.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+            if (match) {
+              const uName = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(match[1]) : match[1].trim();
+              const pAmt = match[2] ? parseFloat(match[2].replace(',', '.')) : null;
+              if (pAmt !== null && !isNaN(pAmt)) {
+                addMetric(grp, uName, asamaKey, pAmt);
+                anyMatched = true;
+              }
+            }
+          });
+          if (anyMatched) return;
+        }
+        const matchSingle = str.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+        const uName = matchSingle ? (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(matchSingle[1]) : matchSingle[1].trim()) : (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(str) : str);
+        const miktar = totalMiktar > 0 ? totalMiktar : (matchSingle && matchSingle[2] ? parseFloat(matchSingle[2].replace(',', '.')) : 0);
+        if (uName && miktar > 0) {
+          addMetric(grp, uName, asamaKey, miktar);
+        }
+      }
 
       (DB.uretimTakip || []).forEach(u => {
         const isThisMonth = (u.tarih || '').startsWith(monthPrefix);
@@ -10064,8 +10128,8 @@
         if (Array.isArray(u.items) && u.items.length > 0) {
           u.items.forEach(it => {
             if (it.miktar > 0 && it.urun) {
-              addMetric(tumGrp, it.urun, it.asama, it.miktar);
-              if (isThisMonth) addMetric(aylikGrp, it.urun, it.asama, it.miktar);
+              processItemToGrp(tumGrp, it.asama, it.urun, it.miktar);
+              if (isThisMonth) processItemToGrp(aylikGrp, it.asama, it.urun, it.miktar);
             }
           });
         } else {
@@ -10079,15 +10143,49 @@
           ];
           metrics.forEach(m => {
             if (m.val > 0 && m.urun) {
-              addMetric(tumGrp, m.urun, m.key, m.val);
-              if (isThisMonth) { addMetric(aylikGrp, m.urun, m.key, m.val); }
+              processItemToGrp(tumGrp, m.key, m.urun, m.val);
+              if (isThisMonth) processItemToGrp(aylikGrp, m.key, m.urun, m.val);
             }
           });
         }
       });
 
-      let htmlAylik = ''; Object.keys(aylikGrp).sort().forEach(k => { let m = aylikGrp[k]; htmlAylik += `<tr class="border-b border-emerald-100 hover:bg-white"><td class="p-3 font-bold text-slate-700">${k}</td><td class="p-3 text-right">${m.s25 > 0 ? m.s25.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.s40 > 0 ? m.s40.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.kaba > 0 ? m.kaba.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.ince > 0 ? m.ince.toFixed(2) : '-'}</td><td class="p-3 text-right font-black text-emerald-700 bg-emerald-50/50">${m.bidon > 0 ? m.bidon.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.hassas > 0 ? m.hassas.toFixed(2) : '-'}</td><td class="p-3 text-right font-bold text-purple-700">${m.harman > 0 ? m.harman.toFixed(2) : '-'}</td></tr>`; }); tAylik.innerHTML = htmlAylik || '<tr><td colspan="8" class="text-center py-6 text-slate-400 font-medium">Bu ay için henüz kayıt bulunmuyor</td></tr>';
-      let htmlTum = ''; Object.keys(tumGrp).sort().forEach(k => { let m = tumGrp[k]; htmlTum += `<tr class="border-b border-blue-100 hover:bg-white"><td class="p-3 font-bold text-slate-700">${k}</td><td class="p-3 text-right">${m.s25 > 0 ? m.s25.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.s40 > 0 ? m.s40.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.kaba > 0 ? m.kaba.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.ince > 0 ? m.ince.toFixed(2) : '-'}</td><td class="p-3 text-right font-black text-emerald-700">${m.bidon > 0 ? m.bidon.toFixed(2) : '-'}</td><td class="p-3 text-right">${m.hassas > 0 ? m.hassas.toFixed(2) : '-'}</td><td class="p-3 text-right font-bold text-purple-700">${m.harman > 0 ? m.harman.toFixed(2) : '-'}</td></tr>`; }); tTum.innerHTML = htmlTum || '<tr><td colspan="8" class="text-center py-6 text-slate-400 font-medium">Kayıt bulunmuyor</td></tr>';
+      function renderTableBody(grp, isMonth) {
+        let html = '';
+        let tot = { s25: 0, s40: 0, kaba: 0, ince: 0, bidon: 0, hassas: 0, harman: 0 };
+        const keys = Object.keys(grp).sort();
+        if (keys.length === 0) {
+          return `<tr><td colspan="8" class="text-center py-6 text-slate-400 font-medium">${isMonth ? 'Bu ay için henüz kayıt bulunmuyor' : 'Kayıt bulunmuyor'}</td></tr>`;
+        }
+        keys.forEach(k => {
+          let m = grp[k];
+          tot.s25 += m.s25; tot.s40 += m.s40; tot.kaba += m.kaba; tot.ince += m.ince; tot.bidon += m.bidon; tot.hassas += m.hassas; tot.harman += m.harman;
+          html += `<tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+            <td class="p-3 font-bold text-slate-700">${k}</td>
+            <td class="p-3 text-right">${m.s25 > 0 ? m.s25.toFixed(2) : '-'}</td>
+            <td class="p-3 text-right">${m.s40 > 0 ? m.s40.toFixed(2) : '-'}</td>
+            <td class="p-3 text-right font-medium">${m.kaba > 0 ? m.kaba.toFixed(2) : '-'}</td>
+            <td class="p-3 text-right font-medium">${m.ince > 0 ? m.ince.toFixed(2) : '-'}</td>
+            <td class="p-3 text-right font-black text-emerald-700 bg-emerald-50/40">${m.bidon > 0 ? m.bidon.toFixed(2) : '-'}</td>
+            <td class="p-3 text-right font-medium">${m.hassas > 0 ? m.hassas.toFixed(2) : '-'}</td>
+            <td class="p-3 text-right font-bold text-purple-700">${m.harman > 0 ? m.harman.toFixed(2) : '-'}</td>
+          </tr>`;
+        });
+        html += `<tr class="bg-slate-100/90 font-black text-slate-800 border-t-2 border-slate-300">
+          <td class="p-3 text-indigo-950 font-extrabold uppercase text-[11px]">TOPLAM (${keys.length} Ürün)</td>
+          <td class="p-3 text-right">${tot.s25 > 0 ? tot.s25.toFixed(2) : '-'}</td>
+          <td class="p-3 text-right">${tot.s40 > 0 ? tot.s40.toFixed(2) : '-'}</td>
+          <td class="p-3 text-right font-black">${tot.kaba > 0 ? tot.kaba.toFixed(2) : '-'}</td>
+          <td class="p-3 text-right font-black">${tot.ince > 0 ? tot.ince.toFixed(2) : '-'}</td>
+          <td class="p-3 text-right font-black text-emerald-800 bg-emerald-100/60">${tot.bidon > 0 ? tot.bidon.toFixed(2) : '-'}</td>
+          <td class="p-3 text-right font-black">${tot.hassas > 0 ? tot.hassas.toFixed(2) : '-'}</td>
+          <td class="p-3 text-right font-black text-purple-800">${tot.harman > 0 ? tot.harman.toFixed(2) : '-'}</td>
+        </tr>`;
+        return html;
+      }
+
+      tAylik.innerHTML = renderTableBody(aylikGrp, true);
+      tTum.innerHTML = renderTableBody(tumGrp, false);
     }
 
     function ktmStokKartiBulVeyaOlustur(urunStr, paketTipi) {
@@ -10437,17 +10535,38 @@
 
       const urunSet = new Set();
       (DB.urunler || []).forEach(u => {
-        if (u.kod) urunSet.add(u.kod);
+        const ad = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.kod || u.ad) : (u.kod || u.ad);
+        if (ad) urunSet.add(ad);
       });
       (DB.uretimTakip || []).forEach(u => {
         if (Array.isArray(u.items)) {
-          u.items.forEach(it => { if (it.urun) urunSet.add(it.urun); });
+          u.items.forEach(it => {
+            if (it && it.urun) {
+              if (String(it.urun).includes('|')) {
+                String(it.urun).split('|').forEach(part => {
+                  const ad = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(part) : part.trim();
+                  if (ad) urunSet.add(ad);
+                });
+              } else {
+                const ad = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun) : it.urun;
+                if (ad) urunSet.add(ad);
+              }
+            }
+          });
         }
-        if (u.kabaUrun) urunSet.add(u.kabaUrun);
-        if (u.inceUrun) urunSet.add(u.inceUrun);
-        if (u.bidonUrun) urunSet.add(u.bidonUrun);
-        if (u.hassasUrun) urunSet.add(u.hassasUrun);
-        if (u.harmanUrun) urunSet.add(u.harmanUrun);
+        ['kabaUrun', 'inceUrun', 'bidonUrun', 'hassasUrun', 'harmanUrun'].forEach(key => {
+          if (u[key]) {
+            if (String(u[key]).includes('|')) {
+              String(u[key]).split('|').forEach(part => {
+                const ad = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(part) : part.trim();
+                if (ad) urunSet.add(ad);
+              });
+            } else {
+              const ad = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u[key]) : u[key];
+              if (ad) urunSet.add(ad);
+            }
+          }
+        });
       });
 
       let html = '<option value="">Tüm Ürünler / Aşamalar</option>';
@@ -10455,6 +10574,14 @@
         html += `<option value="${u}" ${currentVal === u ? 'selected' : ''}>${u}</option>`;
       });
       select.innerHTML = html;
+    }
+
+    function utFiltreSifirla() {
+      const uEl = document.getElementById('utFiltreUrun'); if (uEl) uEl.value = '';
+      const bEl = document.getElementById('utFiltreBas'); if (bEl) bEl.value = '';
+      const tEl = document.getElementById('utFiltreBit'); if (tEl) tEl.value = '';
+      uretimListele();
+      if (typeof uretimOzetGuncelle === 'function') uretimOzetGuncelle();
     }
 
     function uretimListele() {
@@ -10470,53 +10597,44 @@
       if (fUrun) {
         ls = ls.filter(u => {
           if (Array.isArray(u.items) && u.items.length > 0) {
-            return u.items.some(it => (it.urun || '').toLowerCase().includes(fUrun));
+            return u.items.some(it => {
+              const saf = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun).toLowerCase() : (it.urun || '').toLowerCase();
+              return saf.includes(fUrun) || (it.urun || '').toLowerCase().includes(fUrun);
+            });
           }
-          return (u.kabaUrun || '').toLowerCase().includes(fUrun) ||
-            (u.inceUrun || '').toLowerCase().includes(fUrun) ||
-            (u.bidonUrun || '').toLowerCase().includes(fUrun) ||
-            (u.hassasUrun || '').toLowerCase().includes(fUrun) ||
-            (u.harmanUrun || '').toLowerCase().includes(fUrun);
+          const fields = [u.kabaUrun, u.inceUrun, u.bidonUrun, u.hassasUrun, u.harmanUrun];
+          return fields.some(f => {
+            if (!f) return false;
+            const saf = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(f).toLowerCase() : f.toLowerCase();
+            return saf.includes(fUrun) || f.toLowerCase().includes(fUrun);
+          });
         });
       }
 
+      // Kayıt sayısı rozetini güncelle
+      const badgeEl = document.getElementById('utKayitSayisiBadge');
+      if (badgeEl) {
+        badgeEl.textContent = `${ls.length} Kayıt`;
+      }
+
+      // Toplamları TÜM kayıtlar (All Time / Filtrelenenlerin Tümü) üzerinden hesapla
       let tS25 = 0, tS40 = 0, tKaba = 0, tInce = 0, tBidon = 0, tHassas = 0, tHarman = 0;
 
-      ls.slice(0, 150).forEach(u => {
-        let rowS25 = parseFloat(u.s25) || 0; tS25 += rowS25;
-        let rowS40 = parseFloat(u.s40) || 0; tS40 += rowS40;
+      ls.forEach(u => {
+        tS25 += parseFloat(u.s25) || 0;
+        tS40 += parseFloat(u.s40) || 0;
 
-        // Hücre formatlayıcı: Çoklu kalemleri alt alta göster
-        const formatCell = (asamaKey, totalVal, textVal) => {
-          if (Array.isArray(u.items) && u.items.length > 0) {
-            let matched = u.items.filter(it => it.asama === asamaKey && it.miktar > 0);
-            if (fUrun) {
-              matched = matched.filter(it => (it.urun || '').toLowerCase().includes(fUrun));
-            }
-            if (matched.length === 0) return '-';
-            return matched.map(it => `
-              <div class="mb-1 last:mb-0">
-                <span class="text-slate-500 font-medium text-[11px] block leading-tight">${it.urun}</span>
-                <b class="text-slate-800 font-bold">${it.miktar} <span class="text-[10px] font-normal text-slate-400">kg</span></b>
-              </div>
-            `).join('');
-          } else {
-            // Eski tekli kayıtlar
-            const val = parseFloat(totalVal) || 0;
-            if (val <= 0) return '-';
-            return `<span class="text-slate-500 font-medium text-[11px] block leading-tight">${textVal || ''}</span><b class="text-slate-800 font-bold">${val} <span class="text-[10px] font-normal text-slate-400">kg</span></b>`;
-          }
-        };
-
-        // Toplamları hesapla
         if (Array.isArray(u.items) && u.items.length > 0) {
           u.items.forEach(it => {
-            if (fUrun && !(it.urun || '').toLowerCase().includes(fUrun)) return;
-            if (it.asama === 'kaba') tKaba += it.miktar;
-            else if (it.asama === 'ince') tInce += it.miktar;
-            else if (it.asama === 'bidon') tBidon += it.miktar;
-            else if (it.asama === 'hassas') tHassas += it.miktar;
-            else if (it.asama === 'harman') tHarman += it.miktar;
+            if (fUrun) {
+              const saf = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun).toLowerCase() : (it.urun || '').toLowerCase();
+              if (!saf.includes(fUrun) && !(it.urun || '').toLowerCase().includes(fUrun)) return;
+            }
+            if (it.asama === 'kaba') tKaba += (parseFloat(it.miktar) || 0);
+            else if (it.asama === 'ince') tInce += (parseFloat(it.miktar) || 0);
+            else if (it.asama === 'bidon') tBidon += (parseFloat(it.miktar) || 0);
+            else if (it.asama === 'hassas') tHassas += (parseFloat(it.miktar) || 0);
+            else if (it.asama === 'harman') tHarman += (parseFloat(it.miktar) || 0);
           });
         } else {
           tKaba += parseFloat(u.kaba) || 0;
@@ -10525,7 +10643,40 @@
           tHassas += parseFloat(u.hassas) || 0;
           tHarman += parseFloat(u.harman) || 0;
         }
+      });
 
+      // Hücre formatlayıcı: Çoklu kalemleri alt alta göster
+      const formatCell = (u, asamaKey, totalVal, textVal) => {
+        if (Array.isArray(u.items) && u.items.length > 0) {
+          let matched = u.items.filter(it => it.asama === asamaKey && it.miktar > 0);
+          if (fUrun) {
+            matched = matched.filter(it => {
+              const saf = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun).toLowerCase() : (it.urun || '').toLowerCase();
+              return saf.includes(fUrun) || (it.urun || '').toLowerCase().includes(fUrun);
+            });
+          }
+          if (matched.length === 0) return '-';
+          return matched.map(it => {
+            const gosterimAdi = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun) : it.urun;
+            return `
+            <div class="mb-1 last:mb-0">
+              <span class="text-slate-500 font-medium text-[11px] block leading-tight" title="${it.urun || ''}">${gosterimAdi}</span>
+              <b class="text-slate-800 font-bold">${it.miktar} <span class="text-[10px] font-normal text-slate-400">kg</span></b>
+            </div>
+          `;
+          }).join('');
+        } else {
+          // Eski tekli kayıtlar
+          const val = parseFloat(totalVal) || 0;
+          if (val <= 0) return '-';
+          const gosterimAdi = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(textVal) : textVal;
+          return `<span class="text-slate-500 font-medium text-[11px] block leading-tight" title="${textVal || ''}">${gosterimAdi || ''}</span><b class="text-slate-800 font-bold">${val} <span class="text-[10px] font-normal text-slate-400">kg</span></b>`;
+        }
+      };
+
+      let rowsHtml = '';
+
+      ls.forEach(u => {
         const isEmriBilgisiHtml = u.isEmriNo ? `
           <div class="flex flex-col">
             <span class="font-extrabold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 text-xs w-max">${u.isEmriNo}</span>
@@ -10535,7 +10686,7 @@
           <span class="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded text-[11px] border border-slate-200">⚙️ Serbest Stok</span>
         `;
 
-        tbody.innerHTML += `
+        rowsHtml += `
           <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
             <td class="p-3 text-center w-8 align-top">
               <input type="checkbox" class="bulk-row-cb" data-id="${u.id}" data-type="uretim" onchange="updateBulkActionState()">
@@ -10544,11 +10695,11 @@
             <td class="align-top p-3 border-l border-slate-100">${isEmriBilgisiHtml}</td>
             <td class="align-top text-center p-3 border-l border-slate-100">${u.s25 ? `<b class="text-blue-600">${u.s25} <span class="text-[10px] font-normal">kg</span></b>` : '-'}</td>
             <td class="align-top text-center p-3 border-slate-100">${u.s40 ? `<b class="text-blue-600">${u.s40} <span class="text-[10px] font-normal">kg</span></b>` : '-'}</td>
-            <td class="align-top p-3 border-l border-slate-100">${formatCell('kaba', u.kaba, u.kabaUrun)}</td>
-            <td class="align-top p-3 border-l border-slate-100">${formatCell('ince', u.ince, u.inceUrun)}</td>
-            <td class="align-top p-3 border-l border-emerald-100 bg-emerald-50/20">${formatCell('bidon', u.bidon, u.bidonUrun)}</td>
-            <td class="align-top p-3 border-l border-slate-100">${formatCell('hassas', u.hassas, u.hassasUrun)}</td>
-            <td class="align-top p-3 border-l border-purple-100 bg-purple-50/20">${formatCell('harman', u.harman, u.harmanUrun)}</td>
+            <td class="align-top p-3 border-l border-slate-100">${formatCell(u, 'kaba', u.kaba, u.kabaUrun)}</td>
+            <td class="align-top p-3 border-l border-slate-100">${formatCell(u, 'ince', u.ince, u.inceUrun)}</td>
+            <td class="align-top p-3 border-l border-emerald-100 bg-emerald-50/20">${formatCell(u, 'bidon', u.bidon, u.bidonUrun)}</td>
+            <td class="align-top p-3 border-l border-slate-100">${formatCell(u, 'hassas', u.hassas, u.hassasUrun)}</td>
+            <td class="align-top p-3 border-l border-purple-100 bg-purple-50/20">${formatCell(u, 'harman', u.harman, u.harmanUrun)}</td>
             <td class="align-top p-3 border-l border-slate-100 text-slate-500 italic text-[11px]">${u.aciklama || '-'}</td>
             <td class="align-top p-3 border-l border-slate-100 text-center whitespace-nowrap">
               <div class="flex items-center justify-center gap-1">
@@ -10562,10 +10713,18 @@
 
       if (ls.length === 0) {
         tbody.innerHTML = '<tr><td colspan="12" class="py-8 text-center text-slate-400 font-medium">Filtrelere uygun üretim kaydı bulunamadı.</td></tr>';
+      } else {
+        tbody.innerHTML = rowsHtml;
       }
 
+      const isAllTime = (!fBas && !fBit && !fUrun);
       let ozetHtml = `<div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl shadow-sm">
-        <div class="text-xs font-bold text-indigo-600 uppercase mb-3 border-b border-indigo-100 pb-2">FİLTRELENEN ÜRETİM TOPLAMLARI (KG)</div>
+        <div class="text-xs font-bold text-indigo-600 uppercase mb-3 border-b border-indigo-100 pb-2 flex flex-wrap justify-between items-center gap-2">
+          <span>FİLTRELENEN ÜRETİM TOPLAMLARI (KG) · ${ls.length} KAYIT</span>
+          <span class="text-[11px] font-black px-2.5 py-0.5 rounded-full ${isAllTime ? 'bg-indigo-600 text-white' : 'bg-amber-100 text-amber-800'}">
+            ${isAllTime ? '♾️ TÜM ZAMANLAR (ALL TIME)' : '🔍 SEÇİLİ FİLTRE TOPLAMI'}
+          </span>
+        </div>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             <div class="bg-white px-3 py-2 rounded-lg border border-indigo-100 shadow-sm flex flex-col">
                 <span class="text-[10px] font-bold text-slate-500 uppercase">Strip (0.25)</span>
@@ -10613,15 +10772,15 @@
       document.getElementById('utEd_s25').value = u.s25 || '';
       document.getElementById('utEd_s40').value = u.s40 || '';
       document.getElementById('utEd_kaba').value = u.kaba || '';
-      document.getElementById('utEd_kabaUrun').value = u.kabaUrun || '';
+      document.getElementById('utEd_kabaUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.kabaUrun) : (u.kabaUrun || '');
       document.getElementById('utEd_ince').value = u.ince || '';
-      document.getElementById('utEd_inceUrun').value = u.inceUrun || '';
+      document.getElementById('utEd_inceUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.inceUrun) : (u.inceUrun || '');
       document.getElementById('utEd_bidon').value = u.bidon || '';
-      document.getElementById('utEd_bidonUrun').value = u.bidonUrun || '';
+      document.getElementById('utEd_bidonUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.bidonUrun) : (u.bidonUrun || '');
       document.getElementById('utEd_hassas').value = u.hassas || '';
-      document.getElementById('utEd_hassasUrun').value = u.hassasUrun || '';
+      document.getElementById('utEd_hassasUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.hassasUrun) : (u.hassasUrun || '');
       document.getElementById('utEd_harman').value = u.harman || '';
-      document.getElementById('utEd_harmanUrun').value = u.harmanUrun || '';
+      document.getElementById('utEd_harmanUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.harmanUrun) : (u.harmanUrun || '');
       document.getElementById('utDuzenleModal').classList.add('active');
     }
 
@@ -10640,15 +10799,15 @@
       const yeniS25 = parseFloat(document.getElementById('utEd_s25').value) || 0;
       const yeniS40 = parseFloat(document.getElementById('utEd_s40').value) || 0;
       const yeniKaba = parseFloat(document.getElementById('utEd_kaba').value) || 0;
-      const yeniKabaUrun = document.getElementById('utEd_kabaUrun').value.trim();
+      const yeniKabaUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_kabaUrun').value) : document.getElementById('utEd_kabaUrun').value.trim();
       const yeniInce = parseFloat(document.getElementById('utEd_ince').value) || 0;
-      const yeniInceUrun = document.getElementById('utEd_inceUrun').value.trim();
+      const yeniInceUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_inceUrun').value) : document.getElementById('utEd_inceUrun').value.trim();
       const yeniBidon = parseFloat(document.getElementById('utEd_bidon').value) || 0;
-      const yeniBidonUrun = document.getElementById('utEd_bidonUrun').value.trim();
+      const yeniBidonUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_bidonUrun').value) : document.getElementById('utEd_bidonUrun').value.trim();
       const yeniHassas = parseFloat(document.getElementById('utEd_hassas').value) || 0;
-      const yeniHassasUrun = document.getElementById('utEd_hassasUrun').value.trim();
+      const yeniHassasUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_hassasUrun').value) : document.getElementById('utEd_hassasUrun').value.trim();
       const yeniHarman = parseFloat(document.getElementById('utEd_harman').value) || 0;
-      const yeniHarmanUrun = document.getElementById('utEd_harmanUrun').value.trim();
+      const yeniHarmanUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_harmanUrun').value) : document.getElementById('utEd_harmanUrun').value.trim();
 
       // Değerleri kayda ata
       u.tarih = yeniTarih;
@@ -10659,6 +10818,7 @@
       u.kabaUrun = yeniKabaUrun;
       u.ince = yeniInce;
       u.inceUrun = yeniInceUrun;
+      u.bidon = yeniBidon;
       u.bidonUrun = yeniBidonUrun;
       u.hassas = yeniHassas;
       u.hassasUrun = yeniHassasUrun;
@@ -22953,8 +23113,93 @@
       }
     }
 
+    /* ÜRETİM TAKİP VERİLERİNİ TEK VE TEMİZ SAF ÜRÜN ADIYLA NORMALİZE ETME */
+    function uretimTakipVerileriniNormalizeEt() {
+      if (!DB.uretimTakip || !Array.isArray(DB.uretimTakip)) return;
+      let degisti = false;
+
+      function parseCompoundStr(rawStr, defaultMiktar, asamaKey) {
+        if (!rawStr) return [];
+        const str = String(rawStr).trim();
+        const res = [];
+        if (str.includes('|')) {
+          const parts = str.split('|').map(p => p.trim()).filter(Boolean);
+          parts.forEach(p => {
+            const match = p.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+            if (match) {
+              const uName = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(match[1]) : match[1].trim();
+              const pAmt = match[2] ? parseFloat(match[2].replace(',', '.')) : null;
+              if (pAmt !== null && !isNaN(pAmt)) {
+                res.push({ asama: asamaKey, urun: uName, miktar: pAmt });
+              }
+            }
+          });
+          if (res.length > 0) return res;
+        }
+        const matchSingle = str.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+        const uName = matchSingle ? (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(matchSingle[1]) : matchSingle[1].trim()) : (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(str) : str);
+        const miktar = defaultMiktar > 0 ? defaultMiktar : (matchSingle && matchSingle[2] ? parseFloat(matchSingle[2].replace(',', '.')) : 0);
+        if (uName && miktar > 0) {
+          res.push({ asama: asamaKey, urun: uName, miktar: miktar });
+        }
+        return res;
+      }
+
+      DB.uretimTakip.forEach(u => {
+        let newItems = [];
+        let itemDegisti = false;
+
+        if (Array.isArray(u.items) && u.items.length > 0) {
+          u.items.forEach(it => {
+            const parsed = parseCompoundStr(it.urun, parseFloat(it.miktar) || 0, it.asama);
+            if (parsed.length > 0) {
+              newItems.push(...parsed);
+              if (parsed.length > 1 || parsed[0].urun !== it.urun) itemDegisti = true;
+            } else if (it.miktar > 0) {
+              const saf = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun) : it.urun;
+              newItems.push({ asama: it.asama, urun: saf || it.urun, miktar: parseFloat(it.miktar) || 0 });
+              if (saf !== it.urun) itemDegisti = true;
+            }
+          });
+        } else {
+          // Eski tekli format
+          [
+            { asama: 'kaba', m: parseFloat(u.kaba) || 0, u: u.kabaUrun },
+            { asama: 'ince', m: parseFloat(u.ince) || 0, u: u.inceUrun },
+            { asama: 'bidon', m: parseFloat(u.bidon) || 0, u: u.bidonUrun },
+            { asama: 'hassas', m: parseFloat(u.hassas) || 0, u: u.hassasUrun },
+            { asama: 'harman', m: parseFloat(u.harman) || 0, u: u.harmanUrun }
+          ].forEach(x => {
+            if (x.m > 0 && x.u) {
+              const parsed = parseCompoundStr(x.u, x.m, x.asama);
+              if (parsed.length > 0) newItems.push(...parsed);
+            }
+          });
+          if (newItems.length > 0) itemDegisti = true;
+        }
+
+        if (itemDegisti && newItems.length > 0) {
+          u.items = newItems;
+          // Ana alanları da saf isimlerle senkronize et
+          ['kaba', 'ince', 'bidon', 'hassas', 'harman'].forEach(asama => {
+            const asamaItems = u.items.filter(it => it.asama === asama);
+            if (asamaItems.length > 0) {
+              u[`${asama}Urun`] = asamaItems.map(it => it.urun).join(' | ');
+              u[asama] = asamaItems.reduce((acc, it) => acc + (parseFloat(it.miktar) || 0), 0);
+            }
+          });
+          degisti = true;
+        }
+      });
+
+      if (degisti && typeof saveDB === 'function') {
+        saveDB();
+      }
+    }
+
     /* EK RENDER FONKSİYONLARI */
     function renderAll() {
+      try { uretimTakipVerileriniNormalizeEt(); } catch (e) { console.error("uretimTakip normalize hatası:", e); }
       if (typeof dashboardOzetGuncelle === 'function') dashboardOzetGuncelle();
       if (typeof renderDashboardHatDoluluk === 'function') renderDashboardHatDoluluk();
       if (typeof bildirimleriGuncelleUI === 'function') bildirimleriGuncelleUI();
