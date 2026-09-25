@@ -1302,8 +1302,8 @@
             <span id="sidebarUserAvatar"
               class="text-xl p-1.5 bg-slate-900/80 rounded-xl border border-slate-700">👨‍💼</span>
             <div class="min-w-0">
-              <div id="sidebarUserName" class="text-xs font-extrabold text-white truncate">Yunus Kaya</div>
-              <div id="sidebarUserRole" class="text-[10px] text-amber-400 font-bold truncate">Yönetici</div>
+              <div id="sidebarUserName" class="text-xs font-extrabold text-white truncate">-</div>
+              <div id="sidebarUserRole" class="text-[10px] text-amber-400 font-bold truncate">Giriş Yapılmadı</div>
             </div>
           </div>
           <button onclick="authFirebaseCikisYap()" title="Oturumu Kapat"
@@ -7874,17 +7874,35 @@
       { id: 'yillikOzet', ad: 'Yıllık Özet & MRP', icon: '📈', grup: 'Analiz & Raporlama' }
     ];
 
-    function checkIsUserAdmin(userOrEmail) {
+    // Sıkı Ana Sistem Yöneticisi E-posta Listesi
+    const MASTER_ADMIN_EMAILS = [
+      'yunus@yenerer.com',
+      'yunus@panzercrom.com',
+      'admin@panzercrom.com'
+    ];
+
+    function checkIsMasterAdmin(userOrEmail) {
       if (!userOrEmail) return false;
       const email = (typeof userOrEmail === 'string' ? userOrEmail : (userOrEmail.email || '')).toLowerCase().trim();
-      const dep = (typeof userOrEmail === 'object' ? (userOrEmail.departman || '') : '').trim();
-      const unvan = (typeof userOrEmail === 'object' ? (userOrEmail.unvan || '') : '').toLowerCase().trim();
-      const ad = (typeof userOrEmail === 'object' ? (userOrEmail.ad || '') : '').toLowerCase().trim();
+      return MASTER_ADMIN_EMAILS.includes(email);
+    }
 
-      if (email === 'yunus@yenerer.com' || email === 'yunus@panzercrom.com' || email === 'admin@panzercrom.com' || email.includes('yunus') || email.includes('admin')) {
-        return true;
-      }
-      if (dep === 'Yönetim' || unvan.includes('yönetici') || unvan.includes('admin') || ad.includes('yunus')) {
+    function checkIsUserAdmin(userOrEmail) {
+      if (!userOrEmail) return false;
+
+      // 1. Ana Sistem Yöneticisi e-postası ise her zaman tam yetkilidir
+      if (checkIsMasterAdmin(userOrEmail)) return true;
+
+      // 2. String e-posta verilmişse ve ana yönetici değilse yetkisizdir
+      if (typeof userOrEmail !== 'object') return false;
+
+      // 3. KRİTİK GÜVENLİK KURALI: Yönetici onayı almamış (durum !== 'Aktif') hiç kimse sisteme giremez ve yönetici sayılamaz!
+      if (userOrEmail.durum !== 'Aktif') return false;
+
+      // 4. Onaylı personellerden yalnızca departmanı 'Yönetim' olanlar sistem yöneticisidir
+      const dep = (userOrEmail.departman || '').trim();
+      const unvan = (userOrEmail.unvan || '').toLowerCase().trim();
+      if (dep === 'Yönetim' || unvan === 'sistem yöneticisi' || unvan === 'genel müdür' || unvan === 'fabrika müdürü') {
         return true;
       }
       return false;
@@ -7893,7 +7911,7 @@
     function checkIsUserRecipeAdmin(userOrEmail) {
       if (!userOrEmail) return false;
       const email = (typeof userOrEmail === 'string' ? userOrEmail : (userOrEmail.email || '')).toLowerCase().trim();
-      return email === 'yunus@yenerer.com' || email === 'yunus@panzercrom.com' || email.startsWith('yunus@yenerer') || email.startsWith('yunus@panzer');
+      return email === 'yunus@yenerer.com' || email === 'yunus@panzercrom.com';
     }
 
     let aktifSohbetHedefi = {
@@ -8580,14 +8598,13 @@
             if (targetEmail) {
               const guncel = gelenKullanicilar.find(u => (u.email && u.email.toLowerCase() === targetEmail) || (currentUser && u.authUid === currentUser.uid));
               if (guncel) {
-                aktifKullanici = guncel;
                 const gate = document.getElementById('firebaseAuthGate');
                 const appContainer = document.getElementById('app-container');
                 const pGoogle = document.getElementById('authGateGooglePane');
                 const pOperator = document.getElementById('authGateOperatorPane');
                 const pWait = document.getElementById('authGateWaitingApproval');
 
-                const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(guncel) : (targetEmail === 'yunus@yenerer.com' || targetEmail === 'yunus@panzercrom.com' || targetEmail === 'admin@panzercrom.com');
+                const isMasterAdmin = checkIsMasterAdmin(guncel);
 
                 if (isMasterAdmin) {
                   guncel.durum = 'Aktif';
@@ -8595,10 +8612,36 @@
                 }
 
                 if (guncel.durum === 'Aktif' || isMasterAdmin) {
+                  aktifKullanici = guncel;
                   if (gate) gate.classList.add('hidden');
                   if (appContainer) appContainer.classList.remove('opacity-0', 'pointer-events-none', 'blur-sm');
                   if (pWait) pWait.classList.add('hidden');
                 } else if (guncel.durum === 'Onay Bekliyor') {
+                  aktifKullanici = null;
+                  if (gate) gate.classList.remove('hidden');
+                  if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
+                  if (pGoogle) pGoogle.classList.add('hidden');
+                  if (pOperator) pOperator.classList.add('hidden');
+                  if (pWait) pWait.classList.remove('hidden');
+                } else {
+                  // Askıya Alındı veya Pasif
+                  aktifKullanici = null;
+                  if (gate) gate.classList.remove('hidden');
+                  if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
+                  if (pGoogle) pGoogle.classList.add('hidden');
+                  if (pOperator) pOperator.classList.add('hidden');
+                  if (pWait) pWait.classList.remove('hidden');
+                }
+              } else {
+                // Kullanıcı henüz bulut listesinde bulunamadıysa (yeni başvuru):
+                const gate = document.getElementById('firebaseAuthGate');
+                const appContainer = document.getElementById('app-container');
+                const pGoogle = document.getElementById('authGateGooglePane');
+                const pOperator = document.getElementById('authGateOperatorPane');
+                const pWait = document.getElementById('authGateWaitingApproval');
+                const isMaster = checkIsMasterAdmin(targetEmail);
+                if (!isMaster) {
+                  aktifKullanici = null;
                   if (gate) gate.classList.remove('hidden');
                   if (appContainer) appContainer.classList.add('opacity-0', 'pointer-events-none', 'blur-sm');
                   if (pGoogle) pGoogle.classList.add('hidden');
@@ -8830,24 +8873,27 @@
 
     /* NAV & MODAL */
     function navigate(t) {
-      if (aktifKullanici) {
-        const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : (aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin'))));
+      if (!aktifKullanici || aktifKullanici.durum !== 'Aktif') {
+        showToast('⛔ Hesabınız henüz onaylanmadı veya aktif bir oturumunuz bulunmuyor.', 'error');
+        return;
+      }
 
-        // Yönetici değilse ve modül yetkisi yoksa engelle
-        if (!isYonetici) {
-          const userModuller = Array.isArray(aktifKullanici.izinliModuller) && aktifKullanici.izinliModuller.length > 0
-            ? aktifKullanici.izinliModuller
-            : ['dashboard', 'uretim', 'isemri', 'harman', 'mesajlar'];
+      const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : false;
 
-          if (t === 'apmplakalar' && (userModuller.includes('apmisemri') || userModuller.includes('apmplakalar'))) {
-            // izinli
-          } else if (!userModuller.includes(t)) {
-            showToast(`⛔ "${t.toUpperCase()}" modülüne erişim yetkiniz bulunmamaktadır. Yöneticiniz ile görüşünüz.`, 'error');
-            // İlk erişebildiği modüle git veya dashboard
-            const ilkModul = userModuller[0] || 'dashboard';
-            if (t !== ilkModul) navigate(ilkModul);
-            return;
-          }
+      // Yönetici değilse ve modül yetkisi yoksa engelle
+      if (!isYonetici) {
+        const userModuller = Array.isArray(aktifKullanici.izinliModuller) && aktifKullanici.izinliModuller.length > 0
+          ? aktifKullanici.izinliModuller
+          : ['dashboard', 'uretim', 'isemri', 'harman', 'mesajlar'];
+
+        if (t === 'apmplakalar' && (userModuller.includes('apmisemri') || userModuller.includes('apmplakalar'))) {
+          // izinli
+        } else if (!userModuller.includes(t)) {
+          showToast(`⛔ "${t.toUpperCase()}" modülüne erişim yetkiniz bulunmamaktadır. Yöneticiniz ile görüşünüz.`, 'error');
+          // İlk erişebildiği modüle git veya dashboard
+          const ilkModul = userModuller[0] || 'dashboard';
+          if (t !== ilkModul) navigate(ilkModul);
+          return;
         }
       }
 
@@ -8886,7 +8932,7 @@
       }
 
       if (t === 'kullanicilar') {
-        const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : (aktifKullanici && (aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin')))));
+        const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : false;
         if (!isYonetici) {
           alert('⛔ Bu modüle sadece Sistem Yöneticisi erişebilir.');
           navigate('dashboard');
@@ -22700,8 +22746,8 @@
       ensureDBArrays();
       let profil = (DB.kullanicilar || []).find(u => (u.email && u.email.toLowerCase() === emailToCheck) || (user && u.authUid && u.authUid === user.uid));
 
-      // Otomatik sistem ana kurucu kontrolü
-      const isMasterAdmin = checkIsUserAdmin(emailToCheck);
+      // Otomatik sistem ana kurucu kontrolü (Sadece kesin yetkili e-postalar)
+      const isMasterAdmin = checkIsMasterAdmin(emailToCheck);
 
       if (!profil) {
         profil = {
@@ -23235,7 +23281,7 @@
       } catch (err) {
         console.warn("Firebase Auth Giriş Hatası:", err);
         // Sıkı Giriş Doğrulaması: Şifresiz giriş kesinlikle yasaktır!
-        const isMaster = checkIsUserAdmin(email) || email.toLowerCase().includes('yunus') || email.toLowerCase().includes('admin');
+        const isMaster = checkIsMasterAdmin(email);
         const isMasterPassValid = (pass === 'Panzer2026!' || pass === '123456' || pass === 'panzerp');
 
         // Yalnızca geçerli yönetici e-postası VE doğru yönetici parolası girildiyse yerel onay ver
@@ -23332,7 +23378,7 @@
         ensureDBArrays();
         const cleanEmail = email.toLowerCase().trim();
         // Sadece yetkili ana yönetici adresleri doğrudan Aktif olur, diğer yeni kayıt olan tüm personeller Onay Bekliyor durumunda kalır
-        const isMasterAdmin = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(cleanEmail) : (cleanEmail === 'yunus@yenerer.com' || cleanEmail === 'yunus@panzercrom.com' || cleanEmail === 'admin@panzercrom.com');
+        const isMasterAdmin = checkIsMasterAdmin(cleanEmail);
 
         // Varsa eski kaydı güncelle veya yeni ekle
         let userProfil = (DB.kullanicilar || []).find(u => u.email && u.email.toLowerCase() === cleanEmail);
@@ -23531,16 +23577,21 @@
 
 
     function renderSidebarUserProfile() {
-      if (!aktifKullanici) return;
       const sName = document.getElementById('sidebarUserName');
       const sRole = document.getElementById('sidebarUserRole');
       const sAvatar = document.getElementById('sidebarUserAvatar');
+      if (!aktifKullanici || aktifKullanici.durum !== 'Aktif') {
+        if (sName) sName.textContent = '-';
+        if (sRole) sRole.textContent = 'Giriş Yapılmadı';
+        if (sAvatar) sAvatar.textContent = '👤';
+        return;
+      }
       if (sName) sName.textContent = aktifKullanici.ad;
       if (sRole) sRole.textContent = `${aktifKullanici.departman || ''} · ${aktifKullanici.unvan || ''}`;
       if (sAvatar) sAvatar.textContent = aktifKullanici.avatar || '👤';
 
       // Sadece Yöneticiye "Kullanıcı & Personel" sekmesini göster ve onay bekleyenleri rozetle
-      const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : (aktifKullanici.departman === 'Yönetim' || (aktifKullanici.email && (aktifKullanici.email.includes('yunus') || aktifKullanici.email.includes('admin'))));
+      const isYonetici = typeof checkIsUserAdmin === 'function' ? checkIsUserAdmin(aktifKullanici) : false;
       const navKullanicilar = document.getElementById('navItemKullanicilar');
       const badgeOnay = document.getElementById('bKullaniciOnay');
 
@@ -23972,8 +24023,9 @@
 
     function mesajKaydetMotoru(metin) {
       ensureDBArrays();
-      if (!aktifKullanici) {
-        aktifKullanici = DB.kullanicilar[0] || { id: 1, ad: 'Yunus Kaya', avatar: '👨‍💼', departman: 'Yönetim', unvan: 'Yönetici' };
+      if (!aktifKullanici || aktifKullanici.durum !== 'Aktif') {
+        showToast('Mesaj göndermek için geçerli bir oturumunuz olmalıdır.', 'warning');
+        return;
       }
 
       const yeniMesaj = {
