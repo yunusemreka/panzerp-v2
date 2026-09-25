@@ -7574,7 +7574,22 @@
       const urunlerHtml = (DB.urunler || []).map(u => {
         const adGosterim = (u.ad || u.kod || '').trim();
         const kodGosterim = (u.kod || '').trim();
-        const capGosterim = (u.cap || '').trim();
+        let capGosterim = (u.cap || '').trim();
+        if (!capGosterim || capGosterim === '-') {
+          const matchAd = (u.ad || '').match(/(?:Ø\s*|\bcap\s*|\bçap\s*)?([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+          if (matchAd) {
+            let val = matchAd[1].trim().replace(',', '.');
+            if (!val.toLowerCase().includes('mm')) val += ' mm';
+            capGosterim = 'Ø' + val;
+          } else if (u.strip) {
+            const matchStrip = u.strip.match(/(?:Ø\s*|\bcap\s*|\bçap\s*)([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+            if (matchStrip) {
+              let val = matchStrip[1].trim().replace(',', '.');
+              if (!val.toLowerCase().includes('mm')) val += ' mm';
+              capGosterim = 'Ø' + val;
+            }
+          }
+        }
         const fullMetin = kodGosterim && kodGosterim !== adGosterim ? `${adGosterim} (${kodGosterim})` : adGosterim;
         
         return `<div class="dropdown-item flex items-center justify-between py-2 px-3 hover:bg-amber-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${adGosterim}" data-kod="${kodGosterim}" data-cap="${capGosterim}" onclick="selectDropdownVal(this, '${adGosterim.replace(/'/g, "\\'")}', '${capGosterim}')">
@@ -7676,7 +7691,12 @@
       const parentListId = element.parentElement.id;
       const inputId = parentListId.replace('-list', '');
       const inputEl = document.getElementById(inputId);
-      const selectedName = element.dataset.ad || val;
+      let selectedName = element.dataset.ad || val;
+      if (['utKabaUrun', 'utInceUrun', 'utBidonUrun', 'utHassasUrun', 'utHarmanUrun'].includes(inputId)) {
+        if (capVal && capVal !== '-' && !selectedName.includes(capVal)) {
+          selectedName = `${selectedName} - ${capVal}`;
+        }
+      }
       if (inputEl) inputEl.value = selectedName;
       closeDropdown(inputId);
 
@@ -9719,7 +9739,22 @@
           const adGosterim = (u.ad || u.kod || '').trim();
           const safAd = temizSafUrunAdi(adGosterim);
           const kodGosterim = (u.kod || '').trim();
-          const capGosterim = (u.cap || '').trim();
+          let capGosterim = (u.cap || '').trim();
+          if (!capGosterim || capGosterim === '-') {
+            const matchAd = (u.ad || '').match(/(?:Ø\s*|\bcap\s*|\bçap\s*)?([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+            if (matchAd) {
+              let val = matchAd[1].trim().replace(',', '.');
+              if (!val.toLowerCase().includes('mm')) val += ' mm';
+              capGosterim = 'Ø' + val;
+            } else if (u.strip) {
+              const matchStrip = u.strip.match(/(?:Ø\s*|\bcap\s*|\bçap\s*)([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+              if (matchStrip) {
+                let val = matchStrip[1].trim().replace(',', '.');
+                if (!val.toLowerCase().includes('mm')) val += ' mm';
+                capGosterim = 'Ø' + val;
+              }
+            }
+          }
           const tamUrunAdi = safAd + (capGosterim && capGosterim !== '-' ? ` - ${capGosterim}` : '');
 
           dropdownItems += `<div class="dropdown-item flex items-center justify-between py-2 px-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${safAd}" data-kod="${kodGosterim}" data-cap="${capGosterim}" onclick="utKalemDropdownSec('${asama}', ${k.id}, '${tamUrunAdi.replace(/'/g, "\\'")}')">
@@ -10057,24 +10092,89 @@
       if (!urunStr) return null;
       DB.ktmUrunler = DB.ktmUrunler || [];
 
-      let parts = urunStr.split(' - ');
-      let kod = parts[0] ? parts[0].trim() : urunStr.trim();
-      let cap = parts[1] ? parts[1].trim() : '-';
+      // 1. Gelen metni temizle ve kod / saf ad / çapı ayrıştır
+      let cleanStr = urunStr.replace(/[\r\n]+/g, ' ').trim();
+      let parts = cleanStr.split(' - ');
+      let kodOrAd = parts[0] ? parts[0].trim() : cleanStr;
+      let safAd = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(kodOrAd).toLowerCase() : kodOrAd.toLowerCase();
+      let cap = parts[1] ? parts[1].trim() : '';
 
-      // 1. Önce tam eşleşme (kod ve çap)
-      let u = DB.ktmUrunler.find(x => x.kod.toLowerCase() === kod.toLowerCase() && (x.cap || '-').toLowerCase() === cap.toLowerCase());
-
-      // 2. Kod eşleşmesi
-      if (!u) {
-        u = DB.ktmUrunler.find(x => x.kod.toLowerCase() === kod.toLowerCase());
+      // Eğer çap metinde ' - ' ile ayrılmamışsa regex ile ara (örn: "AbraHARD 9200 Ø2.8 mm" veya "9200-1")
+      if (!cap || cap === '-') {
+        const capMatch = cleanStr.match(/(?:Ø\s*|\bcap\s*|\bçap\s*)?([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+        if (capMatch) {
+          let val = capMatch[1].trim().replace(',', '.');
+          if (!val.toLowerCase().includes('mm')) val += ' mm';
+          cap = 'Ø' + val;
+        }
       }
 
-      // 3. Ürün adı eşleşmesi
-      if (!u) {
-        u = DB.ktmUrunler.find(x => (x.ad || '').toLowerCase() === urunStr.toLowerCase() || (x.kod + ' - ' + (x.cap || '')).toLowerCase() === urunStr.toLowerCase());
+      // Hala çap bulunamadıysa DB.urunler tablosundan kod veya ada göre çapı çek
+      if (!cap || cap === '-') {
+        const matchedUrun = (DB.urunler || []).find(x => 
+          (x.kod && x.kod.toLowerCase() === kodOrAd.toLowerCase()) ||
+          (x.ad && x.ad.toLowerCase() === kodOrAd.toLowerCase()) ||
+          (typeof temizSafUrunAdi === 'function' && temizSafUrunAdi(x.ad || '').toLowerCase() === safAd)
+        );
+        if (matchedUrun) {
+          if (matchedUrun.cap && matchedUrun.cap !== '-') {
+            cap = matchedUrun.cap;
+          } else if (matchedUrun.strip) {
+            const mStrip = matchedUrun.strip.match(/(?:Ø\s*|\bcap\s*|\bçap\s*)([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+            if (mStrip) cap = 'Ø' + mStrip[1].trim() + ' mm';
+          }
+        }
       }
 
-      // Bulunamadıysa otomatik yeni stok kartı oluştur
+      // Çap normalize etme fonksiyonu (2.8, 2,8, Ø2.8 mm -> 2.8)
+      const normCap = (c) => (c || '').replace(/[^\d.,]/g, '').replace(',', '.').trim();
+      const targetNormCap = normCap(cap);
+
+      // 1. Adım: Kod/SafAd VE Çap tam uyuşan kartı ara
+      let u = DB.ktmUrunler.find(x => {
+        const xKod = (x.kod || '').toLowerCase().replace(/[\r\n]+/g, ' ').trim();
+        const xAd = (x.ad || '').toLowerCase().replace(/[\r\n]+/g, ' ').trim();
+        const xSafAd = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(xAd || xKod) : xAd;
+        const xNormCap = normCap(x.cap || xAd || xKod);
+
+        const adEslesti = (xKod === kodOrAd.toLowerCase()) || 
+                          (xAd === kodOrAd.toLowerCase()) || 
+                          (safAd && (xSafAd === safAd || xAd.includes(safAd) || safAd.includes(xSafAd)));
+
+        if (!adEslesti) return false;
+
+        // Eğer hedef çap varsa, kartın çapı ile uyuşmalı! Asla farklı bir çapa yönlendirme yapma!
+        if (targetNormCap && xNormCap) {
+          return Math.abs(parseFloat(targetNormCap) - parseFloat(xNormCap)) < 0.05;
+        }
+        return !targetNormCap && !xNormCap;
+      });
+
+      // 2. Adım: Eğer hedef çap belirlenmişse ve yukarıda bulunamadıysa, SADECE aynı çapa sahip olan kartları ara
+      if (!u && targetNormCap) {
+        u = DB.ktmUrunler.find(x => {
+          const xKod = (x.kod || '').toLowerCase();
+          const xAd = (x.ad || '').toLowerCase();
+          const xNormCap = normCap(x.cap || xAd || xKod);
+          if (!xNormCap || Math.abs(parseFloat(targetNormCap) - parseFloat(xNormCap)) > 0.05) return false;
+
+          return xKod.includes(safAd) || safAd.includes(xKod) || xAd.includes(safAd) || safAd.includes(xAd);
+        });
+      }
+
+      // 3. Adım: Hedef çap yoksa, SADECE çapı olmayan veya tek kartı olan ürünü eşleştir (Asla rastgele bir çapa bağlama)
+      if (!u && !targetNormCap) {
+        const adaylar = DB.ktmUrunler.filter(x => {
+          const xKod = (x.kod || '').toLowerCase();
+          const xAd = (x.ad || '').toLowerCase();
+          return xKod === kodOrAd.toLowerCase() || xAd === kodOrAd.toLowerCase();
+        });
+        if (adaylar.length === 1) {
+          u = adaylar[0];
+        }
+      }
+
+      // 4. Bulunamadıysa otomatik yeni stok kartı oluştur (Çapı doğru atanarak)
       if (!u) {
         let varsayilanPaket = paketTipi || '250 kg Drum/Bidon';
         if (urunStr.toLowerCase().includes('hassas') || paketTipi === 'Hassas') {
@@ -10083,10 +10183,10 @@
 
         u = {
           id: Date.now() + Math.floor(Math.random() * 1000),
-          kod: kod,
-          ad: kod,
+          kod: kodOrAd,
+          ad: kodOrAd,
           tip: 'Flux Cored Tel',
-          cap: cap,
+          cap: cap || '-',
           paket: varsayilanPaket,
           minStok: 50,
           kaynak: 'FCW Üretim',
@@ -10224,7 +10324,13 @@
       validItems.forEach(item => {
         if ((item.asama === 'bidon' || item.asama === 'hassas') && item.miktar > 0 && item.urun) {
           const varsayilanPaket = item.asama === 'hassas' ? '15 kg Spool' : '250 kg Drum/Bidon';
-          const ktmU = ktmStokKartiBulVeyaOlustur(item.urun, varsayilanPaket);
+          let urunStr = item.urun;
+          if (!urunStr.includes(' - ') && !urunStr.match(/Ø\s*[0-9]/)) {
+            if (bagliIsEmri && isItemMatchingIsEmri(item.urun, bagliIsEmri) && bagliIsEmri.cap && bagliIsEmri.cap !== '-') {
+              urunStr = item.urun + ' - ' + bagliIsEmri.cap;
+            }
+          }
+          const ktmU = ktmStokKartiBulVeyaOlustur(urunStr, varsayilanPaket);
           if (ktmU) {
             ktmU.stok = (parseFloat(ktmU.stok) || 0) + item.miktar;
 
@@ -12623,9 +12729,20 @@
       const kartlarToDelete = new Set();
 
       function getCanonicalKey(u) {
-        let kod = (u.kod || '').trim().toLowerCase();
-        let ad = temizSafUrunAdi(u.ad || u.kod || '').toLowerCase();
+        let rawKod = (u.kod || '').replace(/[\r\n]+/g, ' ').trim();
+        let rawAd = (u.ad || '').replace(/[\r\n]+/g, ' ').trim();
+        let kod = rawKod.toLowerCase();
+        let ad = (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(rawAd || rawKod) : rawAd).toLowerCase();
         let cap = typeof standartCapFormat === 'function' ? standartCapFormat(u.cap) : (u.cap || '');
+
+        if (!cap || cap === '-') {
+          const capMatch = (rawAd + ' ' + rawKod).match(/(?:Ø\s*|\bcap\s*|\bçap\s*)?([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+          if (capMatch) {
+            let val = capMatch[1].trim().replace(',', '.');
+            if (!val.toLowerCase().includes('mm')) val += ' mm';
+            cap = typeof standartCapFormat === 'function' ? standartCapFormat('Ø' + val) : 'Ø' + val;
+          }
+        }
 
         // Özel eşleştirmeler (RollHARD 414 / RH-414 vb.)
         if (kod === 'rh-414' || ad.includes('rollhard 414') || kod.includes('rollhard 414')) {
@@ -12633,6 +12750,9 @@
         }
         if (kod === 'rf-01' || ad.includes('rollflux') || kod.includes('rollflux')) {
           return 'rf01___' + (cap || '-');
+        }
+        if (ad.includes('9200') || kod.includes('9200')) {
+          return 'abrahard9200___' + (cap || 'Ø2.8 mm');
         }
 
         // Genel eşleştirme anahtarı: safAd + cap veya kod + cap
@@ -16527,7 +16647,21 @@
         // WhatsApp & Bildirim Şablonu
         let kalemlerListesiMetin = '';
         kalemlerStructured.forEach(k => {
-          kalemlerListesiMetin += `\n• ${k.urunKod} - ${k.urunAd}: *${k.miktar} kg* ${k.not ? '(' + k.not + ')' : ''}`;
+          let capStr = (k.cap || '').trim();
+          if (!capStr || capStr === '-') {
+            const ktmU = (DB.ktmUrunler || []).find(x => x.id === k.urunId || x.kod === k.urunKod);
+            if (ktmU && ktmU.cap && ktmU.cap !== '-') capStr = ktmU.cap;
+            else {
+              const m = (k.urunAd || '').match(/Çap:\s*([^|)]+)/i) || (k.urunAd || '').match(/(?:Ø\s*|\bcap\s*|\bçap\s*)([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+              if (m) capStr = m[1].trim();
+            }
+          }
+          const capGosterim = (capStr && capStr !== '-') ? ` [Ø ${capStr.replace(/^Ø\s*/, '')}]` : '';
+          let temizAd = (k.urunAd || '').replace(/\s*\(Çap:[^)]+\)/gi, '').trim();
+          if (!temizAd) temizAd = k.urunKod || '';
+          const urunBaslik = (k.urunKod && k.urunKod !== temizAd) ? `${k.urunKod} - ${temizAd}` : temizAd;
+
+          kalemlerListesiMetin += `\n• ${urunBaslik}${capGosterim}: *${k.miktar} kg* ${k.not ? '(' + k.not + ')' : ''}`;
         });
 
         const refInfo = yenererRefNo ? `\n🔖 Yenerer Ref: ${yenererRefNo}` : '';
@@ -16556,7 +16690,21 @@
       let kalemlerMetin = '';
       kalemler.forEach(k => {
         const hazirIcon = k.hazir ? '✅' : '⏳';
-        kalemlerMetin += `\n• ${hazirIcon} ${k.urunKod} - ${k.urunAd}: *${k.miktar} kg* (Sevk: ${k.sevkEdilen || 0} kg)`;
+        let capStr = (k.cap || '').trim();
+        if (!capStr || capStr === '-') {
+          const ktmU = (DB.ktmUrunler || []).find(x => x.id === k.urunId || x.kod === k.urunKod);
+          if (ktmU && ktmU.cap && ktmU.cap !== '-') capStr = ktmU.cap;
+          else {
+            const m = (k.urunAd || '').match(/Çap:\s*([^|)]+)/i) || (k.urunAd || '').match(/(?:Ø\s*|\bcap\s*|\bçap\s*)([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+            if (m) capStr = m[1].trim();
+          }
+        }
+        const capGosterim = (capStr && capStr !== '-') ? ` [Ø ${capStr.replace(/^Ø\s*/, '')}]` : '';
+        let temizAd = (k.urunAd || '').replace(/\s*\(Çap:[^)]+\)/gi, '').trim();
+        if (!temizAd) temizAd = k.urunKod || '';
+        const urunBaslik = (k.urunKod && k.urunKod !== temizAd) ? `${k.urunKod} - ${temizAd}` : temizAd;
+
+        kalemlerMetin += `\n• ${hazirIcon} ${urunBaslik}${capGosterim}: *${k.miktar} kg* (Sevk: ${k.sevkEdilen || 0} kg)`;
       });
 
       // Paletleme / Çeki listesi metni
