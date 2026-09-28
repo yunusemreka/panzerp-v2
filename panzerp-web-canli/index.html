@@ -4698,9 +4698,14 @@
       <div class="flex justify-end gap-3 no-print">
         <button onclick="closeModal('ktmPaketlemeModal')"
           class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm">İptal</button>
-        <button onclick="ktmPaketlemeKaydet()"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-md text-sm transition-transform active:scale-95">💾
-          Paketleme Bilgilerini Kaydet</button>
+        <button onclick="ktmPaketlemeKaydet(false)"
+          class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md text-sm transition-transform active:scale-95 flex items-center gap-1.5">
+          <span>💾</span> Paketleme Bilgilerini Kaydet
+        </button>
+        <button onclick="ktmPaketlemeKaydet(true)"
+          class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md text-sm transition-transform active:scale-95 flex items-center gap-1.5">
+          <span>🚚</span> Kaydet & Sevk Et
+        </button>
       </div>
     </div>
   </div>
@@ -15367,7 +15372,7 @@
     let currentPaketSipId = null;
 
     function ktmPaketlemeModalAc(sipId) {
-      const sip = (DB.ktmSiparisler || []).find(s => s.id === sipId);
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
       if (!sip) return;
       currentPaketSipId = sip.id;
 
@@ -15525,7 +15530,7 @@
     }
 
     function ktmPaketSeciliUrunleriHesapla() {
-      const sip = (DB.ktmSiparisler || []).find(s => s.id === currentPaketSipId);
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == currentPaketSipId || String(s.id) === String(currentPaketSipId));
       if (!sip) return;
 
       const kalemler = Array.isArray(sip.kalemler) && sip.kalemler.length > 0 ? sip.kalemler : [{
@@ -15564,36 +15569,25 @@
       }
     }
 
-    function paletEkleModalDraft() {
-      const sip = (DB.ktmSiparisler || []).find(s => s.id === currentPaketSipId);
-      if (!sip) return;
+    function paletEkleModalDraft(isAuto = false) {
+      const sipId = currentPaketSipId || document.getElementById('ktmPaket_sipId')?.value;
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) return false;
 
       const paletSelect = document.getElementById('ktmPaket_paletTipi');
-      const paletVal = paletSelect.value;
+      const paletVal = paletSelect ? paletSelect.value : 'ozel';
       let paletTipiAdi = 'Özel Paket';
-      if (paletVal !== 'ozel') {
-        const std = (DB.standartPaletler || []).find(p => p.id == paletVal);
+      if (paletVal !== 'ozel' && paletVal) {
+        const std = (DB.standartPaletler || []).find(p => p.id == paletVal || p.ad === paletVal);
         if (std) paletTipiAdi = std.ad;
       }
 
-      const en = parseFloat(document.getElementById('ktmPaket_en').value) || 0;
-      const boy = parseFloat(document.getElementById('ktmPaket_boy').value) || 0;
-      const yukseklik = parseFloat(document.getElementById('ktmPaket_yukseklik').value) || 0;
-      const adet = parseInt(document.getElementById('ktmPaket_adet').value) || 1;
-      let netAgirlik = parseFloat(document.getElementById('ktmPaket_netAgirlik').value) || 0;
-      let brutAgirlik = parseFloat(document.getElementById('ktmPaket_brutAgirlik').value) || 0;
-
-      if (yukseklik <= 0) {
-        alert('Lütfen palet / paket yüksekliğini (cm) giriniz!');
-        document.getElementById('ktmPaket_yukseklik').focus();
-        return;
-      }
-
-      if (brutAgirlik <= 0) {
-        alert('Lütfen paletin Brüt Ağırlığını (kg) giriniz!\n(Brüt Ağırlık zorunlu alandır, her palette tartım veya hesaplama gerektirir)');
-        document.getElementById('ktmPaket_brutAgirlik').focus();
-        return;
-      }
+      const en = parseFloat(document.getElementById('ktmPaket_en')?.value) || (paletVal !== 'ozel' ? 80 : 0);
+      const boy = parseFloat(document.getElementById('ktmPaket_boy')?.value) || (paletVal !== 'ozel' ? 120 : 0);
+      let yukseklik = parseFloat(document.getElementById('ktmPaket_yukseklik')?.value) || 0;
+      const adet = parseInt(document.getElementById('ktmPaket_adet')?.value) || 1;
+      let netAgirlik = parseFloat(document.getElementById('ktmPaket_netAgirlik')?.value) || 0;
+      let brutAgirlik = parseFloat(document.getElementById('ktmPaket_brutAgirlik')?.value) || 0;
 
       // Palet İçi Seçili Ürünleri Topla
       const kalemler = Array.isArray(sip.kalemler) && sip.kalemler.length > 0 ? sip.kalemler : [{
@@ -15620,42 +15614,62 @@
         }
       });
 
+      // Eğer kullanıcı kutucukları işaretlemediyse sipariş kalemlerini otomatik dahil et
       if (seciliIcerik.length === 0) {
-        alert('Lütfen bu paletin içine dahil edilecek en az 1 adet ürün ve miktar (kg) seçiniz!');
-        return;
+        kalemler.forEach(k => {
+          const kMiktar = parseFloat(k.miktar) || 0;
+          if (kMiktar > 0) {
+            seciliIcerik.push({
+              urunId: k.urunId,
+              urunKod: k.urunKod,
+              urunAd: k.urunAd,
+              miktar: kMiktar
+            });
+            icerikNetToplam += kMiktar;
+          }
+        });
       }
 
       if (netAgirlik <= 0) {
-        netAgirlik = icerikNetToplam;
-        if (brutAgirlik <= 0) brutAgirlik = netAgirlik + 20;
+        netAgirlik = icerikNetToplam > 0 ? icerikNetToplam : (parseFloat(sip.toplamMiktar || sip.miktar) || 0);
+      }
+
+      if (yukseklik <= 0) {
+        yukseklik = 100;
+      }
+
+      if (brutAgirlik <= 0) {
+        brutAgirlik = netAgirlik > 0 ? (netAgirlik + 25) : 25;
       }
 
       ktmPaketDraftListe.push({
         id: Date.now() + Math.random(),
         paletTipi: paletTipiAdi,
-        en,
-        boy,
-        yukseklik,
-        adet,
-        netAgirlik,
-        brutAgirlik,
+        en: en || 80,
+        boy: boy || 120,
+        yukseklik: yukseklik || 100,
+        adet: adet || 1,
+        netAgirlik: netAgirlik,
+        brutAgirlik: brutAgirlik,
         icerik: seciliIcerik
       });
 
       // Formu sıfırla
-      document.getElementById('ktmPaket_yukseklik').value = '';
-      document.getElementById('ktmPaket_netAgirlik').value = '';
-      document.getElementById('ktmPaket_brutAgirlik').value = '';
-      document.getElementById('ktmPaket_adet').value = '1';
+      if (document.getElementById('ktmPaket_yukseklik')) document.getElementById('ktmPaket_yukseklik').value = '';
+      if (document.getElementById('ktmPaket_netAgirlik')) document.getElementById('ktmPaket_netAgirlik').value = '';
+      if (document.getElementById('ktmPaket_brutAgirlik')) document.getElementById('ktmPaket_brutAgirlik').value = '';
+      if (document.getElementById('ktmPaket_adet')) document.getElementById('ktmPaket_adet').value = '1';
 
-      // Ürün seçici alanını kalan miktarlara göre yeniden render et
-      ktmPaketUrunSecimAlaniRender(sip);
-      ktmPaketleriRenderModal();
+      if (!isAuto) {
+        ktmPaketUrunSecimAlaniRender(sip);
+        ktmPaketleriRenderModal();
+      }
+      return true;
     }
 
     function paletSilModalDraft(idx) {
       ktmPaketDraftListe.splice(idx, 1);
-      const sip = (DB.ktmSiparisler || []).find(s => s.id === currentPaketSipId);
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == currentPaketSipId || String(s.id) === String(currentPaketSipId));
       if (sip) ktmPaketUrunSecimAlaniRender(sip);
       ktmPaketleriRenderModal();
     }
@@ -15713,12 +15727,47 @@
       }
     }
 
-    function ktmPaketlemeKaydet() {
-      if (!currentPaketSipId) return;
-      const sip = (DB.ktmSiparisler || []).find(s => s.id === currentPaketSipId);
-      if (!sip) return;
+    function ktmPaketlemeKaydet(andOpenSevk = false) {
+      const sipId = currentPaketSipId || document.getElementById('ktmPaket_sipId')?.value;
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) {
+        showToast('Sipariş bulunamadı!', 'error');
+        return;
+      }
 
-      const hazirlandiTarihi = document.getElementById('ktmPaket_hazirlandiTarihi').value || new Date().toISOString().slice(0, 10);
+      // Kullanıcı "➕ Palet Ekle" butonuna basmadan doğrudan kaydetmişse formdaki veriyi palet yap
+      if (ktmPaketDraftListe.length === 0) {
+        paletEkleModalDraft(true);
+      }
+
+      // Hala boşsa siparişin tamamını 1 standart palete ata
+      if (ktmPaketDraftListe.length === 0) {
+        const defKalemler = Array.isArray(sip.kalemler) && sip.kalemler.length > 0 ? sip.kalemler : [{
+          urunId: sip.urunId,
+          urunKod: sip.urunKod || '',
+          urunAd: sip.urunAd || '',
+          miktar: parseFloat(sip.toplamMiktar || sip.miktar) || 0
+        }];
+        const netTop = defKalemler.reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0);
+        ktmPaketDraftListe.push({
+          id: Date.now(),
+          paletTipi: 'Standart Palet (80x120)',
+          en: 80,
+          boy: 120,
+          yukseklik: 100,
+          adet: 1,
+          netAgirlik: netTop,
+          brutAgirlik: netTop + 25,
+          icerik: defKalemler.map(k => ({
+            urunId: k.urunId,
+            urunKod: k.urunKod,
+            urunAd: k.urunAd,
+            miktar: parseFloat(k.miktar) || 0
+          }))
+        });
+      }
+
+      const hazirlandiTarihi = document.getElementById('ktmPaket_hazirlandiTarihi')?.value || new Date().toISOString().slice(0, 10);
       const durumSecilen = document.getElementById('ktmPaket_durum')?.value || 'hazirlandi';
 
       sip.paketler = JSON.parse(JSON.stringify(ktmPaketDraftListe));
@@ -15749,10 +15798,16 @@
         }
       }
 
-      saveDB();
+      saveDB(true);
       renderAll();
       closeModal('ktmPaketlemeModal');
-      showToast(`Sipariş (${sip.siparisNo || 'SIP-' + sip.id}) paketleme ve palet bilgileri başarıyla kaydedildi.`, 'success');
+      showToast(`Sipariş (${sip.siparisNo || 'SIP-' + sip.id}) paketleme bilgileri başarıyla kaydedildi (${sip.paketler.length} Palet).`, 'success');
+
+      if (andOpenSevk) {
+        setTimeout(() => {
+          ktmKismiSevkModalAc(sip.id);
+        }, 150);
+      }
     }
 
     /* ========================================================================= */
@@ -16989,20 +17044,20 @@
         const depoNotuHtml = s.depoNotu ? `<div class="text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-200 font-medium my-1">📝 ${s.depoNotu}</div>` : '';
         const waBadgeHtml = s.whatsapp ? `<span class="text-[11px] text-emerald-700 font-bold flex items-center gap-1 mt-0.5"><span>💬</span> ${s.whatsapp}</span>` : '';
 
-        // SEVK BUTONU: Paketleme olmadan sevk yapılamaz kontrolü
+        // SEVK BUTONU: Paketlenmeden sevk edilmez. Paket bilgisi yoksa paketleme ekranını açar!
         let sevkButonuHtml = '';
         if (s.durum !== 'sevk_edildi') {
           if (paketCount === 0) {
-            sevkButonuHtml = `<button onclick="alert('⚠️ Paketleme bilgisi olmadan sevk yapılamaz!\n\nLütfen önce 📦 Paket butonuna tıklayarak ambalaj/palet bilgilerini kaydediniz.'); ktmPaketlemeModalAc(${s.id});" title="Önce Paketleme Bilgisi Girilmelidir" class="bg-slate-200 hover:bg-slate-300 text-slate-600 border border-slate-300 px-2.5 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-2xs transition-colors">
-              🚚 Sevk Et
+            sevkButonuHtml = `<button onclick="showToast('⚠️ Paketleme bilgisi bulunmuyor. Lütfen önce ambalaj/palet bilgilerini kaydediniz.', 'info'); ktmPaketlemeModalAc('${s.id}')" title="Önce Paketleme Bilgisi Girilmelidir" class="bg-amber-500 hover:bg-amber-600 text-slate-900 border border-amber-600 px-2.5 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors flex items-center gap-1 inline-flex">
+              🚚 Sevk Et (Paketle)
             </button>`;
           } else {
-            sevkButonuHtml = `<button onclick="ktmKismiSevkModalAc(${s.id})" title="Sevkiyat Yap" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
+            sevkButonuHtml = `<button onclick="ktmKismiSevkModalAc('${s.id}')" title="Siparişi Sevk Et" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors flex items-center gap-1 inline-flex">
               🚚 Sevk Et
             </button>`;
           }
         } else {
-          sevkButonuHtml = `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">✅ Sevk Edildi</span>`;
+          sevkButonuHtml = `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded inline-flex items-center gap-1">✅ Sevk Edildi</span>`;
         }
 
         const row = `<tr class="hover:bg-slate-50 transition-colors">
@@ -17234,8 +17289,8 @@
               <span>📄</span> Çeki Listesi (PDF)
             </button>` : ''}
           ${sip.durum !== 'sevk_edildi' ? `
-            <button onclick="closeModal('ktmSiparisDetayModal'); ktmKismiSevkModalAc(${sip.id})" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
-              <span>🚚</span> Kısmi Sevk Yap
+            <button onclick="closeModal('ktmSiparisDetayModal'); ktmKismiSevkModalAc('${sip.id}')" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
+              <span>🚚</span> Siparişi Sevk Et
             </button>` : ''}
         `;
       }
@@ -17282,23 +17337,39 @@
     /* KISMİ SEVKİYAT VE STOKTAN DÜŞME FONKSİYONLARI                             */
     /* ========================================================================= */
     function ktmKismiSevkModalAc(sipId) {
-      const sip = (DB.ktmSiparisler || []).find(s => s.id === sipId);
-      if (!sip) return;
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) {
+        showToast('Sipariş kaydı bulunamadı!', 'error');
+        return;
+      }
 
       const paketCount = Array.isArray(sip.paketler) ? sip.paketler.length : 0;
       if (paketCount === 0) {
-        alert('⚠️ Bu sipariş için henüz PAKETLEME / PALETLEME bilgisi girilmemiştir!\n\nSevk işlemi yapabilmek için lütfen önce "📦 Paket" butonuna basarak ambalaj/palet detaylarını kaydediniz.');
+        showToast('⚠️ Paketlenmeden sevk yapılamaz! Paketleme ekranı açılıyor...', 'info');
+        ktmPaketlemeModalAc(sip.id);
         return;
       }
 
       document.getElementById('ktmKismi_sipId').value = sip.id;
-      document.getElementById('ktmKismi_sipNo').innerText = `${sip.siparisNo || ('SIP-' + sip.id)} - ${sip.musteri}`;
+      document.getElementById('ktmKismi_sipNo').innerText = `${sip.siparisNo || ('SIP-' + sip.id)} - ${sip.musteri || ''}`;
       document.getElementById('ktmKismi_sevkTarihi').value = new Date().toISOString().slice(0, 10);
       document.getElementById('ktmKismi_not').value = '';
 
-      const kalemler = Array.isArray(sip.kalemler) && sip.kalemler.length > 0 ? sip.kalemler : [{
-        kalemNo: 1, urunId: sip.urunId, urunKod: sip.urunKod, urunAd: sip.urunAd, miktar: sip.miktar || 0, sevkEdilen: 0, hazir: false, not: ''
-      }];
+      if (!Array.isArray(sip.kalemler) || sip.kalemler.length === 0) {
+        sip.kalemler = [{
+          kalemNo: 1,
+          urunId: sip.urunId,
+          urunKod: sip.urunKod || '',
+          urunAd: sip.urunAd || '',
+          cap: sip.cap || '',
+          miktar: parseFloat(sip.toplamMiktar || sip.miktar) || 0,
+          sevkEdilen: parseFloat(sip.sevkEdilenMiktar) || 0,
+          hazir: false,
+          not: ''
+        }];
+      }
+
+      const kalemler = sip.kalemler;
 
       const tbody = document.getElementById('ktmKismi_kalemlerTable');
       let html = '';
@@ -17308,10 +17379,10 @@
 
         html += `<tr>
           <td class="p-2.5">
-            <b class="text-slate-800 block">${k.urunKod}</b>
-            <span class="text-slate-500 text-[11px]">${k.urunAd}</span>
+            <b class="text-slate-800 block">${k.urunKod || '-'}</b>
+            <span class="text-slate-500 text-[11px]">${k.urunAd || ''}</span>
           </td>
-          <td class="p-2.5 font-bold text-slate-700">${k.miktar} kg</td>
+          <td class="p-2.5 font-bold text-slate-700">${k.miktar || 0} kg</td>
           <td class="p-2.5 font-bold text-emerald-700">${sevkEdilen} kg</td>
           <td class="p-2.5 font-black text-purple-700">${kalan} kg</td>
           <td class="p-2.5">
@@ -17325,20 +17396,38 @@
     }
 
     function ktmKismiSevkUygula() {
-      const sipId = parseInt(document.getElementById('ktmKismi_sipId').value);
-      const sip = (DB.ktmSiparisler || []).find(s => s.id === sipId);
-      if (!sip) return;
+      const sipId = document.getElementById('ktmKismi_sipId').value;
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) {
+        showToast('Sipariş kaydı bulunamadı!', 'error');
+        return;
+      }
 
       const paketCount = Array.isArray(sip.paketler) ? sip.paketler.length : 0;
       if (paketCount === 0) {
-        alert('⚠️ Paketleme / Paletleme bilgisi girilmeden sevk işlemi yapılamaz! Lütfen önce paketleme bilgilerini kaydediniz.');
+        showToast('⚠️ Paketlenmeden sevk yapılamaz! Lütfen önce paketleme bilgilerini kaydediniz.', 'error');
+        ktmPaketlemeModalAc(sip.id);
         return;
       }
 
       const sevkTarihi = document.getElementById('ktmKismi_sevkTarihi').value || new Date().toISOString().slice(0, 10);
       const sevkNotu = document.getElementById('ktmKismi_not').value.trim();
 
-      const kalemler = Array.isArray(sip.kalemler) && sip.kalemler.length > 0 ? sip.kalemler : [];
+      if (!Array.isArray(sip.kalemler) || sip.kalemler.length === 0) {
+        sip.kalemler = [{
+          kalemNo: 1,
+          urunId: sip.urunId,
+          urunKod: sip.urunKod || '',
+          urunAd: sip.urunAd || '',
+          cap: sip.cap || '',
+          miktar: parseFloat(sip.toplamMiktar || sip.miktar) || 0,
+          sevkEdilen: parseFloat(sip.sevkEdilenMiktar) || 0,
+          hazir: false,
+          not: ''
+        }];
+      }
+
+      const kalemler = sip.kalemler;
       let buSevkToplamKg = 0;
       let tumKalemlerBitti = true;
 
@@ -17397,7 +17486,9 @@
       sip.sevkTarihi = sevkTarihi;
       sip.sevkEdilenMiktar = (parseFloat(sip.sevkEdilenMiktar) || 0) + buSevkToplamKg;
 
-      if (tumKalemlerBitti) {
+      const toplamSipMiktar = kalemler.reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0) || (parseFloat(sip.toplamMiktar || sip.miktar) || 0);
+
+      if (tumKalemlerBitti || (sip.sevkEdilenMiktar >= toplamSipMiktar && toplamSipMiktar > 0)) {
         sip.durum = 'sevk_edildi';
         bildirimGonder("KTM Siparişi Tamamlandı / Sevk Edildi", `Sipariş No: ${sip.siparisNo || ('SIP-' + sip.id)}\nMüşteri: ${sip.musteri}\nToplam ${sip.toplamMiktar || sip.miktar} kg ürünün sevkiyatı başarıyla tamamlandı.`, 'success', true);
       } else {
@@ -17408,7 +17499,7 @@
       saveDB();
       renderAll();
       closeModal('ktmKismiSevkModal');
-      showToast(`${buSevkToplamKg} kg ürün sevk edildi ve stoktan düşüldü. Durum: ${tumKalemlerBitti ? 'Tamamlandı' : 'Kısmi Sevk'}`, 'success');
+      showToast(`${buSevkToplamKg} kg ürün sevk edildi ve stoktan düşüldü. Durum: ${sip.durum === 'sevk_edildi' ? 'Tamamlandı' : 'Kısmi Sevk'}`, 'success');
     }
 
     function ktmSipSil(id) {
