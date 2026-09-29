@@ -1283,6 +1283,9 @@
         <div class="nav-item" data-target="apmisemri">🛡️ <span>APM Üretim Verileri</span></div>
         <div class="nav-item" data-target="apmplakalar">📋 <span>APM Plaka Listesi</span><em class="nbdg" id="bApmPlaka"></em></div>
 
+        <div class="ngrp">Kalite & DÖF</div>
+        <div class="nav-item" data-target="dof">🎯 <span>DÖF Yönetimi</span><em class="nbdg amber" id="bDof"></em></div>
+
         <div class="ngrp">İletişim & Ekip</div>
         <div class="nav-item" data-target="mesajlar">💬 <span>Mesajlaşma & Sohbet</span><em class="nbdg"
             id="bMesaj"></em></div>
@@ -4543,10 +4546,381 @@
         </div>
       </section>
 
+      <!-- DÖF (DÜZELTİCİ VE ÖNLEYİCİ FAALİYETLER) MODÜLÜ -->
+      <section id="dof" class="module-section">
+        <!-- MODÜL BAŞLIĞI VE AKSİYONLAR -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-3xl p-2.5 bg-amber-500/10 text-amber-500 rounded-2xl border border-amber-500/20 shadow-xs">🎯</span>
+              <div>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+                  DÖF - Düzeltici & Önleyici Faaliyetler
+                  <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full border border-amber-200">Kalite & İyileştirme</span>
+                </h2>
+                <p class="text-xs md:text-sm text-slate-500 mt-0.5">
+                  Hat bazlı uygunsuzluklar, yapılan anlık müdahaleler, standart önlemler ve planlanan aksiyon takibi.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            <button onclick="dofModalAc()"
+              class="flex-1 md:flex-initial bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs md:text-sm shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+              <span>➕</span> <span>Yeni DÖF Başlat</span>
+            </button>
+            <button onclick="dofExcelExport()"
+              class="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3.5 py-2.5 rounded-xl text-xs border border-slate-200 transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer">
+              <span>📊</span> <span>Excel İndir</span>
+            </button>
+            <button onclick="renderDofModulu()"
+              class="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3 py-2.5 rounded-xl text-xs border border-slate-200 transition-colors shadow-xs flex items-center gap-1 cursor-pointer" title="Listeyi Yenile">
+              <span>🔄</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI ÖZET KARTLARI -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-4 mb-6">
+          <div class="card p-4 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-slate-700 shadow-md">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Toplam DÖF</span>
+              <span class="text-lg p-1.5 bg-slate-800/80 rounded-xl text-amber-400">📋</span>
+            </div>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="dofKpiToplam" class="text-3xl font-black text-white">0</span>
+              <span class="text-xs text-slate-400 font-medium">Kayıt</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-2 flex items-center gap-1">
+              <span>📌</span> <span>Tüm hat ve birimler</span>
+            </div>
+          </div>
+
+          <div class="card p-4 bg-gradient-to-br from-amber-50 to-orange-50/70 border-amber-200 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-800 uppercase tracking-wider">Açık & İşlemde</span>
+              <span class="text-lg p-1.5 bg-amber-100 rounded-xl text-amber-700">⏳</span>
+            </div>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="dofKpiAcik" class="text-3xl font-black text-amber-700">0</span>
+              <span class="text-xs text-amber-600 font-bold">Faaliyet</span>
+            </div>
+            <div class="text-[11px] text-amber-700 font-medium mt-2 flex items-center gap-1">
+              <span>⚡</span> <span>Aksiyon ve takip sürüyor</span>
+            </div>
+          </div>
+
+          <div class="card p-4 bg-gradient-to-br from-rose-50 to-red-50/70 border-rose-200 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-800 uppercase tracking-wider">Kritik & Acil</span>
+              <span class="text-lg p-1.5 bg-rose-100 rounded-xl text-rose-600">🚨</span>
+            </div>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="dofKpiKritik" class="text-3xl font-black text-rose-700">0</span>
+              <span class="text-xs text-rose-600 font-bold">Acil</span>
+            </div>
+            <div class="text-[11px] text-rose-700 font-medium mt-2 flex items-center gap-1">
+              <span>⚠️</span> <span>Hemen müdahale bekleyen</span>
+            </div>
+          </div>
+
+          <div class="card p-4 bg-gradient-to-br from-emerald-50 to-teal-50/70 border-emerald-200 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Kapatılan & Başarılı</span>
+              <span class="text-lg p-1.5 bg-emerald-100 rounded-xl text-emerald-600">✅</span>
+            </div>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="dofKpiKapatildi" class="text-3xl font-black text-emerald-700">0</span>
+              <span id="dofKpiBasariOrani" class="text-xs text-emerald-700 font-black bg-emerald-100 px-1.5 py-0.5 rounded-md">%0</span>
+            </div>
+            <div class="text-[11px] text-emerald-700 font-medium mt-2 flex items-center gap-1">
+              <span>🎯</span> <span>Doğrulandı ve çözüldü</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- FİLTRELEME & ARAMA ÇUBUĞU -->
+        <div class="card p-4 mb-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <!-- Arama -->
+            <div class="lg:col-span-2">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Arama & Filtreleme</label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-slate-400 text-sm">🔍</span>
+                <input type="text" id="dofAramaInput" oninput="dofFiltreUygula()" placeholder="DÖF No, Hat, Konu, Sorumlu veya Yapılanlarda ara..."
+                  class="w-full bg-slate-50 border border-slate-300 focus:border-indigo-500 pl-9 pr-3 py-2 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 transition-all">
+              </div>
+            </div>
+
+            <!-- Hat Seçimi -->
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Hangi Hat / Bölüm?</label>
+              <select id="dofFiltreHat" onchange="dofFiltreUygula()"
+                class="w-full bg-slate-50 border border-slate-300 focus:border-indigo-500 p-2 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 transition-all">
+                <option value="TÜMÜ">Tüm Hatlar & Birimler</option>
+              </select>
+            </div>
+
+            <!-- Durum -->
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Faaliyet Durumu</label>
+              <select id="dofFiltreDurum" onchange="dofFiltreUygula()"
+                class="w-full bg-slate-50 border border-slate-300 focus:border-indigo-500 p-2 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 transition-all">
+                <option value="TÜMÜ">Tüm Durumlar</option>
+                <option value="Açık">⏳ Açık / Yeni</option>
+                <option value="Devam Ediyor">⚙️ Devam Ediyor</option>
+                <option value="Doğrulama Bekliyor">🔍 Doğrulama Bekliyor</option>
+                <option value="Kapatıldı">✅ Kapatıldı</option>
+                <option value="İptal">🚫 İptal</option>
+              </select>
+            </div>
+
+            <!-- Öncelik / Buton -->
+            <div class="flex items-center gap-2">
+              <div class="flex-1">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Öncelik</label>
+                <select id="dofFiltreOncelik" onchange="dofFiltreUygula()"
+                  class="w-full bg-slate-50 border border-slate-300 focus:border-indigo-500 p-2 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-100 transition-all">
+                  <option value="TÜMÜ">Tümü</option>
+                  <option value="Kritik">🔴 Kritik</option>
+                  <option value="Yüksek">🟠 Yüksek</option>
+                  <option value="Orta">🟡 Orta</option>
+                  <option value="Düşük">🟢 Düşük</option>
+                </select>
+              </div>
+              <button onclick="dofFiltreleriSifirla()"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-3 py-2 rounded-xl text-xs transition-colors shrink-0 mb-0.5 cursor-pointer" title="Filtreleri Temizle">
+                Temizle
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DÖF LİSTESİ KONTEYNERİ -->
+        <div id="dofKayitlariContainer" class="space-y-4">
+          <!-- JS ile doldurulacak -->
+        </div>
+      </section>
+
     </main>
   </div>
 
   <!-- ================= MODALLAR ================= -->
+
+  <!-- ================= DÖF MODALLARI ================= -->
+
+  <!-- DÖF EKLEME VE DÜZENLEME MODALI -->
+  <div id="dofKayitModal" class="modal">
+    <div class="modal-content" style="max-width: 860px; max-height: 90vh; overflow-y: auto;">
+      <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl p-1.5 bg-amber-500/10 text-amber-500 rounded-xl border border-amber-500/20">🎯</span>
+          <div>
+            <h3 id="dofModalBaslik" class="font-extrabold text-xl text-slate-800">
+              Yeni DÖF (Düzeltici & Önleyici Faaliyet) Başlat
+            </h3>
+            <p class="text-xs text-slate-500">Hat ve süreç uygunsuzluklarını kayıt altına alarak aksiyonları takip edin.</p>
+          </div>
+        </div>
+        <button onclick="closeModal('dofKayitModal')"
+          class="text-slate-400 bg-slate-100 hover:bg-slate-200 p-2 rounded-xl text-sm transition-colors cursor-pointer">✕</button>
+      </div>
+
+      <input type="hidden" id="dofForm_id">
+
+      <div class="space-y-4">
+        <!-- 1. ÜST BİLGİLER GRİDİ -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DÖF No</label>
+            <input type="text" id="dofForm_dofNo" readonly
+              class="w-full bg-slate-100 border border-slate-300 font-mono font-bold text-indigo-700 text-xs p-2 rounded-xl outline-none select-all cursor-not-allowed">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Faaliyet Türü *</label>
+            <select id="dofForm_tur" class="w-full bg-white border border-slate-300 focus:border-indigo-500 text-xs font-bold p-2 rounded-xl outline-none">
+              <option value="Düzeltici">🔴 Düzeltici Faaliyet (Mevcut Hata)</option>
+              <option value="Önleyici">🟡 Önleyici Faaliyet (Potansiyel Risk)</option>
+              <option value="İyileştirme">🔵 İyileştirme / Kaizen</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Hangi Hat / Bölüm? *</label>
+            <input type="text" id="dofForm_hat" list="dofHatDatalist" placeholder="Hat seçin veya yazın..."
+              class="w-full bg-white border border-slate-300 focus:border-indigo-500 text-xs font-bold p-2 rounded-xl outline-none">
+            <datalist id="dofHatDatalist">
+              <option value="FCW - Hat 1">
+              <option value="FCW - Hat 2">
+              <option value="FCW - Hat 3">
+              <option value="FCW - Çekme & Sarım">
+              <option value="APM-1">
+              <option value="APM-2">
+              <option value="APM-3">
+              <option value="APM-4">
+              <option value="APM-5">
+              <option value="APM-6">
+              <option value="KTM - Plaka Kesim">
+              <option value="KTM - İşleme & Sevkiyat">
+              <option value="Harmanhane & Dozajlama">
+              <option value="Kalite Kontrol & Laboratuvar">
+              <option value="Mekanik / Elektrik Bakım">
+              <option value="Depo & Lojistik">
+              <option value="Genel Fabrika">
+            </datalist>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Öncelik / Risk *</label>
+            <select id="dofForm_oncelik" class="w-full bg-white border border-slate-300 focus:border-indigo-500 text-xs font-bold p-2 rounded-xl outline-none">
+              <option value="Kritik">🔴 Kritik (Hattı Durduran / Yüksek Risk)</option>
+              <option value="Yüksek">🟠 Yüksek</option>
+              <option value="Orta" selected>🟡 Orta</option>
+              <option value="Düşük">🟢 Düşük</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 2. KONU VE SORUMLU -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Uygunsuzluk / Konu Özeti *</label>
+            <input type="text" id="dofForm_konu" placeholder="Örn: APM-3 torç salınım motorunda iz sapması ve ark kesintisi"
+              class="w-full bg-white border border-slate-300 focus:border-indigo-500 text-xs font-bold p-2.5 rounded-xl outline-none shadow-xs">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Sorumlu Kişi / Birim *</label>
+            <input type="text" id="dofForm_sorumlu" placeholder="Örn: Murat Demir (Bakım) veya Kalite Ekibi"
+              class="w-full bg-white border border-slate-300 focus:border-indigo-500 text-xs font-bold p-2.5 rounded-xl outline-none shadow-xs">
+          </div>
+        </div>
+
+        <!-- 3. TARİHLER VE DURUM -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Tespit / Açılış Tarihi</label>
+            <input type="date" id="dofForm_tarih" class="w-full bg-white border border-slate-300 text-xs p-2 rounded-xl outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Hedef Termin Tarihi</label>
+            <input type="date" id="dofForm_terminTarihi" class="w-full bg-white border border-slate-300 text-xs p-2 rounded-xl outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Durum</label>
+            <select id="dofForm_durum" onchange="dofDurumDegistiForm()" class="w-full bg-white border border-slate-300 text-xs font-bold p-2 rounded-xl outline-none">
+              <option value="Açık">⏳ Açık / Yeni</option>
+              <option value="Devam Ediyor">⚙️ Devam Ediyor</option>
+              <option value="Doğrulama Bekliyor">🔍 Doğrulama Bekliyor</option>
+              <option value="Kapatıldı">✅ Kapatıldı / Tamamlandı</option>
+              <option value="İptal">🚫 İptal</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- İLERLEME ÇUBUĞU -->
+        <div class="bg-indigo-50/60 border border-indigo-100 p-3 rounded-2xl flex items-center gap-3">
+          <span class="text-xs font-bold text-indigo-900 shrink-0">Faaliyet İlerlemesi:</span>
+          <input type="range" id="dofForm_ilerleme" min="0" max="100" step="5" value="0"
+            oninput="document.getElementById('dofForm_ilerlemeText').textContent = '%' + this.value"
+            class="flex-1 accent-indigo-600 cursor-pointer">
+          <span id="dofForm_ilerlemeText" class="font-black text-indigo-700 text-sm w-12 text-right shrink-0">%0</span>
+        </div>
+
+        <!-- ================= 3 TEMEL ALAN (KULLANICI TALEBİ ÇEKİRDEK YAPI) ================= -->
+        <div class="space-y-3.5 pt-1">
+          <!-- 1. NE YAPILDI -->
+          <div class="bg-gradient-to-r from-emerald-50/80 to-teal-50/40 border-2 border-emerald-300/80 rounded-2xl p-4 shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-black text-emerald-900 uppercase tracking-wide flex items-center gap-2">
+                <span class="text-base bg-emerald-600 text-white rounded-lg p-0.5 px-1.5 shadow-xs">1</span>
+                <span>NE YAPILDI? (Tespit Anında Yapılan Anlık Müdahale / Alınan Önlem)</span>
+              </label>
+              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Anlık Aksiyon</span>
+            </div>
+            <textarea id="dofForm_neYapildi" rows="3"
+              placeholder="Olay anında hatta ne yapıldı? (Örn: Makine durduruldu, hatalı parça ayrıldı, geçici ayar yapıldı, ürün karantinaya alındı...)"
+              class="w-full bg-white border border-emerald-200 focus:border-emerald-500 rounded-xl p-3 text-xs leading-relaxed outline-none focus:ring-2 focus:ring-emerald-200 shadow-inner"></textarea>
+          </div>
+
+          <!-- 2. NE YAPILMALI -->
+          <div class="bg-gradient-to-r from-amber-50/80 to-yellow-50/40 border-2 border-amber-300/80 rounded-2xl p-4 shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-black text-amber-950 uppercase tracking-wide flex items-center gap-2">
+                <span class="text-base bg-amber-600 text-white rounded-lg p-0.5 px-1.5 shadow-xs">2</span>
+                <span>NE YAPILMALI? (Standart Çözüm / Kök Neden & Esas Alınması Gereken Önlem)</span>
+              </label>
+              <span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">Kök Neden & Kural</span>
+            </div>
+            <textarea id="dofForm_neYapilmali" rows="3"
+              placeholder="Hatanın bir daha tekrarlanmaması için standart olarak ne yapılmalı? (Örn: Haftalık tolerans kontrolü zorunlu olmalı, sensör kalibrasyonu yapılmalı, talimat revize edilmeli...)"
+              class="w-full bg-white border border-amber-200 focus:border-amber-500 rounded-xl p-3 text-xs leading-relaxed outline-none focus:ring-2 focus:ring-amber-200 shadow-inner"></textarea>
+          </div>
+
+          <!-- 3. NE YAPILACAK -->
+          <div class="bg-gradient-to-r from-indigo-50/80 to-blue-50/40 border-2 border-indigo-300/80 rounded-2xl p-4 shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-black text-indigo-950 uppercase tracking-wide flex items-center gap-2">
+                <span class="text-base bg-indigo-600 text-white rounded-lg p-0.5 px-1.5 shadow-xs">3</span>
+                <span>NE YAPILACAK? (Planlanan Faaliyetler / Kim, Ne Zaman, Nasıl Yapacak?)</span>
+              </label>
+              <span class="text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-full">Aksiyon Planı</span>
+            </div>
+            <textarea id="dofForm_neYapilacak" rows="3"
+              placeholder="Planlanan somut adımlar nelerdir? (Örn: Bakım ekibi Cumartesi parçayı değiştirecek, kalite birimi yeni kontrol formu hazırlayacak, operatörlere eğitim verilecek...)"
+              class="w-full bg-white border border-indigo-200 focus:border-indigo-500 rounded-xl p-3 text-xs leading-relaxed outline-none focus:ring-2 focus:ring-indigo-200 shadow-inner"></textarea>
+          </div>
+        </div>
+
+        <!-- 4. KAPANIŞ / DOĞRULAMA NOTU (OPSİYONEL) -->
+        <div id="dofFormKapanisAlani" class="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Kapanış & Doğrulama Değerlendirmesi <span class="text-slate-400 font-normal">(Faaliyet kapatılırken doldurulur)</span>
+          </label>
+          <textarea id="dofForm_kapanisNotu" rows="2" placeholder="Yapılan faaliyet doğrulanmış mıdır? Elde edilen sonuç nedir?"
+            class="w-full bg-white border border-slate-300 text-xs p-2.5 rounded-xl outline-none"></textarea>
+        </div>
+      </div>
+
+      <!-- MODAL ALT BUTONLAR -->
+      <div class="flex justify-end items-center gap-3 pt-4 border-t border-slate-200 mt-5">
+        <button type="button" onclick="closeModal('dofKayitModal')"
+          class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs transition-colors cursor-pointer">
+          Vazgeç
+        </button>
+        <button type="button" onclick="dofKaydet()"
+          class="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold px-6 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center gap-2 cursor-pointer">
+          <span>💾</span> <span>DÖF Kaydını Kaydet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÖF YAZDIRMA VE FORM ÖNİZLEME MODALI -->
+  <div id="dofYazdirModal" class="modal">
+    <div class="modal-content" style="max-width: 820px; max-height: 90vh; overflow-y: auto;">
+      <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🖨️</span>
+          <h3 class="font-extrabold text-lg text-slate-800">DÖF Formu Yazdırma Önizleme</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="dofYazdir()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm flex items-center gap-1.5 cursor-pointer">
+            <span>🖨️</span> <span>Yazdır / PDF</span>
+          </button>
+          <button onclick="closeModal('dofYazdirModal')" class="text-slate-400 bg-slate-100 hover:bg-slate-200 p-2 rounded-xl text-xs cursor-pointer">✕</button>
+        </div>
+      </div>
+
+      <!-- YAZDIRILACAK FORM ALANI -->
+      <div id="dofYazdirIcerik" class="bg-white p-6 rounded-2xl border border-slate-300 text-slate-900 text-xs">
+        <!-- JS ile doldurulacak -->
+      </div>
+    </div>
+  </div>
 
   <!-- PAKETLEME VE PALET BİLGİLERİ MODALI (DEPO PERSONELİ İÇİN) -->
   <div id="ktmPaketlemeModal" class="modal">
@@ -7912,7 +8286,8 @@
       ktmUrunler: [], ktmHareketler: [], uretimTakip: [], ktmSiparisler: [],
       apmUretim: [], telCikislari: [], bildirimler: [],
       kullanicilar: [], mesajlar: [],
-      receteler: {}, ozelReceteler: {}, ozelReceteNotlar: {}
+      receteler: {}, ozelReceteler: {}, ozelReceteNotlar: {},
+      dofListesi: []
     };
     let editId = null, receteUrunId = null, spTamamlanacakId = null, isDbLoaded = false;
     window.currentUser = null;
@@ -7930,6 +8305,8 @@
       { id: 'ktm', ad: 'KTM', icon: '🔗', grup: 'Stok' },
       { id: 'malzemetalep', ad: 'Malzeme Talepleri', icon: '📋', grup: 'Stok & Talep' },
       { id: 'apmisemri', ad: 'APM Üretim Verileri', icon: '🛡️', grup: 'APM' },
+      { id: 'apmplakalar', ad: 'APM Plaka Listesi', icon: '📋', grup: 'APM' },
+      { id: 'dof', ad: 'DÖF Yönetimi', icon: '🎯', grup: 'Kalite & İyileştirme' },
       { id: 'mesajlar', ad: 'Mesajlaşma & Sohbet', icon: '💬', grup: 'İletişim' },
       { id: 'kullanicilar', ad: 'Kullanıcı & Personel', icon: '👥', grup: 'Yönetim' },
       { id: 'rapor', ad: 'Üretim Raporları', icon: '📑', grup: 'Analiz & Raporlama' },
@@ -8976,6 +9353,7 @@
         malzemetalep: 'MALZEME & SARF TALEPLERİ',
         apmisemri: 'APM ÜRETİM VERİLERİ',
         apmplakalar: 'APM PLAKA LİSTESİ & YÖNETİMİ',
+        dof: 'DÖF - DÜZELTİCİ VE ÖNLEYİCİ FAALİYETLER',
         kullanicilar: 'KULLANICI & PERSONEL YÖNETİMİ',
         mesajlar: 'DAHİLİ MESAJLAŞMA & SOHBET',
         rapor: 'ÜRETİM RAPORLARI',
@@ -9017,6 +9395,9 @@
       }
 
       renderAll();
+      if (t === 'dof') {
+        if (typeof renderDofModulu === 'function') renderDofModulu();
+      }
       if (t === 'harman') {
         if (typeof harmanListele === 'function') harmanListele();
       }
@@ -9316,11 +9697,11 @@
             <td class="p-1 border-r border-slate-100">
               <input type="text" id="apmKafaPlaka_${i}" list="apmHizliPlakaDatalist" onchange="apmKafaPlakaSecildi(${i})" class="border border-slate-200 p-2 w-full text-center bg-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 rounded-lg text-xs font-bold text-slate-800 placeholder:text-slate-400 transition-all" tabindex="${tabIdx++}" placeholder="Plaka Seç / Yaz">
             </td>
-            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaEn_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" placeholder="En(mm)"></td>
-            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaKalinlik_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" placeholder="Örn: 12"></td>
-            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaSira_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all font-bold text-indigo-700" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Örn: 33"></td>
+            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaEn_${i}" class="border border-slate-200 p-2 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" placeholder="En(mm)"></td>
+            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaKalinlik_${i}" class="border border-slate-200 p-2 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" placeholder="Örn: 12"></td>
+            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaSira_${i}" class="border border-slate-200 p-2 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all font-bold text-indigo-700" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Örn: 33"></td>
             <td class="p-1 border-r border-slate-100"><input type="number" step="0.1" id="apmKafaKayma_${i}" class="border border-amber-300 p-2 w-full text-center bg-amber-50/40 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 rounded-lg transition-all font-black text-amber-900" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Kayma (manuel)"></td>
-            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaBoy_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Boy(mm)"></td>
+            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaBoy_${i}" class="border border-slate-200 p-2 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Boy(mm)"></td>
             <td class="p-2 font-bold text-blue-700 bg-blue-50/50 rounded-r-lg text-base" id="apmKafaM2_${i}">0.00</td>
         </tr>`;
       }
@@ -23489,6 +23870,7 @@
       if (typeof renderKullaniciListesi === 'function') renderKullaniciListesi();
       if (typeof renderMesajlar === 'function') renderMesajlar();
       if (typeof updateChatBadges === 'function') updateChatBadges();
+      if (typeof updateDofBadge === 'function') try { updateDofBadge(); } catch (e) { }
     }
 
     /* ========================================================================= */
@@ -25404,6 +25786,822 @@
 
       h += `</div></div></div><p class="hint mt-2">💡 Hafta her zaman Pazartesi başlar, Pazar biter. İş emirlerinin planlanan tarihlerine göre anlık güncellenir. <b>Ürün detaylarını, reçete ve stok verilerini görmek için şeritlere tıklayabilirsiniz.</b></p>`;
       container.innerHTML = h;
+    }
+
+    /* ========================================================================= */
+    /* DÖF (DÜZELTİCİ VE ÖNLEYİCİ FAALİYETLER) MODÜLÜ MOTORU                     */
+    /* ========================================================================= */
+    const DOF_STANDART_HATLAR = [
+      'FCW - Hat 1',
+      'FCW - Hat 2',
+      'FCW - Hat 3',
+      'FCW - Çekme & Sarım',
+      'APM-1',
+      'APM-2',
+      'APM-3',
+      'APM-4',
+      'APM-5',
+      'APM-6',
+      'KTM - Plaka Kesim',
+      'KTM - İşleme & Sevkiyat',
+      'Harmanhane & Dozajlama',
+      'Kalite Kontrol & Laboratuvar',
+      'Mekanik / Elektrik Bakım',
+      'Depo & Lojistik',
+      'Genel Fabrika'
+    ];
+
+    function dofEscape(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function dofVarsayilanVerileriYukle() {
+      if (!DB.dofListesi) DB.dofListesi = [];
+      if (DB.dofListesi.length > 0) return;
+
+      DB.dofListesi = [
+        {
+          id: 1711789001001,
+          dofNo: 'DOF-26-001',
+          tarih: '2026-03-24',
+          terminTarihi: '2026-04-02',
+          kapanisTarihi: '',
+          tur: 'Düzeltici',
+          hat: 'APM-3',
+          konu: 'Kafa 2 torç salınım motoru dişli boşluğu ve kaynak izi sapması',
+          oncelik: 'Yüksek',
+          sorumlu: 'Murat Demir (Bakım)',
+          durum: 'Devam Ediyor',
+          ilerleme: 65,
+          neYapildi: 'Kaynak esnasında tespit edilen 2 mm iz kayması sonrası makine durduruldu. Kafa 2 redüktör bağlantı cıvataları sıkıldı, kaplanan sac taşlanarak kurtarıldı.',
+          neYapilmali: 'Aylık periyodik bakımda redüktör boşluk kontrolü komparatör saati ile yapılmalı ve tolerans dışı dişliler yenilenmeli.',
+          neYapilacak: 'Bakım ekibi yeni kramiyer dişli takımını takacak ve test kaynağı yaparak kaliteye teslim edecek.',
+          kapanisNotu: '',
+          kaydeden: 'Yunus Kaya'
+        },
+        {
+          id: 1711789002002,
+          dofNo: 'DOF-26-002',
+          tarih: '2026-03-26',
+          terminTarihi: '2026-04-10',
+          kapanisTarihi: '',
+          tur: 'Önleyici',
+          hat: 'FCW - Hat 2',
+          konu: 'Toz besleme hunisinde nem birikmesi ve gaz deliği riski',
+          oncelik: 'Kritik',
+          sorumlu: 'Serkan Öztürk (Üretim & Kalite)',
+          durum: 'Açık',
+          ilerleme: 30,
+          neYapildi: 'Harmanhane silolarından gelen son 2 parti akı tozu kurutma fırınında 180°C sıcaklıkta 2 saat ek tavlamaya alındı. Numune nem testi %0.02 çıktı.',
+          neYapilmali: 'Hat 2 toz besleme hunisinin üst kapağı sızdırmaz contalı hale getirilmeli ve havalandırma hattına şartlandırıcı nem tutucu filtre takılmalı.',
+          neYapilacak: 'Pnömatik hat için silikajel kurutucu temin edilecek, huni ısıtıcı rezistansı aktif edilecek ve vardiya başında nem kontrol noktası oluşturulacak.',
+          kapanisNotu: '',
+          kaydeden: 'Yunus Kaya'
+        },
+        {
+          id: 1711789003003,
+          dofNo: 'DOF-26-003',
+          tarih: '2026-03-20',
+          terminTarihi: '2026-03-27',
+          kapanisTarihi: '2026-03-27',
+          tur: 'İyileştirme',
+          hat: 'KTM - Plaka Kesim',
+          konu: 'Plazma kesim çapak temizliği süresinin uzunluğu ve ergonomi',
+          oncelik: 'Orta',
+          sorumlu: 'Ali Vural (KTM)',
+          durum: 'Kapatıldı',
+          ilerleme: 100,
+          neYapildi: 'Mevcut manuel taşlama motorları yerine pnömatik çapak alma aparatları denendi. Kesim tablası ızgaraları temizlendi.',
+          neYapilmali: 'Plazma kesim hızı ve gaz debisi sac kalınlığına göre tablolaştırılıp pano yanına asılmalı; kesim esnasında cüruf yapışması asgariye indirilmeli.',
+          neYapilacak: 'Tüm plaka kalınlıkları için optimize kesim parametre tablosu hazırlandı, operatörlere anlatıldı ve deneme kesimlerinde çapağın %80 azaldığı doğrulandı.',
+          kapanisNotu: 'Yapılan doğrulama kesimlerinde parçalar temiz çıktı. İşlem başarıyla tamamlandı.',
+          kaydeden: 'Yunus Kaya'
+        }
+      ];
+    }
+
+    function updateDofBadge() {
+      const badge = document.getElementById('bDof');
+      if (!badge) return;
+      if (!DB.dofListesi) DB.dofListesi = [];
+      const acikSayisi = DB.dofListesi.filter(d => d.durum !== 'Kapatıldı' && d.durum !== 'İptal').length;
+      if (acikSayisi > 0) {
+        badge.textContent = acikSayisi;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function dofFiltreHatSelectDoldur() {
+      const sel = document.getElementById('dofFiltreHat');
+      if (!sel) return;
+      const seciliDeger = sel.value || 'TÜMÜ';
+
+      const tumHatlar = new Set(DOF_STANDART_HATLAR);
+      (DB.dofListesi || []).forEach(d => {
+        if (d.hat && d.hat.trim()) tumHatlar.add(d.hat.trim());
+      });
+
+      let opts = '<option value="TÜMÜ">Tüm Hatlar & Birimler</option>';
+      Array.from(tumHatlar).sort().forEach(h => {
+        opts += `<option value="${dofEscape(h)}" ${h === seciliDeger ? 'selected' : ''}>${dofEscape(h)}</option>`;
+      });
+      sel.innerHTML = opts;
+    }
+
+    function renderDofModulu() {
+      dofVarsayilanVerileriYukle();
+      updateDofBadge();
+      dofFiltreHatSelectDoldur();
+
+      const listesi = DB.dofListesi || [];
+
+      // 1. KPI Hesaplamaları
+      const toplam = listesi.length;
+      const acik = listesi.filter(d => d.durum !== 'Kapatıldı' && d.durum !== 'İptal').length;
+      const kritik = listesi.filter(d => d.oncelik === 'Kritik' && d.durum !== 'Kapatıldı' && d.durum !== 'İptal').length;
+      const kapatildi = listesi.filter(d => d.durum === 'Kapatıldı').length;
+      const basariOrani = toplam > 0 ? Math.round((kapatildi / toplam) * 100) : 0;
+
+      const elToplam = document.getElementById('dofKpiToplam');
+      const elAcik = document.getElementById('dofKpiAcik');
+      const elKritik = document.getElementById('dofKpiKritik');
+      const elKapatildi = document.getElementById('dofKpiKapatildi');
+      const elBasari = document.getElementById('dofKpiBasariOrani');
+
+      if (elToplam) elToplam.textContent = toplam;
+      if (elAcik) elAcik.textContent = acik;
+      if (elKritik) elKritik.textContent = kritik;
+      if (elKapatildi) elKapatildi.textContent = kapatildi;
+      if (elBasari) elBasari.textContent = '%' + basariOrani;
+
+      // 2. Filtreleri Oku
+      const fHat = (document.getElementById('dofFiltreHat')?.value || 'TÜMÜ').trim();
+      const fDurum = (document.getElementById('dofFiltreDurum')?.value || 'TÜMÜ').trim();
+      const fOncelik = (document.getElementById('dofFiltreOncelik')?.value || 'TÜMÜ').trim();
+      const arama = (document.getElementById('dofAramaInput')?.value || '').toLowerCase().trim();
+
+      // 3. Filtreleme
+      const filtrelenmis = listesi.filter(d => {
+        if (fHat !== 'TÜMÜ' && d.hat !== fHat) return false;
+        if (fDurum !== 'TÜMÜ' && d.durum !== fDurum) return false;
+        if (fOncelik !== 'TÜMÜ' && d.oncelik !== fOncelik) return false;
+
+        if (arama) {
+          const metin = [
+            d.dofNo, d.hat, d.konu, d.sorumlu, d.tur, d.durum,
+            d.neYapildi, d.neYapilmali, d.neYapilacak, d.kapanisNotu
+          ].join(' ').toLowerCase();
+          if (!metin.includes(arama)) return false;
+        }
+        return true;
+      });
+
+      // 4. Sıralama: Açık ve Devam Edenler önce, ardından en yeni tarih
+      filtrelenmis.sort((a, b) => {
+        const aKapali = (a.durum === 'Kapatıldı' || a.durum === 'İptal') ? 1 : 0;
+        const bKapali = (b.durum === 'Kapatıldı' || b.durum === 'İptal') ? 1 : 0;
+        if (aKapali !== bKapali) return aKapali - bKapali;
+        return (b.id || 0) - (a.id || 0);
+      });
+
+      // 5. Kartların Render Edilmesi
+      const container = document.getElementById('dofKayitlariContainer');
+      if (!container) return;
+
+      if (filtrelenmis.length === 0) {
+        container.innerHTML = `
+          <div class="card p-12 text-center bg-white border border-slate-200 rounded-3xl shadow-sm">
+            <span class="text-5xl block mb-3">🔍</span>
+            <h4 class="text-base font-extrabold text-slate-800">Kriterlere Uygun DÖF Kaydı Bulunamadı</h4>
+            <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              Seçilen hat, durum veya arama kriterine uygun bir faaliyet kaydı yok. Filtreleri temizleyebilir veya yeni bir DÖF başlatabilirsiniz.
+            </p>
+            <div class="mt-4 flex justify-center gap-2">
+              <button onclick="dofFiltreleriSifirla()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition-colors">
+                Filtreleri Temizle
+              </button>
+              <button onclick="dofModalAc()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-4 py-2 rounded-xl text-xs shadow-md transition-all">
+                ➕ Yeni DÖF Başlat
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtrelenmis.map(d => {
+        // Renk ve Rozet Mantıkları
+        let turBadgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+        if (d.tur === 'Düzeltici') turBadgeClass = 'bg-rose-100 text-rose-800 border-rose-200';
+        else if (d.tur === 'Önleyici') turBadgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+        else if (d.tur === 'İyileştirme') turBadgeClass = 'bg-sky-100 text-sky-800 border-sky-200';
+
+        let oncelikBadgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+        if (d.oncelik === 'Kritik') oncelikBadgeClass = 'bg-red-600 text-white border-red-700 shadow-sm animate-pulse';
+        else if (d.oncelik === 'Yüksek') oncelikBadgeClass = 'bg-orange-100 text-orange-800 border-orange-200 font-black';
+        else if (d.oncelik === 'Orta') oncelikBadgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+        else if (d.oncelik === 'Düşük') oncelikBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+
+        let durumBadgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+        if (d.durum === 'Açık') durumBadgeClass = 'bg-amber-50 text-amber-800 border-amber-300 font-extrabold';
+        else if (d.durum === 'Devam Ediyor') durumBadgeClass = 'bg-blue-100 text-blue-800 border-blue-200 font-extrabold';
+        else if (d.durum === 'Doğrulama Bekliyor') durumBadgeClass = 'bg-purple-100 text-purple-800 border-purple-200 font-extrabold';
+        else if (d.durum === 'Kapatıldı') durumBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-extrabold';
+        else if (d.durum === 'İptal') durumBadgeClass = 'bg-slate-200 text-slate-600 border-slate-300 line-through';
+
+        const ilerleme = Math.min(100, Math.max(0, parseInt(d.ilerleme) || 0));
+        let ilerlemeRenk = 'bg-amber-500';
+        if (ilerleme >= 100) ilerlemeRenk = 'bg-emerald-600';
+        else if (ilerleme >= 50) ilerlemeRenk = 'bg-blue-600';
+
+        // Termin gecikme kontrolü
+        let gecikmeUyarisi = '';
+        if (d.terminTarihi && d.durum !== 'Kapatıldı' && d.durum !== 'İptal') {
+          const bugun = new Date().toISOString().split('T')[0];
+          if (d.terminTarihi < bugun) {
+            gecikmeUyarisi = '<span class="text-[10px] bg-rose-600 text-white font-black px-2 py-0.5 rounded-full ml-1 animate-bounce">⚠️ GECİKTİ</span>';
+          }
+        }
+
+        return `
+          <div class="card p-5 bg-white border border-slate-200 hover:border-indigo-300 transition-all rounded-3xl shadow-sm hover:shadow-md">
+            <!-- KART ÜST BİLGİ ŞERİDİ -->
+            <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono font-black text-xs px-2.5 py-1 bg-slate-900 text-amber-400 rounded-xl shadow-xs">
+                  ${dofEscape(d.dofNo || 'DÖF')}
+                </span>
+                <span class="font-black text-xs px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-200 flex items-center gap-1">
+                  <span>🏭</span> <span>${dofEscape(d.hat || 'Genel')}</span>
+                </span>
+                <span class="text-xs px-2.5 py-1 rounded-xl border font-bold ${turBadgeClass}">
+                  ${dofEscape(d.tur || 'Düzeltici')}
+                </span>
+                <span class="text-xs px-2.5 py-1 rounded-xl border font-bold ${oncelikBadgeClass}">
+                  Öncelik: ${dofEscape(d.oncelik || 'Orta')}
+                </span>
+                <span class="text-xs px-2.5 py-1 rounded-xl border font-bold ${durumBadgeClass}">
+                  ${dofEscape(d.durum || 'Açık')}
+                </span>
+              </div>
+
+              <!-- TARİHLER & SORUMLU -->
+              <div class="text-right text-xs text-slate-500 font-medium">
+                <span>📅 Açılış: <b class="text-slate-800">${dofEscape(d.tarih || '-')}</b></span>
+                <span class="mx-1.5 text-slate-300">|</span>
+                <span>🎯 Hedef Termin: <b class="text-slate-800">${dofEscape(d.terminTarihi || '-')}</b></span>
+                ${gecikmeUyarisi}
+              </div>
+            </div>
+
+            <!-- KONU BAŞLIĞI VE SORUMLU -->
+            <div class="mt-3.5 mb-3 flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <h3 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <span>📌</span> <span>${dofEscape(d.konu || 'Konu Belirtilmemiş')}</span>
+              </h3>
+              <div class="text-xs text-slate-600 bg-slate-100/90 px-3 py-1.5 rounded-xl border border-slate-200 shrink-0 font-bold flex items-center gap-1.5">
+                <span>👤 Sorumlu:</span>
+                <span class="text-indigo-900 font-extrabold">${dofEscape(d.sorumlu || 'Atanmadı')}</span>
+              </div>
+            </div>
+
+            <!-- İLERLEME ÇUBUĞU -->
+            <div class="mb-4">
+              <div class="flex justify-between items-center text-[11px] font-bold text-slate-500 mb-1">
+                <span>Faaliyet Gerçekleşme Oranı</span>
+                <span class="text-indigo-700 font-black">%${ilerleme}</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200 shadow-inner">
+                <div class="${ilerlemeRenk} h-full transition-all duration-500 rounded-full" style="width: ${ilerleme}%;"></div>
+              </div>
+            </div>
+
+            <!-- ================= 3 TEMEL SORU KUTUSU (KULLANICININ İSTEDİĞİ ÇEKİRDEK YAPI) ================= -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-2">
+              <!-- 1. NE YAPILDI -->
+              <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/90 flex flex-col justify-between shadow-xs">
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-black text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
+                      <span class="w-4 h-4 rounded-md bg-emerald-600 text-white flex items-center justify-center text-[10px]">1</span>
+                      <span>NE YAPILDI?</span>
+                    </span>
+                    <span class="text-[9.5px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">Anlık Müdahale</span>
+                  </div>
+                  <p class="text-xs text-emerald-900/90 leading-relaxed font-medium whitespace-pre-wrap">
+                    ${dofEscape(d.neYapildi || 'Henüz anlık müdahale kaydı girilmedi.')}
+                  </p>
+                </div>
+              </div>
+
+              <!-- 2. NE YAPILMALI -->
+              <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/90 flex flex-col justify-between shadow-xs">
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-black text-amber-950 uppercase tracking-wide flex items-center gap-1.5">
+                      <span class="w-4 h-4 rounded-md bg-amber-600 text-white flex items-center justify-center text-[10px]">2</span>
+                      <span>NE YAPILMALI?</span>
+                    </span>
+                    <span class="text-[9.5px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">Kök Neden & Standart</span>
+                  </div>
+                  <p class="text-xs text-amber-900/90 leading-relaxed font-medium whitespace-pre-wrap">
+                    ${dofEscape(d.neYapilmali || 'Alınması gereken kalıcı önlem henüz belirtilmedi.')}
+                  </p>
+                </div>
+              </div>
+
+              <!-- 3. NE YAPILACAK -->
+              <div class="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-200/90 flex flex-col justify-between shadow-xs">
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-black text-indigo-950 uppercase tracking-wide flex items-center gap-1.5">
+                      <span class="w-4 h-4 rounded-md bg-indigo-600 text-white flex items-center justify-center text-[10px]">3</span>
+                      <span>NE YAPILACAK?</span>
+                    </span>
+                    <span class="text-[9.5px] font-bold text-indigo-800 bg-indigo-100 px-1.5 py-0.2 rounded">Aksiyon Planı</span>
+                  </div>
+                  <p class="text-xs text-indigo-900/90 leading-relaxed font-medium whitespace-pre-wrap">
+                    ${dofEscape(d.neYapilacak || 'Planlanan aksiyon adımları henüz tanımlanmadı.')}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- KAPANIŞ / DOĞRULAMA NOTU VARSA -->
+            ${d.kapanisNotu ? `
+              <div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-950 flex items-start gap-2">
+                <span class="text-emerald-600 text-sm">✅</span>
+                <div>
+                  <b class="text-emerald-900 block font-bold">Kapanış & Doğrulama Değerlendirmesi:</b>
+                  <span class="text-emerald-800 whitespace-pre-wrap font-medium">${dofEscape(d.kapanisNotu)}</span>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- KART ALT BUTONLARI VE HIZLI AKSİYONLAR -->
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <!-- Hızlı Durum Seçimi -->
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-bold text-slate-500 uppercase">Hızlı Durum:</span>
+                <select onchange="dofDurumHizliDegistir(${d.id}, this.value)"
+                  class="bg-slate-50 border border-slate-300 text-xs font-bold rounded-lg p-1.5 outline-none focus:border-indigo-500 cursor-pointer">
+                  <option value="Açık" ${d.durum === 'Açık' ? 'selected' : ''}>⏳ Açık</option>
+                  <option value="Devam Ediyor" ${d.durum === 'Devam Ediyor' ? 'selected' : ''}>⚙️ Devam Ediyor</option>
+                  <option value="Doğrulama Bekliyor" ${d.durum === 'Doğrulama Bekliyor' ? 'selected' : ''}>🔍 Doğrulama Bekliyor</option>
+                  <option value="Kapatıldı" ${d.durum === 'Kapatıldı' ? 'selected' : ''}>✅ Kapatıldı</option>
+                  <option value="İptal" ${d.durum === 'İptal' ? 'selected' : ''}>🚫 İptal</option>
+                </select>
+              </div>
+
+              <!-- İşlem Butonları -->
+              <div class="flex items-center gap-2">
+                <button onclick="dofYazdirModalAc(${d.id})" title="A4 Rapor Çıktısı Al / Önizle"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl text-xs transition-colors flex items-center gap-1 cursor-pointer">
+                  <span>🖨️</span> <span>Yazdır / Form</span>
+                </button>
+                <button onclick="dofModalAc(${d.id})" title="DÖF Kaydını Düzenle"
+                  class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs border border-indigo-200 transition-colors flex items-center gap-1 cursor-pointer">
+                  <span>✏️</span> <span>Düzenle</span>
+                </button>
+                <button onclick="dofSil(${d.id})" title="DÖF Kaydını Sil"
+                  class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-200 transition-colors flex items-center gap-1 cursor-pointer">
+                  <span>🗑️</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function dofFiltreUygula() {
+      renderDofModulu();
+    }
+
+    function dofFiltreleriSifirla() {
+      const inpArama = document.getElementById('dofAramaInput');
+      const selHat = document.getElementById('dofFiltreHat');
+      const selDurum = document.getElementById('dofFiltreDurum');
+      const selOncelik = document.getElementById('dofFiltreOncelik');
+
+      if (inpArama) inpArama.value = '';
+      if (selHat) selHat.value = 'TÜMÜ';
+      if (selDurum) selDurum.value = 'TÜMÜ';
+      if (selOncelik) selOncelik.value = 'TÜMÜ';
+
+      renderDofModulu();
+    }
+
+    function dofModalAc(id = null) {
+      dofDuzenlenenId = id;
+      const modalBaslik = document.getElementById('dofModalBaslik');
+      const fId = document.getElementById('dofForm_id');
+      const fNo = document.getElementById('dofForm_dofNo');
+      const fTur = document.getElementById('dofForm_tur');
+      const fHat = document.getElementById('dofForm_hat');
+      const fKonu = document.getElementById('dofForm_konu');
+      const fOncelik = document.getElementById('dofForm_oncelik');
+      const fSorumlu = document.getElementById('dofForm_sorumlu');
+      const fTarih = document.getElementById('dofForm_tarih');
+      const fTermin = document.getElementById('dofForm_terminTarihi');
+      const fDurum = document.getElementById('dofForm_durum');
+      const fIlerleme = document.getElementById('dofForm_ilerleme');
+      const fIlerlemeText = document.getElementById('dofForm_ilerlemeText');
+      const fNeYapildi = document.getElementById('dofForm_neYapildi');
+      const fNeYapilmali = document.getElementById('dofForm_neYapilmali');
+      const fNeYapilacak = document.getElementById('dofForm_neYapilacak');
+      const fKapanisNotu = document.getElementById('dofForm_kapanisNotu');
+
+      const bugun = new Date().toISOString().split('T')[0];
+      const hedefTarih = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      if (id) {
+        // Düzenleme Modu
+        const item = (DB.dofListesi || []).find(x => x.id == id);
+        if (!item) return;
+
+        if (modalBaslik) modalBaslik.textContent = `DÖF Düzenle: ${item.dofNo || 'Kayıt'}`;
+        if (fId) fId.value = item.id;
+        if (fNo) fNo.value = item.dofNo || '';
+        if (fTur) fTur.value = item.tur || 'Düzeltici';
+        if (fHat) fHat.value = item.hat || '';
+        if (fKonu) fKonu.value = item.konu || '';
+        if (fOncelik) fOncelik.value = item.oncelik || 'Orta';
+        if (fSorumlu) fSorumlu.value = item.sorumlu || '';
+        if (fTarih) fTarih.value = item.tarih || bugun;
+        if (fTermin) fTermin.value = item.terminTarihi || hedefTarih;
+        if (fDurum) fDurum.value = item.durum || 'Açık';
+        const il = parseInt(item.ilerleme) || 0;
+        if (fIlerleme) fIlerleme.value = il;
+        if (fIlerlemeText) fIlerlemeText.textContent = '%' + il;
+        if (fNeYapildi) fNeYapildi.value = item.neYapildi || '';
+        if (fNeYapilmali) fNeYapilmali.value = item.neYapilmali || '';
+        if (fNeYapilacak) fNeYapilacak.value = item.neYapilacak || '';
+        if (fKapanisNotu) fKapanisNotu.value = item.kapanisNotu || '';
+      } else {
+        // Yeni Kayıt Modu
+        if (modalBaslik) modalBaslik.textContent = 'Yeni DÖF (Düzeltici & Önleyici Faaliyet) Başlat';
+        if (fId) fId.value = '';
+
+        // DÖF Numarası Üret: DOF-26-XXX
+        const yilKodu = String(new Date().getFullYear()).slice(-2);
+        const mevcutSayisi = (DB.dofListesi || []).length + 1;
+        const noPad = String(mevcutSayisi).padStart(3, '0');
+        if (fNo) fNo.value = `DOF-${yilKodu}-${noPad}`;
+
+        if (fTur) fTur.value = 'Düzeltici';
+        if (fHat) fHat.value = '';
+        if (fKonu) fKonu.value = '';
+        if (fOncelik) fOncelik.value = 'Orta';
+        if (fSorumlu) fSorumlu.value = (aktifKullanici && aktifKullanici.ad) ? aktifKullanici.ad : '';
+        if (fTarih) fTarih.value = bugun;
+        if (fTermin) fTermin.value = hedefTarih;
+        if (fDurum) fDurum.value = 'Açık';
+        if (fIlerleme) fIlerleme.value = 0;
+        if (fIlerlemeText) fIlerlemeText.textContent = '%0';
+        if (fNeYapildi) fNeYapildi.value = '';
+        if (fNeYapilmali) fNeYapilmali.value = '';
+        if (fNeYapilacak) fNeYapilacak.value = '';
+        if (fKapanisNotu) fKapanisNotu.value = '';
+      }
+
+      openModal('dofKayitModal');
+    }
+
+    function dofDurumDegistiForm() {
+      const fDurum = document.getElementById('dofForm_durum');
+      const fIlerleme = document.getElementById('dofForm_ilerleme');
+      const fIlerlemeText = document.getElementById('dofForm_ilerlemeText');
+      if (!fDurum) return;
+
+      if (fDurum.value === 'Kapatıldı') {
+        if (fIlerleme) fIlerleme.value = 100;
+        if (fIlerlemeText) fIlerlemeText.textContent = '%100';
+      } else if (fDurum.value === 'Açık') {
+        if (fIlerleme && parseInt(fIlerleme.value) === 100) {
+          fIlerleme.value = 0;
+          if (fIlerlemeText) fIlerlemeText.textContent = '%0';
+        }
+      }
+    }
+
+    async function dofKaydet() {
+      const fId = document.getElementById('dofForm_id')?.value;
+      const fNo = document.getElementById('dofForm_dofNo')?.value.trim();
+      const fTur = document.getElementById('dofForm_tur')?.value;
+      const fHat = document.getElementById('dofForm_hat')?.value.trim();
+      const fKonu = document.getElementById('dofForm_konu')?.value.trim();
+      const fOncelik = document.getElementById('dofForm_oncelik')?.value;
+      const fSorumlu = document.getElementById('dofForm_sorumlu')?.value.trim();
+      const fTarih = document.getElementById('dofForm_tarih')?.value;
+      const fTermin = document.getElementById('dofForm_terminTarihi')?.value;
+      const fDurum = document.getElementById('dofForm_durum')?.value;
+      const fIlerleme = parseInt(document.getElementById('dofForm_ilerleme')?.value) || 0;
+      const fNeYapildi = document.getElementById('dofForm_neYapildi')?.value.trim();
+      const fNeYapilmali = document.getElementById('dofForm_neYapilmali')?.value.trim();
+      const fNeYapilacak = document.getElementById('dofForm_neYapilacak')?.value.trim();
+      const fKapanisNotu = document.getElementById('dofForm_kapanisNotu')?.value.trim();
+
+      if (!fHat) {
+        alert('Lütfen faaliyetin ilgili olduğu Hat veya Bölümü belirtiniz.');
+        document.getElementById('dofForm_hat')?.focus();
+        return;
+      }
+      if (!fKonu) {
+        alert('Lütfen Uygunsuzluk / Konu özetini giriniz.');
+        document.getElementById('dofForm_konu')?.focus();
+        return;
+      }
+      if (!fSorumlu) {
+        alert('Lütfen Sorumlu kişi veya birimi belirtiniz.');
+        document.getElementById('dofForm_sorumlu')?.focus();
+        return;
+      }
+
+      if (!DB.dofListesi) DB.dofListesi = [];
+
+      let item = null;
+      if (fId) {
+        item = DB.dofListesi.find(x => x.id == fId);
+      }
+
+      const bugunStr = new Date().toISOString().split('T')[0];
+
+      if (item) {
+        // Güncelle
+        item.tur = fTur;
+        item.hat = fHat;
+        item.konu = fKonu;
+        item.oncelik = fOncelik;
+        item.sorumlu = fSorumlu;
+        item.tarih = fTarih || bugunStr;
+        item.terminTarihi = fTermin;
+        item.durum = fDurum;
+        item.ilerleme = fIlerleme;
+        item.neYapildi = fNeYapildi;
+        item.neYapilmali = fNeYapilmali;
+        item.neYapilacak = fNeYapilacak;
+        item.kapanisNotu = fKapanisNotu;
+        if (fDurum === 'Kapatıldı' && !item.kapanisTarihi) {
+          item.kapanisTarihi = bugunStr;
+        }
+      } else {
+        // Yeni Kayıt
+        const yeniKayit = {
+          id: Date.now(),
+          dofNo: fNo || `DOF-${Date.now().toString().slice(-4)}`,
+          tur: fTur,
+          hat: fHat,
+          konu: fKonu,
+          oncelik: fOncelik,
+          sorumlu: fSorumlu,
+          tarih: fTarih || bugunStr,
+          terminTarihi: fTermin,
+          kapanisTarihi: fDurum === 'Kapatıldı' ? bugunStr : '',
+          durum: fDurum || 'Açık',
+          ilerleme: fIlerleme,
+          neYapildi: fNeYapildi,
+          neYapilmali: fNeYapilmali,
+          neYapilacak: fNeYapilacak,
+          kapanisNotu: fKapanisNotu,
+          kaydeden: (aktifKullanici && aktifKullanici.ad) ? aktifKullanici.ad : 'Kullanıcı'
+        };
+        DB.dofListesi.unshift(yeniKayit);
+      }
+
+      closeModal('dofKayitModal');
+      saveDB();
+      renderDofModulu();
+      updateDofBadge();
+      showToast('🎉 DÖF kaydı başarıyla kaydedildi.', 'success');
+    }
+
+    function dofDurumHizliDegistir(id, yeniDurum) {
+      const item = (DB.dofListesi || []).find(x => x.id == id);
+      if (!item) return;
+
+      item.durum = yeniDurum;
+      if (yeniDurum === 'Kapatıldı') {
+        item.ilerleme = 100;
+        if (!item.kapanisTarihi) {
+          item.kapanisTarihi = new Date().toISOString().split('T')[0];
+        }
+        const not = prompt('DÖF Kapatma / Doğrulama Notu giriniz (İsteğe bağlı):', item.kapanisNotu || '');
+        if (not !== null) item.kapanisNotu = not.trim();
+      }
+
+      saveDB();
+      renderDofModulu();
+      updateDofBadge();
+      showToast(`DÖF durumu '${yeniDurum}' olarak güncellendi.`, 'info');
+    }
+
+    function dofSil(id) {
+      const item = (DB.dofListesi || []).find(x => x.id == id);
+      if (!item) return;
+
+      if (!confirm(`'${item.dofNo} - ${item.konu}' kaydını silmek istediğinize emin misiniz?`)) return;
+
+      DB.dofListesi = (DB.dofListesi || []).filter(x => x.id != id);
+      saveDB();
+      renderDofModulu();
+      updateDofBadge();
+      showToast('DÖF kaydı silindi.', 'warning');
+    }
+
+    function dofYazdirModalAc(id) {
+      const item = (DB.dofListesi || []).find(x => x.id == id);
+      if (!item) return;
+
+      const container = document.getElementById('dofYazdirIcerik');
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="p-6 bg-white border border-slate-300 rounded-xl" id="panzerpDofPrintArea">
+          <!-- FORM ÜST BAŞLIK & LOGO -->
+          <div class="flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-amber-400 text-slate-950 font-black text-2xl rounded-xl flex items-center justify-center border-2 border-slate-900">
+                P
+              </div>
+              <div>
+                <h1 class="text-lg font-black text-slate-900 tracking-wider">PANZERCROM AŞINMA TEKNOLOJİLERİ</h1>
+                <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Kalite Güvence & Proses Kontrol Sistemi</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <h2 class="text-sm font-black text-indigo-900">DÜZELTİCİ VE ÖNLEYİCİ FAALİYET FORMU</h2>
+              <p class="text-[10px] font-mono text-slate-500 font-bold">Doküman No: PZ-KAL-FR-04 · Rev: 02</p>
+            </div>
+          </div>
+
+          <!-- BİLGİ TABLOSU -->
+          <table class="w-full text-xs border-collapse border border-slate-400 mb-4">
+            <tbody>
+              <tr>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100 w-1/4">DÖF No:</td>
+                <td class="p-2 border border-slate-300 font-mono font-black text-indigo-900 w-1/4">${dofEscape(item.dofNo)}</td>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100 w-1/4">Faaliyet Türü:</td>
+                <td class="p-2 border border-slate-300 font-bold w-1/4">${dofEscape(item.tur)} Faaliyet</td>
+              </tr>
+              <tr>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100">İlgili Hat / Birim:</td>
+                <td class="p-2 border border-slate-300 font-black text-slate-900">${dofEscape(item.hat)}</td>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100">Öncelik / Risk:</td>
+                <td class="p-2 border border-slate-300 font-bold">${dofEscape(item.oncelik)}</td>
+              </tr>
+              <tr>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100">Açılış Tarihi:</td>
+                <td class="p-2 border border-slate-300">${dofEscape(item.tarih || '-')}</td>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100">Hedef Termin:</td>
+                <td class="p-2 border border-slate-300 font-bold">${dofEscape(item.terminTarihi || '-')}</td>
+              </tr>
+              <tr>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100">Sorumlu Kişi / Birim:</td>
+                <td class="p-2 border border-slate-300 font-bold text-indigo-950">${dofEscape(item.sorumlu)}</td>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100">Mevcut Durum:</td>
+                <td class="p-2 border border-slate-300 font-bold">${dofEscape(item.durum)} (%${item.ilerleme || 0})</td>
+              </tr>
+              <tr>
+                <td class="p-2 border border-slate-300 font-bold bg-slate-100">Uygunsuzluk / Konu:</td>
+                <td colspan="3" class="p-2 border border-slate-300 font-bold text-slate-900">${dofEscape(item.konu)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 3 TEMEL FAALİYET KUTUSU -->
+          <div class="space-y-3 mb-6">
+            <!-- 1. NE YAPILDI -->
+            <div class="border-2 border-emerald-400 rounded-xl p-3 bg-emerald-50/30">
+              <div class="font-black text-xs text-emerald-950 uppercase mb-1">
+                1. NE YAPILDI? (Mevcut Durumda Yapılan Anlık Müdahale / Alınan Önlem)
+              </div>
+              <p class="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">
+                ${dofEscape(item.neYapildi || 'Belirtilmedi.')}
+              </p>
+            </div>
+
+            <!-- 2. NE YAPILMALI -->
+            <div class="border-2 border-amber-400 rounded-xl p-3 bg-amber-50/30">
+              <div class="font-black text-xs text-amber-950 uppercase mb-1">
+                2. NE YAPILMALI? (Standart Çözüm / Kök Neden Analizi & Alınması Gereken Esas Önlem)
+              </div>
+              <p class="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">
+                ${dofEscape(item.neYapilmali || 'Belirtilmedi.')}
+              </p>
+            </div>
+
+            <!-- 3. NE YAPILACAK -->
+            <div class="border-2 border-indigo-400 rounded-xl p-3 bg-indigo-50/30">
+              <div class="font-black text-xs text-indigo-950 uppercase mb-1">
+                3. NE YAPILACAK? (Planlanan Terminli Faaliyetler / Kim, Ne Zaman, Nasıl?)
+              </div>
+              <p class="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">
+                ${dofEscape(item.neYapilacak || 'Belirtilmedi.')}
+              </p>
+            </div>
+          </div>
+
+          <!-- KAPANIŞ VE DOĞRULAMA NOTU -->
+          ${item.kapanisNotu ? `
+            <div class="border border-slate-300 rounded-xl p-3 bg-slate-50 mb-6">
+              <div class="font-bold text-xs text-slate-800 uppercase mb-1">Doğrulama & Kapanış Değerlendirmesi:</div>
+              <p class="text-xs text-slate-700 whitespace-pre-wrap">${dofEscape(item.kapanisNotu)}</p>
+            </div>
+          ` : ''}
+
+          <!-- İMZA ALANI -->
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t-2 border-slate-300 text-center text-xs">
+            <div>
+              <p class="font-bold text-slate-700">DÖF Başlatan</p>
+              <p class="text-slate-500 mt-1">${dofEscape(item.kaydeden || 'İlgili Personel')}</p>
+              <div class="mt-8 border-b border-dashed border-slate-400 w-32 mx-auto"></div>
+              <p class="text-[10px] text-slate-400 mt-1">İmza / Tarih</p>
+            </div>
+            <div>
+              <p class="font-bold text-slate-700">Birim / Hat Sorumlusu</p>
+              <p class="text-slate-500 mt-1">${dofEscape(item.sorumlu || 'Sorumlu')}</p>
+              <div class="mt-8 border-b border-dashed border-slate-400 w-32 mx-auto"></div>
+              <p class="text-[10px] text-slate-400 mt-1">İmza / Tarih</p>
+            </div>
+            <div>
+              <p class="font-bold text-slate-700">Kalite Müdürü / Yönetim Onayı</p>
+              <p class="text-slate-500 mt-1">Onay & Doğrulama</p>
+              <div class="mt-8 border-b border-dashed border-slate-400 w-32 mx-auto"></div>
+              <p class="text-[10px] text-slate-400 mt-1">İmza / Tarih</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      openModal('dofYazdirModal');
+    }
+
+    function dofYazdir() {
+      const area = document.getElementById('panzerpDofPrintArea');
+      if (!area) return;
+
+      const printContainer = document.createElement('div');
+      printContainer.id = 'panzerp_print_active_target';
+      printContainer.innerHTML = area.innerHTML;
+      document.body.appendChild(printContainer);
+
+      window.print();
+
+      setTimeout(() => {
+        if (printContainer.parentNode) {
+          printContainer.parentNode.removeChild(printContainer);
+        }
+      }, 1000);
+    }
+
+    function dofExcelExport() {
+      const listesi = DB.dofListesi || [];
+      if (listesi.length === 0) {
+        alert('Dışa aktarılacak DÖF kaydı bulunmamaktadır.');
+        return;
+      }
+
+      const basliklar = [
+        'DÖF No', 'Tarih', 'Hedef Termin', 'Kapanış Tarihi', 'Tür', 'Hat/Birim',
+        'Konu', 'Öncelik', 'Sorumlu', 'Durum', 'İlerleme (%)',
+        'Ne Yapıldı', 'Ne Yapılmalı', 'Ne Yapılacak', 'Kapanış Notu'
+      ];
+
+      const satirlar = listesi.map(d => [
+        `"${(d.dofNo || '').replace(/"/g, '""')}"`,
+        `"${(d.tarih || '').replace(/"/g, '""')}"`,
+        `"${(d.terminTarihi || '').replace(/"/g, '""')}"`,
+        `"${(d.kapanisTarihi || '').replace(/"/g, '""')}"`,
+        `"${(d.tur || '').replace(/"/g, '""')}"`,
+        `"${(d.hat || '').replace(/"/g, '""')}"`,
+        `"${(d.konu || '').replace(/"/g, '""')}"`,
+        `"${(d.oncelik || '').replace(/"/g, '""')}"`,
+        `"${(d.sorumlu || '').replace(/"/g, '""')}"`,
+        `"${(d.durum || '').replace(/"/g, '""')}"`,
+        `"${d.ilerleme || 0}"`,
+        `"${(d.neYapildi || '').replace(/"/g, '""')}"`,
+        `"${(d.neYapilmali || '').replace(/"/g, '""')}"`,
+        `"${(d.neYapilacak || '').replace(/"/g, '""')}"`,
+        `"${(d.kapanisNotu || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = '\uFEFF' + [basliklar.join(';'), ...satirlar.map(s => s.join(';'))].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `Panzercrom_DOF_Listesi_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   </script>
 
