@@ -3694,7 +3694,7 @@
                     Plaka Seçerek Hızlı Üretim Verisi Doldur
                     <span class="text-[10px] uppercase font-bold bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2 py-0.5 rounded-full">Yeni Özellik</span>
                   </h3>
-                  <p class="text-xs text-blue-200/90 mt-0.5">Plaka kodunu seçtiğinizde Makine, En, Boy, Kalınlık ve Kayma otomatik dolar; <b>yalnızca Sıra Sayılarını</b> yazarsınız.</p>
+                  <p class="text-xs text-blue-200/90 mt-0.5">Plaka seçtiğinizde Makine, En, Boy ve Kalınlık dolar; <b>Kayma Miktarı ve Sıra Sayıları</b> manuel girilir. Dilerseniz her kafa için tablodan farklı plaka da seçebilirsiniz.</p>
                 </div>
               </div>
 
@@ -3721,7 +3721,7 @@
               <span id="apmbg_boyut" class="bg-blue-900/60 text-blue-200 px-2 py-0.5 rounded border border-blue-400/30"></span>
               <span id="apmbg_kalinlik" class="bg-emerald-900/60 text-emerald-200 px-2 py-0.5 rounded border border-emerald-400/30"></span>
               <span id="apmbg_tel" class="bg-purple-900/60 text-purple-200 px-2 py-0.5 rounded border border-purple-400/30"></span>
-              <span class="text-emerald-400 font-bold ml-auto flex items-center gap-1">✅ Kafalar hazırlandı, lütfen sıra sayılarını giriniz.</span>
+              <span class="text-emerald-400 font-bold ml-auto flex items-center gap-1">✅ Bilgiler yüklendi, lütfen kayma miktarı ve sıra sayılarını manuel giriniz.</span>
             </div>
           </div>
 
@@ -3775,23 +3775,33 @@
                 ⚙️ Kafa Verileri 
                 <span class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded ml-2 hidden md:inline">(Kalınlık ve En m² hesabına dahil edilmez.)</span>
               </h3>
-              <div class="flex items-center gap-2 bg-indigo-50/80 border border-indigo-200 px-3 py-1.5 rounded-xl text-xs w-full sm:w-auto justify-between sm:justify-start">
-                <span class="font-bold text-indigo-900 flex items-center gap-1">⚡ Toplu Sıra Sayısı:</span>
-                <input type="number" id="apmTopluSiraInput" min="1" placeholder="Örn: 30" class="w-16 bg-white border border-indigo-300 rounded-lg px-2 py-1 text-center font-bold text-indigo-950 outline-none focus:ring-2 focus:ring-indigo-400">
-                <button type="button" onclick="apmTumKafalaraSiraUygula()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow-xs transition-colors">
-                  Tümüne Uygula
-                </button>
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2 bg-indigo-50/80 border border-indigo-200 px-3 py-1.5 rounded-xl text-xs">
+                  <span class="font-bold text-indigo-900 flex items-center gap-1">⚡ Toplu Sıra:</span>
+                  <input type="number" id="apmTopluSiraInput" min="1" placeholder="Örn: 30" class="w-16 bg-white border border-indigo-300 rounded-lg px-2 py-1 text-center font-bold text-indigo-950 outline-none focus:ring-2 focus:ring-indigo-400">
+                  <button type="button" onclick="apmTumKafalaraSiraUygula()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow-xs transition-colors">
+                    Uygula
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-amber-50/80 border border-amber-200 px-3 py-1.5 rounded-xl text-xs">
+                  <span class="font-bold text-amber-900 flex items-center gap-1">⚡ Manuel Toplu Kayma:</span>
+                  <input type="number" step="0.1" id="apmTopluKaymaInput" placeholder="Örn: 5" class="w-16 bg-white border border-amber-300 rounded-lg px-2 py-1 text-center font-bold text-amber-950 outline-none focus:ring-2 focus:ring-amber-400">
+                  <button type="button" onclick="apmTumKafalaraKaymaUygula()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow-xs transition-colors">
+                    Uygula
+                  </button>
+                </div>
               </div>
             </div>
             <div class="table-responsive rounded-xl border border-slate-200">
               <table class="w-full text-sm text-center">
                 <thead class="bg-slate-100 border-b border-slate-200 text-xs">
                   <tr>
-                    <th class="py-3 border-r border-slate-200 rounded-tl-xl w-16">Kafa</th>
+                    <th class="py-3 border-r border-slate-200 rounded-tl-xl w-14">Kafa</th>
+                    <th class="py-3 border-r border-slate-200 bg-indigo-50/80 text-indigo-900 font-bold min-w-[150px]">Plaka Adı / Kodu</th>
                     <th class="py-3 border-r border-slate-200 bg-slate-200/50 text-slate-700">Kaynak Eni (mm)</th>
                     <th class="py-3 border-r border-slate-200">Kalınlık (mm)</th>
                     <th class="py-3 border-r border-slate-200 text-blue-700">Çekilen Sıra Adedi</th>
-                    <th class="py-3 border-r border-slate-200 text-blue-700">Kayma Miktarı (mm)</th>
+                    <th class="py-3 border-r border-slate-200 bg-amber-50/80 text-amber-900 font-black">Kayma Miktarı (mm) <span class="text-[10px] text-amber-600 font-bold block">(Manuel)</span></th>
                     <th class="py-3 border-r border-slate-200 text-blue-700">Kaynak Boyu (mm)</th>
                     <th class="py-3 border-slate-200 bg-blue-100/50 text-blue-800 rounded-tr-xl">Sonuç Alan (M²)</th>
                   </tr>
@@ -9142,19 +9152,19 @@
       const boy = parseFloat(p.kaynakBoy) || parseFloat(p.sacBoy) || 2910;
       // Kalınlık olarak doğrudan KAPLAMA KALINLIĞI alınır (Toplam kalınlık değil)
       const kalinlik = parseFloat(p.kaplama) || (parseFloat(p.toplamKalinlik || 0) - parseFloat(p.anaMetal || 0)) || 4;
-      const kayma = parseFloat(p.kayma) || 5;
 
-      // 3. Tüm 6 Kafaya bilgileri otomatik aktar
+      // 3. Tüm 6 Kafaya plaka, en, boy, kalınlık aktar (KAYMA OTOMATİK DOLDURULMAZ, MANUEL GİRİLECEK)
       for (let i = 1; i <= 6; i++) {
+        const plakaEl = document.getElementById(`apmKafaPlaka_${i}`);
         const enEl = document.getElementById(`apmKafaEn_${i}`);
         const kalEl = document.getElementById(`apmKafaKalinlik_${i}`);
-        const kayEl = document.getElementById(`apmKafaKayma_${i}`);
         const boyEl = document.getElementById(`apmKafaBoy_${i}`);
 
+        if (plakaEl) plakaEl.value = p.plaka || '';
         if (enEl) enEl.value = en;
         if (kalEl) kalEl.value = kalinlik;
-        if (kayEl) kayEl.value = kayma;
         if (boyEl) boyEl.value = boy;
+        // DİKKAT: Kullanıcı talebi üzerine kayma miktarı otomatik doldurulmaz, manuel girilir!
       }
 
       // 4. Bilgi Kartını Göster
@@ -9164,7 +9174,7 @@
         document.getElementById('apmbg_ad').innerText = p.plaka || 'Plaka';
         document.getElementById('apmbg_makine').innerText = p.makine || '-';
         document.getElementById('apmbg_boyut').innerText = `Boy: ${boy} mm × En: ${en} mm`;
-        document.getElementById('apmbg_kalinlik').innerText = `Kaplama: ${kalinlik} mm (Ana Metal: ${p.anaMetal || '-'} mm | Toplam: ${p.toplamKalinlik || '-'} mm | Kayma: ${kayma} mm)`;
+        document.getElementById('apmbg_kalinlik').innerText = `Kaplama: ${kalinlik} mm (Ana Metal: ${p.anaMetal || '-'} mm | Toplam: ${p.toplamKalinlik || '-'} mm)`;
         document.getElementById('apmbg_tel').innerText = `Tel: ${p.telKodu || p.kaynakCinsi || '-'}`;
       }
 
@@ -9174,15 +9184,15 @@
         tarihEl.value = new Date().toISOString().slice(0, 10);
       }
 
-      // 6. Sıra sayısı alanına odaklan (Kafa 1 Sıra Sayısı)
-      const sira1 = document.getElementById('apmKafaSira_1');
-      if (sira1) {
-        sira1.focus();
-        sira1.select();
+      // 6. İlk kafanın kayma miktarına odaklan (manuel girilecek)
+      const kayma1 = document.getElementById('apmKafaKayma_1');
+      if (kayma1) {
+        kayma1.focus();
+        kayma1.select();
       }
 
       hesaplaApmM2();
-      showToast(`⚡ "${p.plaka}" (${p.makine}) bilgileri yüklendi! Sadece sıra sayılarını girmeniz yeterlidir.`, 'success');
+      showToast(`⚡ "${p.plaka}" (${p.makine}) bilgileri yüklendi! Lütfen Kayma Miktarı ve Sıra Sayılarını manuel giriniz.`, 'success');
     }
 
     function apmHizliPlakaSifirla() {
@@ -9193,6 +9203,7 @@
       if (badgeCard) badgeCard.classList.add('hidden');
 
       for (let i = 1; i <= 6; i++) {
+        if (document.getElementById(`apmKafaPlaka_${i}`)) document.getElementById(`apmKafaPlaka_${i}`).value = '';
         if (document.getElementById(`apmKafaEn_${i}`)) document.getElementById(`apmKafaEn_${i}`).value = '';
         if (document.getElementById(`apmKafaKalinlik_${i}`)) document.getElementById(`apmKafaKalinlik_${i}`).value = '';
         if (document.getElementById(`apmKafaSira_${i}`)) document.getElementById(`apmKafaSira_${i}`).value = '';
@@ -9222,16 +9233,93 @@
       showToast(`⚡ Tüm 6 kafaya ${siraVal} sıra uygulandı ve toplam m² hesaplandı!`, 'success');
     }
 
+    function apmTumKafalaraKaymaUygula() {
+      const topInp = document.getElementById('apmTopluKaymaInput');
+      if (!topInp) return;
+      const kaymaVal = parseFloat(topInp.value);
+      if (isNaN(kaymaVal) || kaymaVal <= 0) {
+        alert('Lütfen geçerli bir kayma miktarı (mm) giriniz (Örn: 5)');
+        return;
+      }
+
+      for (let i = 1; i <= 6; i++) {
+        const kaymaEl = document.getElementById(`apmKafaKayma_${i}`);
+        if (kaymaEl) kaymaEl.value = kaymaVal;
+      }
+
+      hesaplaApmM2();
+      showToast(`⚡ Tüm 6 kafaya manuel ${kaymaVal} mm kayma miktarı uygulandı!`, 'success');
+    }
+
+    function apmKafaPlakaSecildi(i) {
+      const inp = document.getElementById(`apmKafaPlaka_${i}`);
+      if (!inp) return;
+      const val = inp.value.trim();
+      if (!val) return;
+
+      const plakalar = DB.apmPlakalar || [];
+      const cleanVal = val.toLowerCase();
+
+      // Plakayı akıllıca bul
+      let p = plakalar.find(x => {
+        const fullKey = `${(x.plaka || '').toLowerCase()} (${(x.makine || '').toLowerCase()})`;
+        return fullKey === cleanVal || (x.plaka && x.plaka.toLowerCase() === cleanVal);
+      });
+
+      if (!p) {
+        p = plakalar.find(x => {
+          const pName = (x.plaka || '').toLowerCase();
+          const pTt = (x.ttNo || '').toLowerCase();
+          return pName.includes(cleanVal) || cleanVal.includes(pName) || (pTt && cleanVal.includes(pTt));
+        });
+      }
+
+      if (p) {
+        const enEl = document.getElementById(`apmKafaEn_${i}`);
+        const kalEl = document.getElementById(`apmKafaKalinlik_${i}`);
+        const boyEl = document.getElementById(`apmKafaBoy_${i}`);
+
+        const en = parseFloat(p.kaynakEn) || parseFloat(p.sacEn) || 1410;
+        const boy = parseFloat(p.kaynakBoy) || parseFloat(p.sacBoy) || 2910;
+        const kalinlik = parseFloat(p.kaplama) || (parseFloat(p.toplamKalinlik || 0) - parseFloat(p.anaMetal || 0)) || 4;
+
+        if (enEl) enEl.value = en;
+        if (kalEl) kalEl.value = kalinlik;
+        if (boyEl) boyEl.value = boy;
+
+        inp.value = p.plaka || val;
+
+        const makineInput = document.getElementById('apmMakine');
+        if (makineInput && (!makineInput.value || makineInput.value.trim() === '')) {
+          makineInput.value = p.makine || 'APM-3';
+        }
+
+        hesaplaApmM2();
+
+        // Kayma alanına odaklan (manuel girilmesi için)
+        const kaymaEl = document.getElementById(`apmKafaKayma_${i}`);
+        if (kaymaEl && !kaymaEl.value) {
+          kaymaEl.focus();
+        } else {
+          const siraEl = document.getElementById(`apmKafaSira_${i}`);
+          if (siraEl) siraEl.focus();
+        }
+      }
+    }
+
     function renderApmKafaGrid() {
       let html = '';
       let tabIdx = 10;
       for (let i = 1; i <= 6; i++) {
         html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
             <td class="py-2 border-r border-slate-100 font-bold bg-slate-50 text-slate-500 rounded-l-lg">${i}</td>
+            <td class="p-1 border-r border-slate-100">
+              <input type="text" id="apmKafaPlaka_${i}" list="apmHizliPlakaDatalist" onchange="apmKafaPlakaSecildi(${i})" class="border border-slate-200 p-2 w-full text-center bg-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 rounded-lg text-xs font-bold text-slate-800 placeholder:text-slate-400 transition-all" tabindex="${tabIdx++}" placeholder="Plaka Seç / Yaz">
+            </td>
             <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaEn_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" placeholder="En(mm)"></td>
             <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaKalinlik_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" placeholder="Örn: 12"></td>
-            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaSira_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Örn: 33"></td>
-            <td class="p-1 border-r border-slate-100"><input type="number" step="0.1" id="apmKafaKayma_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Örn: 5"></td>
+            <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaSira_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all font-bold text-indigo-700" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Örn: 33"></td>
+            <td class="p-1 border-r border-slate-100"><input type="number" step="0.1" id="apmKafaKayma_${i}" class="border border-amber-300 p-2 w-full text-center bg-amber-50/40 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 rounded-lg transition-all font-black text-amber-900" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Kayma (manuel)"></td>
             <td class="p-1 border-r border-slate-100"><input type="number" id="apmKafaBoy_${i}" class="border border-slate-200 p-2.5 w-full text-center bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all" tabindex="${tabIdx++}" oninput="hesaplaApmM2()" placeholder="Boy(mm)"></td>
             <td class="p-2 font-bold text-blue-700 bg-blue-50/50 rounded-r-lg text-base" id="apmKafaM2_${i}">0.00</td>
         </tr>`;
@@ -9262,10 +9350,22 @@
 
       if (!tarih || !makine) { alert('Lütfen Kayıt Tarihi ve Makine Kodu bilgilerini giriniz!'); return; }
 
+      // Güvenlik kontrolü: Sıra girilip kayma girilmemiş mi?
+      for (let i = 1; i <= 6; i++) {
+        let sira = parseFloat(document.getElementById(`apmKafaSira_${i}`).value) || 0;
+        let kayma = parseFloat(document.getElementById(`apmKafaKayma_${i}`).value) || 0;
+        if (sira > 0 && kayma <= 0) {
+          alert(`Kafa ${i} için sıra sayısı girilmiş ancak kayma miktarı girilmemiştir. Lütfen kayma miktarını manuel olarak giriniz.`);
+          document.getElementById(`apmKafaKayma_${i}`).focus();
+          return;
+        }
+      }
+
       let kafalar = [];
       let toplamM2 = 0;
 
       for (let i = 1; i <= 6; i++) {
+        let plaka = (document.getElementById(`apmKafaPlaka_${i}`)?.value || '').trim();
         let en = parseFloat(document.getElementById(`apmKafaEn_${i}`).value) || 0;
         let kalinlik = parseFloat(document.getElementById(`apmKafaKalinlik_${i}`).value) || 0;
         let sira = parseFloat(document.getElementById(`apmKafaSira_${i}`).value) || 0;
@@ -9274,8 +9374,8 @@
 
         let m2 = (boy * kayma * sira) / 1000000;
 
-        if (sira > 0 || m2 > 0) {
-          kafalar.push({ kafaNo: i, en: en, kalinlik: kalinlik, sira: sira, kayma: kayma, boy: boy, m2: m2 });
+        if (sira > 0 || m2 > 0 || plaka) {
+          kafalar.push({ kafaNo: i, plaka: plaka, en: en, kalinlik: kalinlik, sira: sira, kayma: kayma, boy: boy, m2: m2 });
           toplamM2 += m2;
         }
       }
@@ -9309,6 +9409,7 @@
       alert(`İşlem Başarılı! Toplam ${toplamM2.toFixed(4)} m² üretim sisteme kaydedildi.`);
 
       for (let i = 1; i <= 6; i++) {
+        if (document.getElementById(`apmKafaPlaka_${i}`)) document.getElementById(`apmKafaPlaka_${i}`).value = '';
         document.getElementById(`apmKafaEn_${i}`).value = '';
         document.getElementById(`apmKafaKalinlik_${i}`).value = '';
         document.getElementById(`apmKafaSira_${i}`).value = '';
@@ -9351,7 +9452,7 @@
         if (!makineToplamlari[makineAdi]) makineToplamlari[makineAdi] = 0;
         makineToplamlari[makineAdi] += (k.toplamM2 || 0);
 
-        let detayHtml = k.kafalar.map(kf => `<div class="text-xs text-slate-600 bg-white border border-slate-200 rounded-md p-1.5 mb-1 shadow-sm flex items-center justify-between"><span class="font-bold text-slate-700">Kafa ${kf.kafaNo}:</span> <span>${kf.en}x${kf.boy} / ${kf.kalinlik}mm / ${kf.sira} Sıra / ${kf.kayma}mm</span> <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-sm ml-2">${kf.m2.toFixed(4)} m²</span></div>`).join('');
+        let detayHtml = k.kafalar.map(kf => `<div class="text-xs text-slate-600 bg-white border border-slate-200 rounded-md p-1.5 mb-1 shadow-sm flex items-center justify-between"><span class="font-bold text-slate-700">Kafa ${kf.kafaNo}${kf.plaka ? ` (${kf.plaka})` : ''}:</span> <span>${kf.en}x${kf.boy} / ${kf.kalinlik}mm / ${kf.sira} Sıra / ${kf.kayma}mm Kayma</span> <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-sm ml-2">${kf.m2.toFixed(4)} m²</span></div>`).join('');
 
         html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
             <td class="py-3 font-medium">${k.tarih}</td>
