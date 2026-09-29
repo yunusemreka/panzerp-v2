@@ -21179,6 +21179,50 @@
       return DB.apmPlakalar || [];
     }
 
+    var seciliApmMakine = 'APM-3';
+
+    function isTumuApmMakine(m) {
+      if (!m) return false;
+      const str = String(m).trim().toUpperCase();
+      return str === 'TÜMÜ' || str === 'TUMU' || str === 'TM';
+    }
+
+    function apmPlakaMakineSec(makine) {
+      seciliApmMakine = makine || 'APM-3';
+      const curIsTumu = isTumuApmMakine(seciliApmMakine);
+      const curNorm = seciliApmMakine.trim().toUpperCase();
+
+      document.querySelectorAll('.apmMakineBtn').forEach(btn => {
+        const m = (btn.dataset.makine || '').trim().toUpperCase();
+        const btnIsTumu = isTumuApmMakine(m);
+        const isSelected = curIsTumu ? btnIsTumu : (m === curNorm);
+
+        if (isSelected) {
+          if (btnIsTumu) {
+            btn.className = 'apmMakineBtn active px-4 py-2 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-slate-900 text-amber-400 border border-slate-800 cursor-pointer shadow-md';
+            const badge = btn.querySelector('span:last-child');
+            if (badge) badge.className = 'text-[10px] px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-bold';
+          } else {
+            btn.className = 'apmMakineBtn active px-3.5 py-2 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-indigo-600 text-white shadow-md border border-indigo-600 cursor-pointer';
+            const badge = btn.querySelector('span:last-child');
+            if (badge) badge.className = 'text-[10px] px-1.5 py-0.5 rounded-md bg-white/20 text-white font-bold';
+          }
+        } else {
+          if (btnIsTumu) {
+            btn.className = 'apmMakineBtn px-4 py-2 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-slate-900 text-amber-400 border border-slate-800 hover:bg-slate-800 cursor-pointer shadow-xs';
+            const badge = btn.querySelector('span:last-child');
+            if (badge) badge.className = 'text-[10px] px-1.5 py-0.5 rounded-md bg-slate-800 text-amber-300 font-bold';
+          } else {
+            btn.className = 'apmMakineBtn px-3.5 py-2 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 cursor-pointer';
+            const badge = btn.querySelector('span:last-child');
+            if (badge) badge.className = 'text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold';
+          }
+        }
+      });
+
+      apmPlakaListele();
+    }
+
     function apmPlakaListele() {
       DB.apmPlakalar = DB.apmPlakalar || [];
       if (DB.apmPlakalar.length === 0) {
@@ -21186,6 +21230,9 @@
           fetchApmPlakalarFromGoogleSheets(false, true);
         }
       }
+
+      if (!seciliApmMakine) seciliApmMakine = 'APM-3';
+      const isTumSecili = isTumuApmMakine(seciliApmMakine);
 
       const tumAktifler = (DB.apmPlakalar || []).filter(p => (p.durum || 'Planlandı') !== 'Tamamlandı');
       const tumTamamlananlar = (DB.apmPlakalar || []).filter(p => (p.durum || 'Planlandı') === 'Tamamlandı');
@@ -21226,7 +21273,7 @@
           <td class="py-2.5 px-3">
             <div class="font-bold text-slate-800">${p.ay || '-'}</div>
             <div class="text-[10px] text-slate-500 font-semibold mt-0.5 flex items-center gap-1">
-              ${seciliApmMakine === 'TÜMÜ' ? `<span class="bg-indigo-600 text-white font-extrabold px-1.5 py-0.2 rounded text-[9px]">${p.makine || 'APM-3'}</span>` : ''}
+              ${isTumSecili ? `<span class="bg-indigo-600 text-white font-extrabold px-1.5 py-0.2 rounded text-[9px]">${p.makine || 'APM-3'}</span>` : ''}
               <span>Masa: <b class="text-slate-700">${p.masa || 'Arka'}</b></span>
             </div>
           </td>
@@ -21281,7 +21328,7 @@
       const filtreDurumAktif = (document.getElementById('apmPlakaFiltreDurum')?.value || '').trim();
 
       let makineAktifPlakalar = (DB.apmPlakalar || []).filter(p => {
-        const isMatchMachine = (seciliApmMakine === 'TÜMÜ') ? true : ((p.makine || 'APM-3') === seciliApmMakine);
+        const isMatchMachine = isTumSecili ? true : ((p.makine || 'APM-3').trim().toUpperCase() === seciliApmMakine.trim().toUpperCase());
         return isMatchMachine && ((p.durum || 'Planlandı') !== 'Tamamlandı');
       });
 
@@ -21328,7 +21375,7 @@
           tbodyAktif.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400">
             <div class="flex flex-col items-center justify-center gap-2">
               <span class="text-3xl">⏳</span>
-              <span class="font-bold text-sm text-slate-600">${seciliApmMakine === 'TÜMÜ' ? 'Tüm makinelerde' : seciliApmMakine + ' makinesinde'} aktif/planlanan plaka bulunamadı.</span>
+              <span class="font-bold text-sm text-slate-600">${isTumSecili ? 'Tüm makinelerde' : seciliApmMakine + ' makinesinde'} aktif/planlanan plaka bulunamadı.</span>
               <span class="text-xs text-slate-400">Yukarıdaki '➕ Yeni Plaka Ekle' veya '📁 Excel İçe Aktar' butonunu kullanarak plaka ekleyebilirsiniz.</span>
             </div>
           </td></tr>`;
@@ -21337,7 +21384,7 @@
         }
       }
       const infoAktif = document.getElementById('apmPlakaKayitSayisiInfo');
-      if (infoAktif) infoAktif.innerText = `${filtrelenmisAktif.length} aktif plaka listeleniyor (${seciliApmMakine === 'TÜMÜ' ? 'Tüm Makineler' : seciliApmMakine})`;
+      if (infoAktif) infoAktif.innerText = `${filtrelenmisAktif.length} aktif plaka listeleniyor (${isTumSecili ? 'Tüm Makineler' : seciliApmMakine})`;
 
       // ==========================================
       // 2. TAMAMLANAN PLAKALAR
@@ -21347,7 +21394,7 @@
       const filtreMasaTamam = (document.getElementById('apmTamamFiltreMasa')?.value || '').trim();
 
       let makineTamamPlakalar = (DB.apmPlakalar || []).filter(p => {
-        const isMatchMachine = (seciliApmMakine === 'TÜMÜ') ? true : ((p.makine || 'APM-3') === seciliApmMakine);
+        const isMatchMachine = isTumSecili ? true : ((p.makine || 'APM-3').trim().toUpperCase() === seciliApmMakine.trim().toUpperCase());
         return isMatchMachine && ((p.durum || 'Planlandı') === 'Tamamlandı');
       });
 
@@ -21393,7 +21440,7 @@
           tbodyTamam.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400">
             <div class="flex flex-col items-center justify-center gap-2">
               <span class="text-3xl">✅</span>
-              <span class="font-bold text-sm text-slate-600">${seciliApmMakine === 'TÜMÜ' ? 'Tüm makinelerde' : seciliApmMakine + ' makinesinde'} henüz tamamlanan plaka kaydı bulunmuyor.</span>
+              <span class="font-bold text-sm text-slate-600">${isTumSecili ? 'Tüm makinelerde' : seciliApmMakine + ' makinesinde'} henüz tamamlanan plaka kaydı bulunmuyor.</span>
               <span class="text-xs text-slate-400">Aktif listedeki plakaların durumunu '✅ Tamamlandı' yaptığınızda otomatik olarak bu arşiv sekmesine taşınırlar.</span>
             </div>
           </td></tr>`;
@@ -21402,7 +21449,7 @@
         }
       }
       const infoTamam = document.getElementById('apmTamamPlakaKayitSayisiInfo');
-      if (infoTamam) infoTamam.innerText = `${filtrelenmisTamam.length} tamamlanan plaka listeleniyor (${seciliApmMakine === 'TÜMÜ' ? 'Tüm Makineler' : seciliApmMakine})`;
+      if (infoTamam) infoTamam.innerText = `${filtrelenmisTamam.length} tamamlanan plaka listeleniyor (${isTumSecili ? 'Tüm Makineler' : seciliApmMakine})`;
     }
 
     function apmPlakaModalAc(id) {
