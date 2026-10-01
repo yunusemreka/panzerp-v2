@@ -4223,7 +4223,7 @@
         <!-- Detay Rapor Sekmeleri -->
         <div class="card p-5">
           <div class="flex gap-2 border-b border-slate-200 overflow-x-auto pt-1 px-1 mb-4">
-            <div class="tab-btn active whitespace-nowrap font-bold" data-tab="rpUretimFcw">🏭 FCW Üretim Verileri Detayı
+            <div class="tab-btn active whitespace-nowrap font-bold" data-tab="rpUretimFcw">🏭 FCW Makine Bazlı Üretim Raporu
             </div>
             <div class="tab-btn whitespace-nowrap font-bold" data-tab="rpUretimApm">🛡️ APM Plaka Üretim Verileri Detayı
             </div>
@@ -12545,6 +12545,25 @@
           return no.includes(arama) || lot.includes(arama) || urunAd.includes(arama) || musteri.includes(arama) || harman.includes(arama);
         });
       }
+
+      // TAMAMLANANLAR AŞAĞIDA GÖRÜNSÜN: Aktif iş emirleri (Üretimde > Planlandı) üstte, Tamamlanan ve İptal olanlar aşağıda
+      list.sort((a, b) => {
+        const getDurumOncelik = (d) => {
+          if (d === 'Üretimde') return 1;
+          if (d === 'Planlandı') return 2;
+          if (d === 'Tamamlandı') return 3;
+          if (d === 'İptal') return 4;
+          return 2;
+        };
+        const oncelikA = getDurumOncelik(a.durum);
+        const oncelikB = getDurumOncelik(b.durum);
+        if (oncelikA !== oncelikB) return oncelikA - oncelikB;
+        // Kendi içinde tarihe göre en yeni üstte
+        const tarihA = new Date(a.tarih || a.planBaslangic || 0);
+        const tarihB = new Date(b.tarih || b.planBaslangic || 0);
+        return tarihB - tarihA;
+      });
+
       if (list.length === 0) { container.innerHTML = '<div class="text-slate-500 font-medium bg-slate-50 p-4 rounded-lg text-center border border-slate-100">Henüz iş emri yok veya filtreye uygun sonuç bulunamadı.</div>'; return; }
 
       let html = '<div class="table-responsive border border-slate-200 rounded-xl"><table class="divide-y divide-slate-100"><thead class="bg-slate-50 text-slate-700 font-bold"><tr><th class="py-3">IE No</th><th class="py-3">Parti / Lot No</th><th class="py-3">Tarih</th><th class="py-3">Plan. Başl. / Bitiş</th><th class="py-3">Ürün</th><th class="py-3">Hedef</th><th class="py-3">Üretim / Paketleme İlerlemesi</th><th class="py-3">Harman</th><th class="py-3">Durum</th><th class="py-3 text-right">İşlem</th></tr></thead><tbody class="divide-y divide-slate-50">';
@@ -21071,13 +21090,26 @@
       const apmFiltered = apmUretim.filter(a => dateInFilter(a.tarih || a.olusturmaTarihi));
 
       // Calculate totals
-      let fcwKabaKg = 0, fcwInceKg = 0, fcwBidonKg = 0;
+      let fcwKabaKg = 0, fcwInceKg = 0, fcwBidonKg = 0, fcwHassasKg = 0, fcwHarmanKg = 0;
       fcwFiltered.forEach(f => {
-        if (f.aşama === 'kaba' || f.asama === 'kaba') fcwKabaKg += parseFloat(f.miktar || 0);
-        else if (f.aşama === 'ince' || f.asama === 'ince') fcwInceKg += parseFloat(f.miktar || 0);
-        else if (f.aşama === 'bidon' || f.asama === 'bidon') fcwBidonKg += parseFloat(f.miktar || 0);
+        if (Array.isArray(f.items) && f.items.length > 0) {
+          f.items.forEach(it => {
+            const m = parseFloat(it.miktar) || 0;
+            if (it.asama === 'kaba') fcwKabaKg += m;
+            else if (it.asama === 'ince') fcwInceKg += m;
+            else if (it.asama === 'bidon') fcwBidonKg += m;
+            else if (it.asama === 'hassas') fcwHassasKg += m;
+            else if (it.asama === 'harman') fcwHarmanKg += m;
+          });
+        } else {
+          fcwKabaKg += parseFloat(f.kaba || (f.aşama === 'kaba' || f.asama === 'kaba' ? f.miktar : 0)) || 0;
+          fcwInceKg += parseFloat(f.ince || (f.aşama === 'ince' || f.asama === 'ince' ? f.miktar : 0)) || 0;
+          fcwBidonKg += parseFloat(f.bidon || (f.aşama === 'bidon' || f.asama === 'bidon' ? f.miktar : 0)) || 0;
+          fcwHassasKg += parseFloat(f.hassas || 0) || 0;
+          fcwHarmanKg += parseFloat(f.harman || 0) || 0;
+        }
       });
-      const fcwToplamKg = fcwKabaKg + fcwInceKg + fcwBidonKg;
+      const fcwToplamKg = fcwKabaKg + fcwInceKg + fcwBidonKg + fcwHassasKg;
 
       let apmToplamM2 = 0;
       apmFiltered.forEach(a => {
@@ -21094,7 +21126,7 @@
       const fcwEl = document.getElementById('rpFcwToplamKg');
       if (fcwEl) fcwEl.innerHTML = `${fcwToplamKg.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
       const fcwAlt = document.getElementById('rpFcwAltDetay');
-      if (fcwAlt) fcwAlt.innerHTML = `Kaba: ${fcwKabaKg.toFixed(0)} kg | İnce: ${fcwInceKg.toFixed(0)} kg | Bidon: ${fcwBidonKg.toFixed(0)} kg`;
+      if (fcwAlt) fcwAlt.innerHTML = `Kaba: ${fcwKabaKg.toFixed(0)} kg | İnce: ${fcwInceKg.toFixed(0)} kg | Bidon: ${fcwBidonKg.toFixed(0)} kg | Makara: ${fcwHassasKg.toFixed(0)} kg`;
 
       const apmEl = document.getElementById('rpApmToplamM2');
       if (apmEl) apmEl.innerHTML = `${apmToplamM2.toFixed(2)} <span class="text-sm font-normal text-slate-500">m²</span>`;
@@ -21109,35 +21141,271 @@
       const ortM2 = document.getElementById('rpOrtalamaM2');
       if (ortM2) ortM2.innerHTML = `${(apmToplamM2 / aktifGunSayisi).toFixed(2)} m²/gün`;
 
-      // Render FCW Detail Table
+      // -------------------------------------------------------------
+      // FCW MAKİNE BAZLI ÜRETİM RAPORU & AYLIK SEPERATÖR TOPLAMLARI
+      // -------------------------------------------------------------
+      // Makine tanımları: Kaba Çekme, İnce Çekme, Bidon Sarma, Makara Sarma (Hassas)
       const fcwContainer = document.getElementById('rpUretimFcw');
       if (fcwContainer) {
-        let h = `<table class="w-full text-left text-xs divide-y divide-slate-200">
-          <thead class="bg-slate-100 font-bold uppercase text-slate-600">
+        // 1. uretimTakip kayıtlarını normalize edilmiş satır listesine (kayıt bazlı) dönüştür
+        const duzeltilmisSatirlar = [];
+
+        fcwFiltered.forEach(u => {
+          const t = u.tarih || '-';
+          const ieNo = u.isEmriNo || u.no || '-';
+          const musteri = u.isEmriMusteri || '';
+          const op = u.operator || '-';
+          const aciklama = u.aciklama || '';
+
+          if (Array.isArray(u.items) && u.items.length > 0) {
+            u.items.forEach(it => {
+              const m = parseFloat(it.miktar) || 0;
+              if (m > 0) {
+                let makineAdi = 'Kaba Çekme';
+                let rozetClass = 'bg-orange-100 text-orange-800 border-orange-200';
+                if (it.asama === 'kaba') {
+                  makineAdi = 'Kaba Çekme';
+                  rozetClass = 'bg-orange-100 text-orange-800 border-orange-200';
+                } else if (it.asama === 'ince') {
+                  makineAdi = 'İnce Çekme';
+                  rozetClass = 'bg-sky-100 text-sky-800 border-sky-200';
+                } else if (it.asama === 'bidon') {
+                  makineAdi = 'Bidon Sarma';
+                  rozetClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                } else if (it.asama === 'hassas') {
+                  makineAdi = 'Makara Sarma (Hassas)';
+                  rozetClass = 'bg-purple-100 text-purple-800 border-purple-200';
+                } else if (it.asama === 'harman') {
+                  makineAdi = 'Harman / Karıştırma';
+                  rozetClass = 'bg-amber-100 text-amber-800 border-amber-200';
+                }
+
+                duzeltilmisSatirlar.push({
+                  tarih: t,
+                  makine: makineAdi,
+                  asamaKey: it.asama,
+                  rozetClass: rozetClass,
+                  urun: (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun) : it.urun) || '-',
+                  miktar: m,
+                  isEmriNo: ieNo,
+                  musteri: musteri,
+                  operator: op,
+                  aciklama: aciklama
+                });
+              }
+            });
+          } else {
+            // Eski format: kaba, ince, bidon, hassas alanları
+            const asamaList = [
+              { key: 'kaba', ad: 'Kaba Çekme', m: parseFloat(u.kaba) || 0, urun: u.kabaUrun, rozet: 'bg-orange-100 text-orange-800 border-orange-200' },
+              { key: 'ince', ad: 'İnce Çekme', m: parseFloat(u.ince) || 0, urun: u.inceUrun, rozet: 'bg-sky-100 text-sky-800 border-sky-200' },
+              { key: 'bidon', ad: 'Bidon Sarma', m: parseFloat(u.bidon) || 0, urun: u.bidonUrun, rozet: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+              { key: 'hassas', ad: 'Makara Sarma (Hassas)', m: parseFloat(u.hassas) || 0, urun: u.hassasUrun, rozet: 'bg-purple-100 text-purple-800 border-purple-200' }
+            ];
+
+            let herhangiEklendi = false;
+            asamaList.forEach(as => {
+              if (as.m > 0) {
+                herhangiEklendi = true;
+                duzeltilmisSatirlar.push({
+                  tarih: t,
+                  makine: as.ad,
+                  asamaKey: as.key,
+                  rozetClass: as.rozet,
+                  urun: (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(as.urun) : as.urun) || '-',
+                  miktar: as.m,
+                  isEmriNo: ieNo,
+                  musteri: musteri,
+                  operator: op,
+                  aciklama: aciklama
+                });
+              }
+            });
+
+            // Eğer eski formatta tek satırlık aşama (u.aşama / u.miktar) varsa
+            if (!herhangiEklendi && (parseFloat(u.miktar) || 0) > 0) {
+              const asamaStr = (u.aşama || u.asama || 'kaba').toLowerCase();
+              let makineAdi = 'Kaba Çekme';
+              let rozet = 'bg-orange-100 text-orange-800 border-orange-200';
+              if (asamaStr.includes('ince')) { makineAdi = 'İnce Çekme'; rozet = 'bg-sky-100 text-sky-800 border-sky-200'; }
+              else if (asamaStr.includes('bidon')) { makineAdi = 'Bidon Sarma'; rozet = 'bg-emerald-100 text-emerald-800 border-emerald-200'; }
+              else if (asamaStr.includes('makara') || asamaStr.includes('hassas') || asamaStr.includes('spool')) { makineAdi = 'Makara Sarma (Hassas)'; rozet = 'bg-purple-100 text-purple-800 border-purple-200'; }
+
+              duzeltilmisSatirlar.push({
+                tarih: t,
+                makine: makineAdi,
+                asamaKey: asamaStr,
+                rozetClass: rozet,
+                urun: u.urunAd || u.urun || '-',
+                miktar: parseFloat(u.miktar) || 0,
+                isEmriNo: ieNo,
+                musteri: musteri,
+                operator: op,
+                aciklama: aciklama
+              });
+            }
+          }
+        });
+
+        // 2. Tarihe göre azalan sırala (en güncel ay ve gün en üstte)
+        duzeltilmisSatirlar.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+
+        // 3. Aylara göre grupla (Örn: '2026-05' => 'Mayıs 2026')
+        const ayIsimleri = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+        const aylarMap = new Map();
+
+        duzeltilmisSatirlar.forEach(row => {
+          let ayKey = 'Bilinmeyen Dönem';
+          let ayEtiket = 'Tarihsiz Kayıtlar';
+          if (row.tarih && row.tarih.length >= 7) {
+            ayKey = row.tarih.slice(0, 7);
+            const [yStr, mStr] = ayKey.split('-');
+            const mIdx = parseInt(mStr, 10) - 1;
+            if (mIdx >= 0 && mIdx < 12) {
+              ayEtiket = `${ayIsimleri[mIdx]} ${yStr}`;
+            } else {
+              ayEtiket = ayKey;
+            }
+          }
+
+          if (!aylarMap.has(ayKey)) {
+            aylarMap.set(ayKey, {
+              etiket: ayEtiket,
+              satirlar: [],
+              toplamKg: 0,
+              makineToplam: { 'Kaba Çekme': 0, 'İnce Çekme': 0, 'Bidon Sarma': 0, 'Makara Sarma (Hassas)': 0, 'Diğer': 0 }
+            });
+          }
+
+          const ayObj = aylarMap.get(ayKey);
+          ayObj.satirlar.push(row);
+          ayObj.toplamKg += row.miktar;
+          if (ayObj.makineToplam[row.makine] !== undefined) {
+            ayObj.makineToplam[row.makine] += row.miktar;
+          } else {
+            ayObj.makineToplam['Diğer'] += row.miktar;
+          }
+        });
+
+        // 4. HTML Tablosunu Aylık Seperatörlerle Oluştur
+        let h = `<div class="mb-3 flex flex-wrap items-center justify-between gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-black text-slate-800">⚙️ FCW Makine Bazlı Üretim Özeti</span>
+            <span class="text-[11px] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-md">Toplam ${duzeltilmisSatirlar.length} Üretim Hareketi</span>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="px-2 py-1 bg-orange-100 text-orange-900 border border-orange-200 rounded-lg font-bold">Kaba: ${fcwKabaKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
+            <span class="px-2 py-1 bg-sky-100 text-sky-900 border border-sky-200 rounded-lg font-bold">İnce: ${fcwInceKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
+            <span class="px-2 py-1 bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-lg font-bold">Bidon: ${fcwBidonKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
+            <span class="px-2 py-1 bg-purple-100 text-purple-900 border border-purple-200 rounded-lg font-bold">Makara: ${fcwHassasKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
+          </div>
+        </div>
+
+        <table class="w-full text-left text-xs divide-y divide-slate-200 border border-slate-200 rounded-xl overflow-hidden">
+          <thead class="bg-slate-800 text-white font-bold uppercase text-[11px] tracking-wider">
             <tr>
-              <th class="p-2.5">Tarih</th>
-              <th class="p-2.5">Aşama / Hat</th>
-              <th class="p-2.5">İş Emri No</th>
-              <th class="p-2.5">Ürün</th>
-              <th class="p-2.5">Üretilen Miktar</th>
-              <th class="p-2.5">Fire / Hurda</th>
-              <th class="p-2.5">Operatör</th>
+              <th class="p-3">Tarih</th>
+              <th class="p-3">Makine / Hat</th>
+              <th class="p-3">Ürün (Tel / Alaşım)</th>
+              <th class="p-3 text-right">Üretilen Miktar</th>
+              <th class="p-3">Bağlı İş Emri</th>
+              <th class="p-3">Açıklama / Not</th>
+              <th class="p-3">Operatör</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 bg-white">`;
 
-        fcwFiltered.sort((a, b) => new Date(b.tarih) - new Date(a.tarih)).forEach(f => {
-          h += `<tr class="hover:bg-slate-50">
-            <td class="p-2.5 font-bold text-slate-600">${f.tarih || '-'}</td>
-            <td class="p-2.5"><span class="px-2 py-0.5 rounded font-bold text-[11px] ${f.aşama === 'kaba' ? 'bg-orange-100 text-orange-800' : (f.aşama === 'ince' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800')}">${(f.aşama || f.asama || '-').toUpperCase()}</span></td>
-            <td class="p-2.5 font-mono text-slate-700">${f.isEmriNo || f.no || '-'}</td>
-            <td class="p-2.5 font-bold text-slate-800">${f.urunAd || f.urun || '-'}</td>
-            <td class="p-2.5 font-black text-emerald-700">${f.miktar || 0} kg</td>
-            <td class="p-2.5 text-rose-600 font-bold">${f.fire || 0} kg</td>
-            <td class="p-2.5 text-slate-600">${f.operator || '-'}</td>
-          </tr>`;
-        });
-        if (fcwFiltered.length === 0) h += '<tr><td colspan="7" class="p-4 text-center text-slate-400">Seçilen tarihlerde FCW üretim kaydı bulunamadı.</td></tr>';
+        if (aylarMap.size === 0) {
+          h += '<tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium">Seçilen tarih aralığında FCW makine üretim kaydı bulunamadı.</td></tr>';
+        } else {
+          aylarMap.forEach((ayData, ayKey) => {
+            // AYLIK SEPERATÖR BAŞLIĞI VE AY TOPLAMI
+            const mkOzet = [];
+            if (ayData.makineToplam['Kaba Çekme'] > 0) mkOzet.push(`Kaba Çekme: <b>${ayData.makineToplam['Kaba Çekme'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+            if (ayData.makineToplam['İnce Çekme'] > 0) mkOzet.push(`İnce Çekme: <b>${ayData.makineToplam['İnce Çekme'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+            if (ayData.makineToplam['Bidon Sarma'] > 0) mkOzet.push(`Bidon Sarma: <b>${ayData.makineToplam['Bidon Sarma'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+            if (ayData.makineToplam['Makara Sarma (Hassas)'] > 0) mkOzet.push(`Makara Sarma: <b>${ayData.makineToplam['Makara Sarma (Hassas)'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+
+            h += `
+              <!-- AYLIK SEPERATÖR -->
+              <tr class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white">
+                <td colspan="7" class="p-3">
+                  <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-base">📅</span>
+                      <span class="font-extrabold text-sm tracking-wide text-amber-300 uppercase">${ayData.etiket}</span>
+                      <span class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-bold">${ayData.satirlar.length} Kayıt</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 text-xs">
+                      <span class="text-slate-300">${mkOzet.join(' &nbsp;·&nbsp; ')}</span>
+                      <span class="bg-amber-400 text-slate-950 px-3 py-1 rounded-lg font-black text-xs shadow-xs">
+                        Ay Toplamı: ${ayData.toplamKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg
+                      </span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            `;
+
+            // Ayın satırları
+            ayData.satirlar.forEach(row => {
+              const ieRozet = (row.isEmriNo && row.isEmriNo !== '-') ?
+                `<div class="flex flex-col">
+                  <span class="font-black text-indigo-900 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded text-xs w-max">${row.isEmriNo}</span>
+                  ${row.musteri ? `<span class="text-[10px] text-slate-500 font-semibold mt-0.5">🛒 ${row.musteri}</span>` : ''}
+                </div>` :
+                `<span class="text-slate-400 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-medium">⚙️ Serbest Stok</span>`;
+
+              h += `<tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="p-2.5 font-bold text-slate-700 whitespace-nowrap">${row.tarih}</td>
+                <td class="p-2.5 whitespace-nowrap">
+                  <span class="px-2 py-1 rounded-lg font-extrabold text-[11px] border inline-flex items-center gap-1 shadow-2xs ${row.rozetClass}">
+                    ${row.makine === 'Kaba Çekme' ? '🧱' : (row.makine === 'İnce Çekme' ? '📐' : (row.makine === 'Bidon Sarma' ? '🛢️' : (row.makine === 'Makara Sarma (Hassas)' ? '🎯' : '⚙️')))}
+                    ${row.makine}
+                  </span>
+                </td>
+                <td class="p-2.5 font-bold text-slate-800">${row.urun}</td>
+                <td class="p-2.5 text-right font-black text-slate-900 text-sm whitespace-nowrap">
+                  ${row.miktar.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} <span class="text-[10px] font-normal text-slate-400">kg</span>
+                </td>
+                <td class="p-2.5">${ieRozet}</td>
+                <td class="p-2.5 text-slate-500 italic text-[11px] max-w-xs truncate" title="${row.aciklama || ''}">${row.aciklama || '-'}</td>
+                <td class="p-2.5 text-slate-600 font-medium">${row.operator || '-'}</td>
+              </tr>`;
+            });
+
+            // Ay Sonu Alt Toplam Satırı
+            h += `
+              <tr class="bg-indigo-50/70 border-b-2 border-indigo-200 font-bold text-indigo-950 text-xs">
+                <td colspan="3" class="p-2.5 pl-4 uppercase font-black tracking-wide text-indigo-900">
+                  ⚡ ${ayData.etiket} Ara Toplam
+                </td>
+                <td class="p-2.5 text-right font-black text-indigo-900 text-sm">
+                  ${ayData.toplamKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg
+                </td>
+                <td colspan="3" class="p-2.5 text-right text-[11px] text-indigo-800">
+                  ${mkOzet.join(' | ')}
+                </td>
+              </tr>
+            `;
+          });
+
+          // GENEL TOPLAM SATIRI
+          h += `
+            <tr class="bg-slate-900 text-white font-black text-sm border-t-2 border-slate-950">
+              <td colspan="3" class="p-3 pl-4 tracking-wider uppercase text-amber-400">
+                🏆 RAPOR GENEL TOPLAMI (${duzeltilmisSatirlar.length} İŞLEM)
+              </td>
+              <td class="p-3 text-right text-base text-amber-300 font-black">
+                ${fcwToplamKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg
+              </td>
+              <td colspan="3" class="p-3 text-right text-xs text-slate-300 font-bold">
+                Kaba: ${fcwKabaKg.toFixed(1)} kg | İnce: ${fcwInceKg.toFixed(1)} kg | Bidon: ${fcwBidonKg.toFixed(1)} kg | Makara: ${fcwHassasKg.toFixed(1)} kg
+              </td>
+            </tr>
+          `;
+        }
+
         fcwContainer.innerHTML = h + '</tbody></table>';
       }
 
@@ -21174,15 +21442,55 @@
       // Render Comparison / Analysis bars
       const analizContainer = document.getElementById('rpUretimAnaliz');
       if (analizContainer) {
+        // FCW Makine Dağılımı
+        const fcwMakineOzet = {
+          'Kaba Çekme': fcwKabaKg,
+          'İnce Çekme': fcwInceKg,
+          'Bidon Sarma': fcwBidonKg,
+          'Makara Sarma (Hassas)': fcwHassasKg
+        };
+        const maxFcw = Math.max(...Object.values(fcwMakineOzet), 1);
+
         let apmMakineGrup = {};
         apmFiltered.forEach(a => {
           const m = a.makine || 'Diğer APM';
           apmMakineGrup[m] = (apmMakineGrup[m] || 0) + parseFloat(a.toplamM2 || a.m2 || 0);
         });
 
-        let h = `<div class="bg-white p-4 rounded-xl border border-slate-200">
-          <h4 class="font-bold text-slate-800 text-sm mb-3">APM Makine Bazlı Üretim Dağılımı (m²)</h4>
-          <div class="space-y-3">`;
+        let h = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- FCW Makine Grafiği -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center justify-between">
+              <span>🏭 FCW Makine Bazlı Üretim Dağılımı (kg)</span>
+              <span class="text-xs text-amber-700 font-black">${fcwToplamKg.toFixed(1)} kg</span>
+            </h4>
+            <div class="space-y-3">`;
+
+        for (let m in fcwMakineOzet) {
+          const val = fcwMakineOzet[m];
+          const pct = Math.min((val / maxFcw) * 100, 100);
+          const colorClass = m === 'Kaba Çekme' ? 'from-orange-500 to-amber-500' :
+                             (m === 'İnce Çekme' ? 'from-sky-500 to-blue-600' :
+                             (m === 'Bidon Sarma' ? 'from-emerald-500 to-teal-600' : 'from-purple-500 to-indigo-600'));
+          h += `<div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span>${m}</span>
+              <span class="text-slate-800">${val.toFixed(1)} kg</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="bg-gradient-to-r ${colorClass} h-3 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+          </div>`;
+        }
+        h += `</div></div>
+
+          <!-- APM Makine Grafiği -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center justify-between">
+              <span>🛡️ APM Makine Bazlı Üretim Dağılımı (m²)</span>
+              <span class="text-xs text-blue-700 font-black">${apmToplamM2.toFixed(2)} m²</span>
+            </h4>
+            <div class="space-y-3">`;
 
         let maxApm = Math.max(...Object.values(apmMakineGrup), 1);
         for (let m in apmMakineGrup) {
@@ -21199,7 +21507,7 @@
           </div>`;
         }
         if (Object.keys(apmMakineGrup).length === 0) h += '<div class="text-slate-400 text-xs">Makine verisi bulunmuyor.</div>';
-        h += `</div></div>`;
+        h += `</div></div></div>`;
 
         analizContainer.innerHTML = h;
       }
@@ -21209,19 +21517,67 @@
       const uretimTakip = Array.isArray(DB.uretimTakip) ? DB.uretimTakip : [];
       const apmUretim = Array.isArray(DB.apmUretim) ? DB.apmUretim : [];
 
-      const fcwData = uretimTakip.map(f => ({
-        'Tarih': f.tarih || '-',
-        'Modül': 'FCW',
-        'Aşama': f.aşama || f.asama || '-',
-        'İş Emri No': f.isEmriNo || f.no || '-',
-        'Ürün': f.urunAd || f.urun || '-',
-        'Miktar (kg)': f.miktar || 0,
-        'Fire (kg)': f.fire || 0,
-        'Operatör': f.operator || '-'
-      }));
+      const fcwData = [];
+      uretimTakip.forEach(f => {
+        const t = f.tarih || '-';
+        const ieNo = f.isEmriNo || f.no || '-';
+        const op = f.operator || '-';
+        const aciklama = f.aciklama || '';
+
+        if (Array.isArray(f.items) && f.items.length > 0) {
+          f.items.forEach(it => {
+            const m = parseFloat(it.miktar) || 0;
+            if (m > 0) {
+              let makineAdi = 'Kaba Çekme';
+              if (it.asama === 'ince') makineAdi = 'İnce Çekme';
+              else if (it.asama === 'bidon') makineAdi = 'Bidon Sarma';
+              else if (it.asama === 'hassas') makineAdi = 'Makara Sarma';
+              else if (it.asama === 'harman') makineAdi = 'Harman Karıştırma';
+
+              fcwData.push({
+                'Tarih': t,
+                'Ay / Dönem': t.length >= 7 ? t.slice(0, 7) : '-',
+                'Modül': 'FCW',
+                'Makine / Hat': makineAdi,
+                'Aşama': it.asama || '-',
+                'İş Emri No': ieNo,
+                'Müşteri': f.isEmriMusteri || '-',
+                'Ürün': it.urun || '-',
+                'Üretilen Miktar (kg)': m,
+                'Açıklama': aciklama,
+                'Operatör': op
+              });
+            }
+          });
+        } else {
+          [
+            { asama: 'kaba', ad: 'Kaba Çekme', m: parseFloat(f.kaba) || 0, u: f.kabaUrun },
+            { asama: 'ince', ad: 'İnce Çekme', m: parseFloat(f.ince) || 0, u: f.inceUrun },
+            { asama: 'bidon', ad: 'Bidon Sarma', m: parseFloat(f.bidon) || 0, u: f.bidonUrun },
+            { asama: 'hassas', ad: 'Makara Sarma', m: parseFloat(f.hassas) || 0, u: f.hassasUrun }
+          ].forEach(x => {
+            if (x.m > 0) {
+              fcwData.push({
+                'Tarih': t,
+                'Ay / Dönem': t.length >= 7 ? t.slice(0, 7) : '-',
+                'Modül': 'FCW',
+                'Makine / Hat': x.ad,
+                'Aşama': x.asama,
+                'İş Emri No': ieNo,
+                'Müşteri': f.isEmriMusteri || '-',
+                'Ürün': x.u || f.urunAd || f.urun || '-',
+                'Üretilen Miktar (kg)': x.m,
+                'Açıklama': aciklama,
+                'Operatör': op
+              });
+            }
+          });
+        }
+      });
 
       const apmData = apmUretim.map(a => ({
         'Tarih': a.tarih || (a.olusturmaTarihi ? a.olusturmaTarihi.slice(0, 10) : '-'),
+        'Ay / Dönem': (a.tarih || a.olusturmaTarihi || '').slice(0, 7) || '-',
         'Modül': 'APM',
         'Makine': a.makine || 'APM',
         'Vardiya': a.vardiya || '-',
@@ -21233,7 +21589,7 @@
       const wsFcw = XLSX.utils.json_to_sheet(fcwData);
       const wsApm = XLSX.utils.json_to_sheet(apmData);
 
-      XLSX.utils.book_append_sheet(wb, wsFcw, "FCW_Üretim");
+      XLSX.utils.book_append_sheet(wb, wsFcw, "FCW_Makine_Üretim");
       XLSX.utils.book_append_sheet(wb, wsApm, "APM_Üretim");
 
       XLSX.writeFile(wb, `FCW_APM_Üretim_Raporu_${new Date().toISOString().slice(0, 10)}.xlsx`);
