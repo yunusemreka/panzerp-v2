@@ -3939,6 +3939,9 @@
             <button type="button" onclick="apmGoogleETabloYukle()" class="bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-900 px-3 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer" title="Google E-Tablosundaki Canlı APM Verilerini Yeniden Çek">
               <span>🔄</span> E-Tablodan Güncelle
             </button>
+            <button type="button" onclick="apmGoogleSheetAyarModalAc()" class="bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-800 px-2.5 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1 cursor-pointer" title="Google E-Tablo Bağlantı Linkini Değiştir / Düzenle">
+              <span>⚙️</span> E-Tablo Linki
+            </button>
             <span id="apmSheetSyncStatus" class="text-[11px] text-emerald-700 font-bold flex items-center px-2 py-1 bg-emerald-50/80 rounded-lg border border-emerald-200">
               ⚡ Canlı E-Tablo Bağlı (2.231 Plaka)
             </span>
@@ -7111,6 +7114,73 @@
         <button type="button" onclick="apmPlakaModalKaydet()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-7 py-2 rounded-xl font-extrabold text-xs shadow-md transition-transform active:scale-95 flex items-center gap-2 cursor-pointer">
           <span>💾</span> Plakayı Kaydet
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APM GOOGLE E-TABLO AYARLARI MODALI -->
+  <div id="apmGoogleSheetAyarModal" class="modal">
+    <div class="modal-content" style="max-width: 620px;">
+      <div class="flex justify-between items-center mb-4 border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="bg-emerald-100 text-emerald-800 p-2 rounded-xl text-lg font-bold">📊</span>
+          <div>
+            <h3 class="font-extrabold text-lg text-slate-800 tracking-tight">Canlı Google E-Tablo Entegrasyonu</h3>
+            <p class="text-xs text-slate-500 mt-0.5">APM plaka verilerini Google E-Tablo linkinden otomatik çekin.</p>
+          </div>
+        </div>
+        <button onclick="closeModal('apmGoogleSheetAyarModal')" class="text-slate-400 bg-slate-100 p-1.5 rounded-xl hover:bg-slate-200 font-bold text-sm">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-900 flex items-start gap-2.5">
+          <span class="text-lg">💡</span>
+          <div class="leading-relaxed">
+            <b>Önemli İpucu:</b> E-Tablonuzun web üzerinden okunabilmesi için Google Drive'da tablonun 
+            <b>"Bağlantıya sahip olan herkes görüntüleyebilir"</b> olarak paylaşılması gereklidir.
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Google E-Tablo Linki veya Tablo ID'si</label>
+          <input type="text" id="apmSheetUrlInput" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-mono bg-white focus:ring-2 focus:ring-indigo-100 outline-none"
+            placeholder="https://docs.google.com/spreadsheets/d/1KiqI2Y1gCVwL311Xz1Wq-DL1T1Xm0iFLVxptk7Nrbho/edit?gid=0#gid=0">
+          <p class="text-[11px] text-slate-400 mt-1">Tam URL veya doğrudan Tablo ID'si girebilirsiniz.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
+          <div class="text-[11px] font-bold text-slate-600 uppercase flex items-center justify-between">
+            <span>Aktif Bağlantı Durumu</span>
+            <span id="apmSheetModalStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-200 text-slate-700">Beklemede</span>
+          </div>
+          <div id="apmSheetModalDetailText" class="text-xs text-slate-600 font-medium">
+            Mevcut Tablo ID: <b class="font-mono text-slate-800" id="apmSheetCurrentIdText">-</b>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3">
+          <div class="font-bold text-slate-700 mb-2">Google E-Tablo Sayfa Yapısı (Otomatik Algılanan):</div>
+          <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
+            <div class="bg-white border border-slate-200 p-2 rounded-lg font-bold text-slate-700">APM1 (gid: 0)</div>
+            <div class="bg-white border border-slate-200 p-2 rounded-lg font-bold text-slate-700">APM2 (Sekme)</div>
+            <div class="bg-white border border-slate-200 p-2 rounded-lg font-bold text-slate-700">APM3 (Sekme)</div>
+            <div class="bg-white border border-slate-200 p-2 rounded-lg font-bold text-slate-700">APM4 (Sekme)</div>
+            <div class="bg-white border border-slate-200 p-2 rounded-lg font-bold text-slate-700">APM5 (Sekme)</div>
+            <div class="bg-white border border-slate-200 p-2 rounded-lg font-bold text-slate-700">APM6 (Sekme)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mt-6 pt-4 border-t">
+        <button type="button" onclick="apmGoogleSheetSifirla()" class="text-rose-600 hover:text-rose-700 text-xs font-bold underline cursor-pointer">
+          Varsayılana Sıfırla
+        </button>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeModal('apmGoogleSheetAyarModal')" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-4 py-2 rounded-xl font-bold text-xs transition-colors cursor-pointer">Kapat</button>
+          <button type="button" onclick="apmGoogleSheetAyarKaydet()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl font-extrabold text-xs shadow-md transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer">
+            <span>💾</span> Kaydet & Senkronize Et
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -21985,9 +22055,10 @@
         /* ========================================================================= */
     /* GOOGLE E-TABLO CANLI APM PLAKA ENTEGRASYONU (SÜREKLİ GÜNCEL VERİ)          */
     /* ========================================================================= */
-    const APM_GOOGLE_SPREADSHEET_ID = '1e1hQQjg1P0CYTGW0Wki8S4-4YMsxmRsNfdPPuGIvFbg';
+    let APM_GOOGLE_SPREADSHEET_ID = localStorage.getItem('panzerp_apm_sheet_id') || '1KiqI2Y1gCVwL311Xz1Wq-DL1T1Xm0iFLVxptk7Nrbho';
+    const APM_BACKUP_SPREADSHEET_ID = '1e1hQQjg1P0CYTGW0Wki8S4-4YMsxmRsNfdPPuGIvFbg';
     const APM_SHEET_CONFIGS = [
-      { makine: 'APM-1', sheet: 'APM1', gid: '1869205757' },
+      { makine: 'APM-1', sheet: 'APM1', gid: '0' },
       { makine: 'APM-2', sheet: 'APM2' },
       { makine: 'APM-3', sheet: 'APM3' },
       { makine: 'APM-4', sheet: 'APM4' },
@@ -22027,11 +22098,12 @@
       return cell.v !== null && cell.v !== undefined ? cell.v : '';
     }
 
-    function fetchSingleGoogleSheet(sheetName, gid) {
+    function fetchSingleGoogleSheet(sheetName, gid, customSheetId = null) {
       return new Promise((resolve, reject) => {
+        const sId = customSheetId || APM_GOOGLE_SPREADSHEET_ID;
         const callbackName = 'gvizCallback_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
         const script = document.createElement('script');
-        let url = `https://docs.google.com/spreadsheets/d/${APM_GOOGLE_SPREADSHEET_ID}/gviz/tq?tqx=responseHandler:${callbackName}`;
+        let url = `https://docs.google.com/spreadsheets/d/${sId}/gviz/tq?tqx=responseHandler:${callbackName}`;
         if (gid) {
           url += `&gid=${gid}`;
         } else if (sheetName) {
@@ -22041,7 +22113,7 @@
         const timeout = setTimeout(() => {
           cleanup();
           reject(new Error(`Timeout: ${sheetName || gid}`));
-        }, 20000);
+        }, 15000);
 
         function cleanup() {
           clearTimeout(timeout);
@@ -22060,7 +22132,7 @@
 
         script.onerror = function() {
           cleanup();
-          reject(new Error(`Script yüklenemedi: ${sheetName || gid}`));
+          reject(new Error(`Script yüklenemedi (Erişim izni veya ağ engeli): ${sheetName || gid}`));
         };
 
         document.head.appendChild(script);
@@ -22084,12 +22156,14 @@
       }
 
       try {
-        const allNewPlakalar = [];
+        let allNewPlakalar = [];
         let successCount = 0;
+        let usedSheetId = APM_GOOGLE_SPREADSHEET_ID;
 
+        // 1. Önce aktif tanımlı E-Tablo ID'sinden çekmeyi dene
         for (const cfg of APM_SHEET_CONFIGS) {
           try {
-            const table = await fetchSingleGoogleSheet(cfg.sheet, cfg.gid);
+            const table = await fetchSingleGoogleSheet(cfg.sheet, cfg.gid, APM_GOOGLE_SPREADSHEET_ID);
             if (!table || !table.rows) continue;
 
             const mNum = parseInt(cfg.makine.replace(/\D/g, '')) || 1;
@@ -22153,7 +22227,91 @@
             });
             successCount++;
           } catch (sheetErr) {
-            console.warn(`APM sheet "${cfg.makine}" yüklenemedi:`, sheetErr);
+            console.warn(`APM sheet "${cfg.makine}" birincil ID (${APM_GOOGLE_SPREADSHEET_ID}) ile yüklenemedi:`, sheetErr);
+          }
+        }
+
+        // 2. Eğer birincil ID (erişim izni verilmediği veya gizli olduğu için) veri döndürmediyse, yedek APM tablosunu dene
+        if (allNewPlakalar.length === 0 && APM_BACKUP_SPREADSHEET_ID && APM_BACKUP_SPREADSHEET_ID !== APM_GOOGLE_SPREADSHEET_ID) {
+          console.info('Birincil tabloya erişilemedi, yedek APM tablosundan veri çekiliyor...');
+          usedSheetId = APM_BACKUP_SPREADSHEET_ID;
+          const backupConfigs = [
+            { makine: 'APM-1', sheet: 'APM1', gid: '1869205757' },
+            { makine: 'APM-2', sheet: 'APM2' },
+            { makine: 'APM-3', sheet: 'APM3' },
+            { makine: 'APM-4', sheet: 'APM4' },
+            { makine: 'APM-5', sheet: 'APM5' },
+            { makine: 'APM-6', sheet: 'APM6' }
+          ];
+
+          for (const cfg of backupConfigs) {
+            try {
+              const table = await fetchSingleGoogleSheet(cfg.sheet, cfg.gid, APM_BACKUP_SPREADSHEET_ID);
+              if (!table || !table.rows) continue;
+
+              const mNum = parseInt(cfg.makine.replace(/\D/g, '')) || 1;
+              table.rows.forEach((r, idx) => {
+                const c = r.c;
+                if (!c) return;
+                const plaka = getGvizVal(c[2]).trim();
+                if (!plaka) return;
+
+                const basTarih = formatGvizDate(c[20]);
+                const bitTarih = formatGvizDate(c[21]);
+
+                let durum = 'Planlandı';
+                if (bitTarih && bitTarih !== '-') {
+                  durum = 'Tamamlandı';
+                } else if (basTarih && basTarih !== '-') {
+                  durum = 'Kaynakta';
+                }
+
+                const sacEn = parseGvizNum(c[7]);
+                const sacBoy = parseGvizNum(c[8]);
+                const kaynakEn = parseGvizNum(c[11]);
+                const kaynakBoy = parseGvizNum(c[12]);
+                let m2 = parseGvizNum(c[23]);
+                if (!m2 && kaynakEn > 0 && kaynakBoy > 0) {
+                  m2 = parseFloat(((kaynakEn * kaynakBoy) / 1000000).toFixed(5));
+                }
+
+                allNewPlakalar.push({
+                  id: 1710000000000 + (mNum * 10000) + idx,
+                  makine: cfg.makine,
+                  ay: getGvizVal(c[0]),
+                  masa: getGvizVal(c[1]) || 'Arka',
+                  plaka: plaka,
+                  sacCinsi: getGvizVal(c[3]),
+                  plakaStok: getGvizVal(c[4]),
+                  kayma: getGvizVal(c[5]),
+                  ilerleme: getGvizVal(c[6]),
+                  sacEn: sacEn,
+                  sacBoy: sacBoy,
+                  kaynakCinsi: getGvizVal(c[9]),
+                  yuzeyFormu: getGvizVal(c[10]),
+                  kaynakEn: kaynakEn,
+                  kaynakBoy: kaynakBoy,
+                  anaMetal: parseGvizNum(c[13]),
+                  kaplama: parseGvizNum(c[14]),
+                  toplamKalinlik: parseGvizNum(c[15]),
+                  telKodu: String(getGvizVal(c[16])),
+                  alasim: getGvizVal(c[17]) || 'YOK',
+                  telHizi: getGvizVal(c[18]),
+                  ttNo: getGvizVal(c[19]),
+                  basTarih: basTarih,
+                  bitTarih: bitTarih,
+                  m2: m2,
+                  telKg: parseGvizNum(c[25]),
+                  sacKg: parseGvizNum(c[26]),
+                  kaplamaKg: parseGvizNum(c[27]),
+                  topKg: parseGvizNum(c[28]),
+                  durum: durum
+                });
+              });
+              successCount++;
+            } catch (err2) {
+              console.warn(`Yedek APM sheet "${cfg.makine}" yüklenemedi:`, err2);
+            }
           }
         }
 
@@ -22173,16 +22331,18 @@
             showToast(`Google E-Tablosundan ${allNewPlakalar.length} adet güncel plaka başarıyla yüklendi!`, 'success');
           }
         } else {
-          throw new Error('E-Tablodan plaka verisi alınamadı.');
+          throw new Error('E-Tablodan plaka verisi alınamadı. Tablonun "Bağlantıya sahip herkes görüntüleyebilir" olarak paylaşıldığından emin olunuz.');
         }
       } catch (err) {
         console.error('Google Sheets senkronizasyon hatası:', err);
         if (statusEl) {
-          statusEl.innerHTML = '⚠️ E-Tablo bağlantısı kurulamadı (Kayıtlı veri gösteriliyor)';
-          statusEl.className = 'text-[11px] text-amber-700 font-medium flex items-center px-2 py-1 bg-amber-50/80 rounded-lg border border-amber-200';
+          statusEl.innerHTML = '⚠️ E-Tablo İzni Bekleniyor (Paylaşımı Açınız)';
+          statusEl.className = 'text-[11px] text-amber-700 font-medium flex items-center px-2 py-1 bg-amber-50/80 rounded-lg border border-amber-200 cursor-pointer';
+          statusEl.onclick = apmGoogleSheetAyarModalAc;
+          statusEl.title = 'Tablo paylaşım ayarını kontrol etmek için tıklayın';
         }
         if (!silent && typeof showToast === 'function') {
-          showToast('E-Tablo verisi alınamadı. Kayıtlı veriler kullanılmaya devam ediliyor.', 'warning');
+          showToast('E-Tablo verisi alınamadı: Google E-Tablonun "Bağlantıya sahip herkes görüntüleyebilir" iznini açınız.', 'warning');
         }
       } finally {
         apmSheetSenkronizasyonSuruyor = false;
@@ -22191,6 +22351,65 @@
 
     function apmGoogleETabloOtomatikSenkronize() {
       fetchApmPlakalarFromGoogleSheets(false, true);
+    }
+
+    // Google Sheet URL / ID Ayar Modalı Fonksiyonları
+    function apmGoogleSheetAyarModalAc() {
+      const input = document.getElementById('apmSheetUrlInput');
+      const curId = document.getElementById('apmSheetCurrentIdText');
+      const badge = document.getElementById('apmSheetModalStatusBadge');
+      const detail = document.getElementById('apmSheetModalDetailText');
+
+      if (input) input.value = localStorage.getItem('panzerp_apm_sheet_url') || `https://docs.google.com/spreadsheets/d/${APM_GOOGLE_SPREADSHEET_ID}/edit`;
+      if (curId) curId.textContent = APM_GOOGLE_SPREADSHEET_ID;
+
+      if (badge) {
+        if (Array.isArray(DB.apmPlakalar) && DB.apmPlakalar.length > 0) {
+          badge.textContent = `Aktif (${DB.apmPlakalar.length} Plaka Yüklü)`;
+          badge.className = 'px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800';
+        } else {
+          badge.textContent = 'Bağlantı Kurulamadı';
+          badge.className = 'px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800';
+        }
+      }
+
+      openModal('apmGoogleSheetAyarModal');
+    }
+
+    function apmGoogleSheetAyarKaydet() {
+      const val = (document.getElementById('apmSheetUrlInput')?.value || '').trim();
+      if (!val) {
+        showToast('Lütfen geçerli bir Google E-Tablo linki veya ID giriniz.', 'warning');
+        return;
+      }
+
+      // Linkten ID çıkarma (e.g. /d/1KiqI2Y1gCVwL311Xz1Wq-DL1T1Xm0iFLVxptk7Nrbho/edit)
+      let extractedId = val;
+      const m = val.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      if (m && m[1]) {
+        extractedId = m[1];
+      }
+
+      APM_GOOGLE_SPREADSHEET_ID = extractedId;
+      localStorage.setItem('panzerp_apm_sheet_id', extractedId);
+      localStorage.setItem('panzerp_apm_sheet_url', val);
+
+      closeModal('apmGoogleSheetAyarModal');
+      showToast('E-Tablo bağlantısı güncellendi, veriler çekiliyor...', 'info');
+      fetchApmPlakalarFromGoogleSheets(true, false);
+    }
+
+    function apmGoogleSheetSifirla() {
+      if (confirm('E-Tablo bağlantısını varsayılan tabloya sıfırlamak istiyor musunuz?')) {
+        APM_GOOGLE_SPREADSHEET_ID = '1KiqI2Y1gCVwL311Xz1Wq-DL1T1Xm0iFLVxptk7Nrbho';
+        localStorage.removeItem('panzerp_apm_sheet_id');
+        localStorage.removeItem('panzerp_apm_sheet_url');
+        const input = document.getElementById('apmSheetUrlInput');
+        if (input) input.value = 'https://docs.google.com/spreadsheets/d/1KiqI2Y1gCVwL311Xz1Wq-DL1T1Xm0iFLVxptk7Nrbho/edit';
+        const curId = document.getElementById('apmSheetCurrentIdText');
+        if (curId) curId.textContent = APM_GOOGLE_SPREADSHEET_ID;
+        showToast('Varsayılan tablo bağlantısına dönüldü.', 'info');
+      }
     }
 
     function getApmInitialPlakalar() {
