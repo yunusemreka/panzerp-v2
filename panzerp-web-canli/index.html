@@ -21317,14 +21317,51 @@
           }
         });
 
-        // 2. Tarihe göre azalan sırala (en güncel ay ve gün en üstte)
-        duzeltilmisSatirlar.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+        // 2. uretimTakip kayıtlarını GÜN BAZINDA (Her gün için 1 satır) konsolide et
+        const gunMap = new Map();
 
-        // 3. Aylara göre grupla (Örn: '2026-05' => 'Mayıs 2026')
+        duzeltilmisSatirlar.forEach(row => {
+          const t = row.tarih || '-';
+          if (!gunMap.has(t)) {
+            gunMap.set(t, {
+              tarih: t,
+              kabaKg: 0,
+              inceKg: 0,
+              bidonKg: 0,
+              makaraKg: 0,
+              toplamGunKg: 0,
+              urunler: new Set(),
+              isEmirleri: new Set(),
+              musteriler: new Set(),
+              operatorler: new Set(),
+              aciklamalar: []
+            });
+          }
+
+          const g = gunMap.get(t);
+          if (row.makine === 'Kaba Çekme') g.kabaKg += row.miktar;
+          else if (row.makine === 'İnce Çekme') g.inceKg += row.miktar;
+          else if (row.makine === 'Bidon Sarma') g.bidonKg += row.miktar;
+          else if (row.makine === 'Makara Sarma (Hassas)') g.makaraKg += row.miktar;
+          else g.kabaKg += row.miktar; // fallback
+
+          g.toplamGunKg += row.miktar;
+          if (row.urun && row.urun !== '-') g.urunler.add(row.urun);
+          if (row.isEmriNo && row.isEmriNo !== '-') g.isEmirleri.add(row.isEmriNo);
+          if (row.musteri && row.musteri !== '-') g.musteriler.add(row.musteri);
+          if (row.operator && row.operator !== '-') g.operatorler.add(row.operator);
+          if (row.aciklama && row.aciklama.trim() !== '') g.aciklamalar.push(row.aciklama.trim());
+        });
+
+        const gunlukSatirlar = Array.from(gunMap.values());
+        // Tarihe göre azalan sırala (en güncel gün en üstte)
+        gunlukSatirlar.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+
+        // 3. Aylara göre grupla (Örn: '2026-09' => 'Eylül 2026')
         const ayIsimleri = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
         const aylarMap = new Map();
 
-        duzeltilmisSatirlar.forEach(row => {
+        gunlukSatirlar.forEach(row => {
           let ayKey = 'Bilinmeyen Dönem';
           let ayEtiket = 'Tarihsiz Kayıtlar';
           if (row.tarih && row.tarih.length >= 7) {
@@ -21341,70 +21378,75 @@
           if (!aylarMap.has(ayKey)) {
             aylarMap.set(ayKey, {
               etiket: ayEtiket,
-              satirlar: [],
+              gunler: [],
               toplamKg: 0,
-              makineToplam: { 'Kaba Çekme': 0, 'İnce Çekme': 0, 'Bidon Sarma': 0, 'Makara Sarma (Hassas)': 0, 'Diğer': 0 }
+              kabaToplam: 0,
+              inceToplam: 0,
+              bidonToplam: 0,
+              makaraToplam: 0
             });
           }
 
           const ayObj = aylarMap.get(ayKey);
-          ayObj.satirlar.push(row);
-          ayObj.toplamKg += row.miktar;
-          if (ayObj.makineToplam[row.makine] !== undefined) {
-            ayObj.makineToplam[row.makine] += row.miktar;
-          } else {
-            ayObj.makineToplam['Diğer'] += row.miktar;
-          }
+          ayObj.gunler.push(row);
+          ayObj.toplamKg += row.toplamGunKg;
+          ayObj.kabaToplam += row.kabaKg;
+          ayObj.inceToplam += row.inceKg;
+          ayObj.bidonToplam += row.bidonKg;
+          ayObj.makaraToplam += row.makaraKg;
         });
 
-        // 4. HTML Tablosunu Aylık Seperatörlerle Oluştur
+        // 4. HTML Tablosunu Günlük Konsolide Satırlarla Oluştur
         let h = `<div class="mb-3 flex flex-wrap items-center justify-between gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
           <div class="flex items-center gap-2">
-            <span class="text-sm font-black text-slate-800">⚙️ FCW Makine Bazlı Üretim Özeti</span>
-            <span class="text-[11px] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-md">Toplam ${duzeltilmisSatirlar.length} Üretim Hareketi</span>
+            <span class="text-sm font-black text-slate-800">📅 Günlük Konsolide FCW Üretim Tablosu</span>
+            <span class="text-[11px] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-md">Toplam ${gunlukSatirlar.length} Üretim Günü</span>
           </div>
           <div class="flex flex-wrap gap-2 text-xs">
             <span class="px-2 py-1 bg-orange-100 text-orange-900 border border-orange-200 rounded-lg font-bold">Kaba: ${fcwKabaKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
             <span class="px-2 py-1 bg-sky-100 text-sky-900 border border-sky-200 rounded-lg font-bold">İnce: ${fcwInceKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
             <span class="px-2 py-1 bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-lg font-bold">Bidon: ${fcwBidonKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
             <span class="px-2 py-1 bg-purple-100 text-purple-900 border border-purple-200 rounded-lg font-bold">Makara: ${fcwHassasKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
+            <span class="px-2 py-1 bg-slate-900 text-amber-300 rounded-lg font-black">Genel Toplam: ${fcwToplamKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</span>
           </div>
         </div>
 
-        <table class="w-full text-left text-xs divide-y divide-slate-200 border border-slate-200 rounded-xl overflow-hidden">
+        <table class="w-full text-left text-xs divide-y divide-slate-200 border border-slate-200 rounded-xl overflow-hidden shadow-xs">
           <thead class="bg-slate-800 text-white font-bold uppercase text-[11px] tracking-wider">
             <tr>
-              <th class="p-3">Tarih</th>
-              <th class="p-3">Makine / Hat</th>
-              <th class="p-3">Ürün (Tel / Alaşım)</th>
-              <th class="p-3 text-right">Üretilen Miktar</th>
-              <th class="p-3">Bağlı İş Emri</th>
-              <th class="p-3">Açıklama / Not</th>
+              <th class="p-3 w-28 whitespace-nowrap">Tarih</th>
+              <th class="p-3">Üretilen Ürünler (Tel / Alaşım)</th>
+              <th class="p-3 text-right text-orange-300 whitespace-nowrap">Kaba Çekme</th>
+              <th class="p-3 text-right text-sky-300 whitespace-nowrap">İnce Çekme</th>
+              <th class="p-3 text-right text-emerald-300 whitespace-nowrap">Bidon Sarma</th>
+              <th class="p-3 text-right text-purple-300 whitespace-nowrap">Makara Sarma</th>
+              <th class="p-3 text-right text-amber-400 font-black whitespace-nowrap bg-slate-900">Gün Toplamı</th>
+              <th class="p-3">İş Emri / Müşteri</th>
               <th class="p-3">Operatör</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 bg-white">`;
 
         if (aylarMap.size === 0) {
-          h += '<tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium">Seçilen tarih aralığında FCW makine üretim kaydı bulunamadı.</td></tr>';
+          h += '<tr><td colspan="9" class="p-8 text-center text-slate-400 font-medium">Seçilen tarih aralığında FCW üretim kaydı bulunamadı.</td></tr>';
         } else {
           aylarMap.forEach((ayData, ayKey) => {
             // AYLIK SEPERATÖR BAŞLIĞI VE AY TOPLAMI
             const mkOzet = [];
-            if (ayData.makineToplam['Kaba Çekme'] > 0) mkOzet.push(`Kaba Çekme: <b>${ayData.makineToplam['Kaba Çekme'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
-            if (ayData.makineToplam['İnce Çekme'] > 0) mkOzet.push(`İnce Çekme: <b>${ayData.makineToplam['İnce Çekme'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
-            if (ayData.makineToplam['Bidon Sarma'] > 0) mkOzet.push(`Bidon Sarma: <b>${ayData.makineToplam['Bidon Sarma'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
-            if (ayData.makineToplam['Makara Sarma (Hassas)'] > 0) mkOzet.push(`Makara Sarma: <b>${ayData.makineToplam['Makara Sarma (Hassas)'].toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+            if (ayData.kabaToplam > 0) mkOzet.push(`Kaba: <b>${ayData.kabaToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+            if (ayData.inceToplam > 0) mkOzet.push(`İnce: <b>${ayData.inceToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+            if (ayData.bidonToplam > 0) mkOzet.push(`Bidon: <b>${ayData.bidonToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
+            if (ayData.makaraToplam > 0) mkOzet.push(`Makara: <b>${ayData.makaraToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</b>`);
 
             h += `
               <!-- AYLIK SEPERATÖR -->
               <tr class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white">
-                <td colspan="7" class="p-3">
+                <td colspan="9" class="p-3">
                   <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
                     <div class="flex items-center gap-2">
                       <span class="text-base">📅</span>
                       <span class="font-extrabold text-sm tracking-wide text-amber-300 uppercase">${ayData.etiket}</span>
-                      <span class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-bold">${ayData.satirlar.length} Kayıt</span>
+                      <span class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-bold">${ayData.gunler.length} Üretim Günü</span>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-xs">
                       <span class="text-slate-300">${mkOzet.join(' &nbsp;·&nbsp; ')}</span>
@@ -21417,43 +21459,74 @@
               </tr>
             `;
 
-            // Ayın satırları
-            ayData.satirlar.forEach(row => {
-              const ieRozet = (row.isEmriNo && row.isEmriNo !== '-') ?
-                `<div class="flex flex-col">
-                  <span class="font-black text-indigo-900 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded text-xs w-max">${row.isEmriNo}</span>
-                  ${row.musteri ? `<span class="text-[10px] text-slate-500 font-semibold mt-0.5">🛒 ${row.musteri}</span>` : ''}
+            // Ayın Günlük Satırları (HER GÜN İÇİN 1 SATIR)
+            ayData.gunler.forEach(row => {
+              // Ürün rozetleri
+              const urunList = Array.from(row.urunler);
+              const urunlerHtml = urunList.length > 0 ?
+                `<div class="flex flex-wrap gap-1">
+                  ${urunList.map(u => `<span class="bg-slate-100 text-slate-800 border border-slate-200 px-2 py-0.5 rounded font-bold text-[11px]">${u}</span>`).join('')}
                 </div>` :
-                `<span class="text-slate-400 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-medium">⚙️ Serbest Stok</span>`;
+                `<span class="text-slate-400 italic text-[11px]">-</span>`;
 
-              h += `<tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="p-2.5 font-bold text-slate-700 whitespace-nowrap">${row.tarih}</td>
-                <td class="p-2.5 whitespace-nowrap">
-                  <span class="px-2 py-1 rounded-lg font-extrabold text-[11px] border inline-flex items-center gap-1 shadow-2xs ${row.rozetClass}">
-                    ${row.makine === 'Kaba Çekme' ? '🧱' : (row.makine === 'İnce Çekme' ? '📐' : (row.makine === 'Bidon Sarma' ? '🛢️' : (row.makine === 'Makara Sarma (Hassas)' ? '🎯' : '⚙️')))}
-                    ${row.makine}
-                  </span>
+              // İş Emri rozetleri
+              const ieList = Array.from(row.isEmirleri);
+              const musList = Array.from(row.musteriler);
+              let ieHtml = '';
+              if (ieList.length > 0) {
+                ieHtml = `<div class="flex flex-col gap-0.5">
+                  <div class="flex flex-wrap gap-1">
+                    ${ieList.map(ie => `<span class="font-black text-indigo-900 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded text-[11px]">${ie}</span>`).join('')}
+                  </div>
+                  ${musList.length > 0 ? `<span class="text-[10px] text-slate-500 font-semibold truncate max-w-xs">🛒 ${musList.join(', ')}</span>` : ''}
+                </div>`;
+              } else {
+                ieHtml = `<span class="text-slate-400 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-medium">⚙️ Serbest Stok</span>`;
+              }
+
+              // Operatörler
+              const opList = Array.from(row.operatorler);
+              const opHtml = opList.length > 0 ? opList.join(', ') : '-';
+
+              h += `<tr class="hover:bg-slate-50/90 transition-colors border-b border-slate-100">
+                <td class="p-2.5 font-black text-slate-800 whitespace-nowrap flex items-center gap-1.5">
+                  <span class="text-slate-400 text-xs">🗓️</span> ${row.tarih}
                 </td>
-                <td class="p-2.5 font-bold text-slate-800">${row.urun}</td>
-                <td class="p-2.5 text-right font-black text-slate-900 text-sm whitespace-nowrap">
-                  ${row.miktar.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} <span class="text-[10px] font-normal text-slate-400">kg</span>
+                <td class="p-2.5 min-w-[200px]">${urunlerHtml}</td>
+                <td class="p-2.5 text-right font-bold whitespace-nowrap ${row.kabaKg > 0 ? 'text-orange-900 bg-orange-50/40' : 'text-slate-300'}">
+                  ${row.kabaKg > 0 ? `${row.kabaKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} <span class="text-[10px] font-normal text-slate-400">kg</span>` : '-'}
                 </td>
-                <td class="p-2.5">${ieRozet}</td>
-                <td class="p-2.5 text-slate-500 italic text-[11px] max-w-xs truncate" title="${row.aciklama || ''}">${row.aciklama || '-'}</td>
-                <td class="p-2.5 text-slate-600 font-medium">${row.operator || '-'}</td>
+                <td class="p-2.5 text-right font-bold whitespace-nowrap ${row.inceKg > 0 ? 'text-sky-900 bg-sky-50/40' : 'text-slate-300'}">
+                  ${row.inceKg > 0 ? `${row.inceKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} <span class="text-[10px] font-normal text-slate-400">kg</span>` : '-'}
+                </td>
+                <td class="p-2.5 text-right font-bold whitespace-nowrap ${row.bidonKg > 0 ? 'text-emerald-900 bg-emerald-50/40' : 'text-slate-300'}">
+                  ${row.bidonKg > 0 ? `${row.bidonKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} <span class="text-[10px] font-normal text-slate-400">kg</span>` : '-'}
+                </td>
+                <td class="p-2.5 text-right font-bold whitespace-nowrap ${row.makaraKg > 0 ? 'text-purple-900 bg-purple-50/40' : 'text-slate-300'}">
+                  ${row.makaraKg > 0 ? `${row.makaraKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} <span class="text-[10px] font-normal text-slate-400">kg</span>` : '-'}
+                </td>
+                <td class="p-2.5 text-right font-black text-slate-900 text-sm whitespace-nowrap bg-amber-50/60 border-l border-amber-200">
+                  ${row.toplamGunKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} <span class="text-[10px] font-bold text-amber-700">kg</span>
+                </td>
+                <td class="p-2.5">${ieHtml}</td>
+                <td class="p-2.5 text-slate-600 font-medium text-[11px] max-w-xs truncate">${opHtml}</td>
               </tr>`;
             });
 
             // Ay Sonu Alt Toplam Satırı
             h += `
               <tr class="bg-indigo-50/70 border-b-2 border-indigo-200 font-bold text-indigo-950 text-xs">
-                <td colspan="3" class="p-2.5 pl-4 uppercase font-black tracking-wide text-indigo-900">
-                  ⚡ ${ayData.etiket} Ara Toplam
+                <td colspan="2" class="p-2.5 pl-4 uppercase font-black tracking-wide text-indigo-900">
+                  ⚡ ${ayData.etiket} Ara Toplam (${ayData.gunler.length} Gün)
                 </td>
-                <td class="p-2.5 text-right font-black text-indigo-900 text-sm">
+                <td class="p-2.5 text-right font-black text-orange-950">${ayData.kabaToplam > 0 ? ayData.kabaToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' kg' : '-'}</td>
+                <td class="p-2.5 text-right font-black text-sky-950">${ayData.inceToplam > 0 ? ayData.inceToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' kg' : '-'}</td>
+                <td class="p-2.5 text-right font-black text-emerald-950">${ayData.bidonToplam > 0 ? ayData.bidonToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' kg' : '-'}</td>
+                <td class="p-2.5 text-right font-black text-purple-950">${ayData.makaraToplam > 0 ? ayData.makaraToplam.toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' kg' : '-'}</td>
+                <td class="p-2.5 text-right font-black text-indigo-950 text-sm bg-indigo-100/70 border-l border-indigo-200">
                   ${ayData.toplamKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg
                 </td>
-                <td colspan="3" class="p-2.5 text-right text-[11px] text-indigo-800">
+                <td colspan="2" class="p-2.5 text-right text-[11px] text-indigo-800">
                   ${mkOzet.join(' | ')}
                 </td>
               </tr>
@@ -21463,14 +21536,18 @@
           // GENEL TOPLAM SATIRI
           h += `
             <tr class="bg-slate-900 text-white font-black text-sm border-t-2 border-slate-950">
-              <td colspan="3" class="p-3 pl-4 tracking-wider uppercase text-amber-400">
-                🏆 RAPOR GENEL TOPLAMI (${duzeltilmisSatirlar.length} İŞLEM)
+              <td colspan="2" class="p-3 pl-4 tracking-wider uppercase text-amber-400">
+                🏆 RAPOR GENEL TOPLAMI (${gunlukSatirlar.length} GÜN · ${duzeltilmisSatirlar.length} İŞLEM)
               </td>
-              <td class="p-3 text-right text-base text-amber-300 font-black">
+              <td class="p-3 text-right text-orange-300 font-bold text-xs">${fcwKabaKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</td>
+              <td class="p-3 text-right text-sky-300 font-bold text-xs">${fcwInceKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</td>
+              <td class="p-3 text-right text-emerald-300 font-bold text-xs">${fcwBidonKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</td>
+              <td class="p-3 text-right text-purple-300 font-bold text-xs">${fcwHassasKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg</td>
+              <td class="p-3 text-right text-base text-amber-300 font-black bg-slate-950 border-l border-slate-800">
                 ${fcwToplamKg.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} kg
               </td>
-              <td colspan="3" class="p-3 text-right text-xs text-slate-300 font-bold">
-                Kaba: ${fcwKabaKg.toFixed(1)} kg | İnce: ${fcwInceKg.toFixed(1)} kg | Bidon: ${fcwBidonKg.toFixed(1)} kg | Makara: ${fcwHassasKg.toFixed(1)} kg
+              <td colspan="2" class="p-3 text-right text-xs text-slate-300 font-bold">
+                Aktif Günlük Ort.: ${(fcwToplamKg / Math.max(gunlukSatirlar.length, 1)).toFixed(1)} kg/gün
               </td>
             </tr>
           `;
@@ -21645,6 +21722,77 @@
         }
       });
 
+      // 1. Günlük Konsolide FCW Sayfası (Her gün için 1 satır)
+      const fcwGunMap = new Map();
+      uretimTakip.forEach(f => {
+        const t = f.tarih || '-';
+        if (!fcwGunMap.has(t)) {
+          fcwGunMap.set(t, {
+            'Tarih': t,
+            'Ay / Dönem': t.length >= 7 ? t.slice(0, 7) : '-',
+            'Üretilen Ürünler': new Set(),
+            'Kaba Çekme (kg)': 0,
+            'İnce Çekme (kg)': 0,
+            'Bidon Sarma (kg)': 0,
+            'Makara Sarma (kg)': 0,
+            'Gün Toplamı (kg)': 0,
+            'İş Emirleri': new Set(),
+            'Müşteriler': new Set(),
+            'Operatörler': new Set()
+          });
+        }
+
+        const g = fcwGunMap.get(t);
+        const ieNo = f.isEmriNo || f.no || '';
+        const mus = f.isEmriMusteri || '';
+        const op = f.operator || '';
+        if (ieNo) g['İş Emirleri'].add(ieNo);
+        if (mus) g['Müşteriler'].add(mus);
+        if (op) g['Operatörler'].add(op);
+
+        if (Array.isArray(f.items) && f.items.length > 0) {
+          f.items.forEach(it => {
+            const m = parseFloat(it.miktar) || 0;
+            if (m > 0) {
+              if (it.asama === 'kaba') g['Kaba Çekme (kg)'] += m;
+              else if (it.asama === 'ince') g['İnce Çekme (kg)'] += m;
+              else if (it.asama === 'bidon') g['Bidon Sarma (kg)'] += m;
+              else if (it.asama === 'hassas') g['Makara Sarma (kg)'] += m;
+              else g['Kaba Çekme (kg)'] += m;
+              g['Gün Toplamı (kg)'] += m;
+              if (it.urun) g['Üretilen Ürünler'].add(it.urun);
+            }
+          });
+        } else {
+          const kabaM = parseFloat(f.kaba) || 0;
+          const inceM = parseFloat(f.ince) || 0;
+          const bidonM = parseFloat(f.bidon) || 0;
+          const makaraM = parseFloat(f.hassas) || 0;
+          g['Kaba Çekme (kg)'] += kabaM;
+          g['İnce Çekme (kg)'] += inceM;
+          g['Bidon Sarma (kg)'] += bidonM;
+          g['Makara Sarma (kg)'] += makaraM;
+          g['Gün Toplamı (kg)'] += (kabaM + inceM + bidonM + makaraM);
+          if (f.urunAd || f.urun) g['Üretilen Ürünler'].add(f.urunAd || f.urun);
+        }
+      });
+
+      const fcwGunlukRows = Array.from(fcwGunMap.values())
+        .sort((a, b) => new Date(b['Tarih']) - new Date(a['Tarih']))
+        .map(g => ({
+          'Tarih': g['Tarih'],
+          'Ay / Dönem': g['Ay / Dönem'],
+          'Üretilen Ürünler': Array.from(g['Üretilen Ürünler']).join(', ') || '-',
+          'Kaba Çekme (kg)': g['Kaba Çekme (kg)'],
+          'İnce Çekme (kg)': g['İnce Çekme (kg)'],
+          'Bidon Sarma (kg)': g['Bidon Sarma (kg)'],
+          'Makara Sarma (kg)': g['Makara Sarma (kg)'],
+          'Gün Toplamı (kg)': g['Gün Toplamı (kg)'],
+          'İş Emirleri': Array.from(g['İş Emirleri']).join(', ') || '-',
+          'Müşteriler': Array.from(g['Müşteriler']).join(', ') || '-',
+          'Operatörler': Array.from(g['Operatörler']).join(', ') || '-'
+        }));
+
       const apmData = apmUretim.map(a => ({
         'Tarih': a.tarih || (a.olusturmaTarihi ? a.olusturmaTarihi.slice(0, 10) : '-'),
         'Ay / Dönem': (a.tarih || a.olusturmaTarihi || '').slice(0, 7) || '-',
@@ -21656,13 +21804,15 @@
       }));
 
       const wb = XLSX.utils.book_new();
-      const wsFcw = XLSX.utils.json_to_sheet(fcwData);
+      const wsFcwGunluk = XLSX.utils.json_to_sheet(fcwGunlukRows);
+      const wsFcwDetay = XLSX.utils.json_to_sheet(fcwData);
       const wsApm = XLSX.utils.json_to_sheet(apmData);
 
-      XLSX.utils.book_append_sheet(wb, wsFcw, "FCW_Makine_Üretim");
-      XLSX.utils.book_append_sheet(wb, wsApm, "APM_Üretim");
+      XLSX.utils.book_append_sheet(wb, wsFcwGunluk, "FCW_Gunluk_Uretim");
+      XLSX.utils.book_append_sheet(wb, wsFcwDetay, "FCW_Makine_Detay");
+      XLSX.utils.book_append_sheet(wb, wsApm, "APM_Plaka_Uretim");
 
-      XLSX.writeFile(wb, `FCW_APM_Üretim_Raporu_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.writeFile(wb, `FCW_APM_Gunluk_Uretim_Raporu_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
     /* ========================================================================= */
