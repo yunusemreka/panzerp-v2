@@ -11189,7 +11189,7 @@
       return u;
     }
 
-    function uretimKaydet() {
+        function uretimKaydet() {
       const tarihInput = document.getElementById('utTarih');
       const tarih = tarihInput ? tarihInput.value.trim() : '';
 
@@ -11268,6 +11268,7 @@
         isEmriNoSummary = noList.join(', ');
       }
 
+      const bagliIsEmri = primaryIsEmri;
       const yeniUretimId = Date.now();
 
       // Ana kaydı oluştur (Her bir kalemin bağımsız isEmriId bilgisi items array'inde yer alır)
@@ -11296,7 +11297,7 @@
       DB.uretimTakip.push(yeniKayit);
 
       let mesajOzeti = [];
-      if (bagliIsEmri) mesajOzeti.push(`🎯 Bağlı İş Emri: ${bagliIsEmri.no}`);
+      if (isEmriNoSummary) mesajOzeti.push(`🎯 Bağlı İş Emri: ${isEmriNoSummary}`);
       else mesajOzeti.push(`⚙️ Serbest / Standart Stok Üretimi`);
 
       if (s25 > 0) mesajOzeti.push(`Strip (0.25): ${s25} kg`);
@@ -11309,7 +11310,7 @@
 
       // Etkilenen tüm iş emirlerinin durum ve ilerlemelerini güncelle
       const etkilenenIeIdler = [...new Set(validItems.map(it => it.isEmriId).filter(Boolean))];
-      if (bagliIsEmri && !etkilenenIeIdler.includes(bagliIsEmri.id)) etkilenenIeIdler.push(bagliIsEmri.id);
+      if (primaryIsEmri && !etkilenenIeIdler.includes(primaryIsEmri.id)) etkilenenIeIdler.push(primaryIsEmri.id);
 
       etkilenenIeIdler.forEach(ieId => {
         const ieObj = (DB.isEmirleri || []).find(x => x.id == ieId);
@@ -11334,16 +11335,16 @@
         if ((item.asama === 'bidon' || item.asama === 'hassas') && item.miktar > 0 && item.urun) {
           const varsayilanPaket = item.asama === 'hassas' ? '15 kg Spool' : '250 kg Drum/Bidon';
           let urunStr = item.urun;
+          const itemIe = item.isEmriId ? (DB.isEmirleri || []).find(x => x.id == item.isEmriId) : null;
           if (!urunStr.includes(' - ') && !urunStr.match(/Ø\s*[0-9]/)) {
-            if (bagliIsEmri && isItemMatchingIsEmri(item.urun, bagliIsEmri) && bagliIsEmri.cap && bagliIsEmri.cap !== '-') {
-              urunStr = item.urun + ' - ' + bagliIsEmri.cap;
+            if (itemIe && itemIe.cap && itemIe.cap !== '-') {
+              urunStr = item.urun + ' - ' + itemIe.cap;
             }
           }
           const ktmU = ktmStokKartiBulVeyaOlustur(urunStr, varsayilanPaket);
           if (ktmU) {
             ktmU.stok = (parseFloat(ktmU.stok) || 0) + item.miktar;
 
-            const itemIe = item.isEmriId ? (DB.isEmirleri || []).find(x => x.id == item.isEmriId) : bagliIsEmri;
             let projeEtiketi = itemIe ? itemIe.no : 'Serbest Üretim';
             let aciklamaEtiketi = itemIe ? `İş Emri Üretimi (${itemIe.no}): ${item.urun} - ${item.miktar} kg` : `Üretim Girişi: ${item.urun} (${item.asama.toUpperCase()}) - ${item.miktar} kg (Serbest Stok)`;
 
@@ -11366,7 +11367,6 @@
       });
 
       // OTOMATİK HAMMADDE SARFİYATI (REÇETE PATLATMA / BACKFLUSH)
-      // Üretilen nihai tel (Bidon / Hassas) veya harman miktarına göre reçetedeki hammaddeleri otomatik stoktan düş
       let sarfiyatOzeti = [];
       validItems.forEach(item => {
         if ((item.asama === 'bidon' || item.asama === 'hassas' || item.asama === 'harman') && item.miktar > 0 && item.urun) {
@@ -11375,6 +11375,7 @@
 
           if (eslesenUrun && DB.receteler && DB.receteler[eslesenUrun.id]) {
             const receteList = DB.receteler[eslesenUrun.id] || [];
+            const itemIe = item.isEmriId ? (DB.isEmirleri || []).find(x => x.id == item.isEmriId) : null;
             receteList.forEach(rec => {
               if (rec.hammadde && rec.oran > 0) {
                 const gerekenHmKg = (item.miktar * (parseFloat(rec.oran) / 100));
@@ -11382,7 +11383,6 @@
                 if (hm) {
                   hm.stok = Math.max(0, (parseFloat(hm.stok) || 0) - gerekenHmKg);
 
-                  // Hammadde hareket kaydı aç
                   DB.hmHareketler = DB.hmHareketler || [];
                   DB.hmHareketler.push({
                     id: Date.now() + Math.random(),
@@ -11391,7 +11391,7 @@
                     miktar: gerekenHmKg,
                     tarih: new Date().toISOString().slice(0, 10),
                     aciklama: `Otomatik Üretim Sarfiyatı: ${item.urun} (${item.asama.toUpperCase()}) - ${item.miktar} kg üretim`,
-                    fatura: bagliIsEmri ? bagliIsEmri.no : 'Üretim'
+                    fatura: itemIe ? itemIe.no : (isEmriNoSummary || 'Üretim')
                   });
                   sarfiyatOzeti.push(`${hm.ad}: -${gerekenHmKg.toFixed(1)} kg`);
                 }
@@ -11415,18 +11415,19 @@
       if (acE) acE.value = '';
 
       utDraftKalemler = {
-        kaba: [{ id: Date.now() + 1, urun: '', miktar: 0 }],
-        ince: [{ id: Date.now() + 2, urun: '', miktar: 0 }],
-        bidon: [{ id: Date.now() + 3, urun: '', miktar: 0 }],
-        hassas: [{ id: Date.now() + 4, urun: '', miktar: 0 }],
-        harman: [{ id: Date.now() + 5, urun: '', miktar: 0 }]
+        kaba: [{ id: Date.now() + 1, urun: '', miktar: 0, isEmriId: '' }],
+        ince: [{ id: Date.now() + 2, urun: '', miktar: 0, isEmriId: '' }],
+        bidon: [{ id: Date.now() + 3, urun: '', miktar: 0, isEmriId: '' }],
+        hassas: [{ id: Date.now() + 4, urun: '', miktar: 0, isEmriId: '' }],
+        harman: [{ id: Date.now() + 5, urun: '', miktar: 0, isEmriId: '' }]
       };
       utTumKalemleriRender();
 
-      saveDB();
+      saveDB(true);
       renderAll();
 
       let alertText = `Üretim kaydı başarıyla tamamlandı!\n\n${mesajOzeti.join('\n')}\n\n📦 Üretilen teller FCW Tel Stoklarına işlendi. KTM Mamül Deposuna göndermek için 'FCW Tel Çıkışı' menüsünü kullanabilirsiniz.`;
+      showToast("Üretim kaydı başarıyla tamamlandı!", "success");
       alert(alertText);
     }
 
