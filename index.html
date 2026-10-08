@@ -1687,52 +1687,17 @@
             için üretilen <b>Ürünü</b> ve <b>Miktarını (kg)</b> giriniz. İş emrine bağlı veya bağımsız (serbest stok)
             üretim yapabilirsiniz.</p>
 
-          <!-- İŞ EMRİ BAĞLAMA / SERBEST STOK SEÇİM PANELİ -->
-          <div
-            class="mb-5 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-slate-50 p-4 rounded-xl border border-blue-200 shadow-xs">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-              <div class="md:col-span-5">
-                <label
-                  class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1 flex items-center gap-1.5">
-                  <span>🎯</span> Üretim Kaynağı / İş Emri Bağlantısı
-                </label>
-                <select id="utIsEmriSecici" onfocus="utIsEmriSeciciDoldur()" onchange="utIsEmriSecildi(this.value)"
-                  class="border border-blue-300 p-2.5 rounded-xl w-full bg-white font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-blue-300 outline-none text-sm">
-                  <option value="">⚙️ Serbest / Standart Stok Üretimi (İş Emrinden Bağımsız)</option>
-                  <!-- JavaScript ile dinamik aktif iş emirleri doldurulacak -->
-                </select>
+          <!-- İŞ EMRİ & SERBEST STOK BİLGİLENDİRME PANELİ -->
+          <div class="mb-5 bg-gradient-to-r from-slate-50 via-indigo-50/30 to-blue-50/40 p-4 rounded-xl border border-indigo-100 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="bg-indigo-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base shadow-sm">🎯</span>
+              <div>
+                <b class="text-slate-800 text-sm">Proses & Kalem Bazlı İş Emri Seçimi</b>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Aşağıdaki tablodan her makinede ve kalemde dilediğiniz İş Emrini ayrı ayrı seçebilir veya <b>Serbest Üretim</b> bırakabilirsiniz. Aynı gün aynı makinede farklı iş emirleri üretebilirsiniz.</p>
               </div>
-
-              <!-- Seçilen İş Emri Canlı İlerleme Bilgi Kartı -->
-              <div class="md:col-span-7" id="utIsEmriBilgiKarti" style="display:none;">
-                <div
-                  class="bg-white p-3 rounded-xl border border-indigo-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-2">
-                      <b class="text-sm font-bold text-indigo-950" id="utIeNoGoster">IE-XXXX</b>
-                      <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded"
-                        id="utIeUrunGoster">-</span>
-                      <span
-                        class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-200"
-                        id="utIeTurGoster">Müşteri</span>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3 mt-1.5 text-xs">
-                      <span class="text-slate-500 font-semibold">Hedef: <b class="text-slate-800" id="utIeHedefKg">0 kg</b></span>
-                      <span class="text-blue-600 font-semibold">Kaba: <b class="text-blue-800" id="utIeKabaUretilen">0 kg</b></span>
-                      <span class="text-emerald-600 font-semibold">İş Emrine Ayrılan: <b class="text-emerald-800" id="utIePaketlenen">0 kg</b></span>
-                      <span class="text-indigo-600 font-semibold" id="utIeFazlaStokGrup" style="display:none;">⭐ Serbest Stoğa: <b class="text-indigo-800" id="utIeFazlaStok">0 kg</b></span>
-                    </div>
-                  </div>
-                  <div class="w-full md:w-36 flex flex-col items-end">
-                    <div class="text-xs font-extrabold text-indigo-700 mb-1" id="utIePaketYuzde">%0 Tamamlandı</div>
-                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                      <div id="utIeProgressBar"
-                        class="bg-gradient-to-r from-blue-600 to-emerald-500 h-2 rounded-full transition-all duration-500"
-                        style="width: 0%"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            </div>
+            <div class="text-right whitespace-nowrap hidden sm:block">
+              <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-lg">⚙️ Serbest Üretim Destekli</span>
             </div>
           </div>
 
@@ -1755,9 +1720,14 @@
             <table class="w-full text-sm text-left">
               <thead>
                 <tr>
-                  <th class="w-1/4 border-r whitespace-nowrap bg-slate-100 py-3 px-3">İşlem Aşaması / Makine</th>
-                  <th class="w-1/2 border-r whitespace-nowrap bg-slate-100 py-3 px-3">Ürün Kalemleri & Seçimleri</th>
-                  <th class="w-1/4 whitespace-nowrap bg-slate-100 py-3 px-3">Miktar (kg)</th>
+                  <th class="w-1/5 border-r whitespace-nowrap bg-slate-100 py-3 px-3">İşlem Aşaması / Makine</th>
+                  <th class="w-3/5 border-r whitespace-nowrap bg-slate-100 py-3 px-3">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-slate-800">Proses Bazlı İş Emri & Ürün Seçimi</span>
+                      <span class="text-[11px] text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">Her satırda bağımsız İş Emri veya Serbest Stok seçebilirsiniz</span>
+                    </div>
+                  </th>
+                  <th class="w-1/5 whitespace-nowrap bg-slate-100 py-3 px-3">Miktar (kg)</th>
                 </tr>
               </thead>
               <tbody>
@@ -1799,6 +1769,7 @@
                     <div class="flex items-center justify-between">
                       <span class="flex items-center gap-2 font-bold"><span
                           class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> Kaba Çekme</span>
+                      
                       <button type="button" onclick="utKalemEkle('kaba')" title="Bu makineye yeni ürün ekle"
                         class="text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-200 px-2 py-1 rounded font-bold transition-all shadow-sm flex items-center gap-1">
                         <span>➕</span> Ürün Ekle
@@ -1816,6 +1787,7 @@
                     <div class="flex items-center justify-between">
                       <span class="flex items-center gap-2 font-bold"><span
                           class="w-2.5 h-2.5 rounded-full bg-red-500"></span> İnce Çekme</span>
+                      
                       <button type="button" onclick="utKalemEkle('ince')" title="Bu makineye yeni ürün ekle"
                         class="text-xs bg-red-100 text-red-800 hover:bg-red-200 px-2 py-1 rounded font-bold transition-all shadow-sm flex items-center gap-1">
                         <span>➕</span> Ürün Ekle
@@ -1833,6 +1805,7 @@
                     <div class="flex items-center justify-between">
                       <span class="flex items-center gap-2 font-bold"><span
                           class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Bidon Sarma</span>
+                      
                       <button type="button" onclick="utKalemEkle('bidon')" title="Bu makineye yeni ürün ekle"
                         class="text-xs bg-emerald-100 text-emerald-800 hover:bg-emerald-200 px-2 py-1 rounded font-bold transition-all shadow-sm flex items-center gap-1">
                         <span>➕</span> Ürün Ekle
@@ -1851,6 +1824,7 @@
                     <div class="flex items-center justify-between">
                       <span class="flex items-center gap-2 font-bold"><span
                           class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Hassas Sarma</span>
+                      
                       <button type="button" onclick="utKalemEkle('hassas')" title="Bu makineye yeni ürün ekle"
                         class="text-xs bg-slate-200 text-slate-800 hover:bg-slate-300 px-2 py-1 rounded font-bold transition-all shadow-sm flex items-center gap-1">
                         <span>➕</span> Ürün Ekle
@@ -3092,12 +3066,16 @@
               Edilenler</div>
             <div class="tab-btn whitespace-nowrap text-emerald-700 font-bold" data-tab="ktmSipTamamlanan">✅ Tamamlanan /
               Sevk Edilenler</div>
+            <div class="tab-btn whitespace-nowrap text-rose-700 font-bold" data-tab="ktmSipIade">↩️ İade Edilenler</div>
+            <div class="tab-btn whitespace-nowrap text-slate-600 font-bold" data-tab="ktmSipIptal">❌ İptal Edilenler</div>
           </div>
 
           <div id="ktmSipBekleyen" class="tab-content active table-responsive bg-slate-50/50 p-2 rounded-xl"></div>
           <div id="ktmSipHazirlanan" class="tab-content table-responsive bg-slate-50/50 p-2 rounded-xl"></div>
           <div id="ktmSipKismi" class="tab-content table-responsive bg-slate-50/50 p-2 rounded-xl"></div>
           <div id="ktmSipTamamlanan" class="tab-content table-responsive bg-slate-50/50 p-2 rounded-xl"></div>
+          <div id="ktmSipIade" class="tab-content table-responsive bg-slate-50/50 p-2 rounded-xl"></div>
+          <div id="ktmSipIptal" class="tab-content table-responsive bg-slate-50/50 p-2 rounded-xl"></div>
         </div>
 
         <div class="card p-6 mb-6 bg-slate-50/50 border border-slate-200 rounded-2xl">
@@ -5265,16 +5243,51 @@
         </div>
       </div>
 
-      <div class="flex justify-end gap-3 no-print">
-        <button onclick="closeModal('ktmPaketlemeModal')"
-          class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm">İptal</button>
-        <button onclick="ktmPaketlemeKaydet(false)"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md text-sm transition-transform active:scale-95 flex items-center gap-1.5">
-          <span>💾</span> Paketleme Bilgilerini Kaydet
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 no-print">
+        <button type="button" onclick="ktmPaketlemeIptalEt(currentPaketSipId)"
+          class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors w-full sm:w-auto justify-center"
+          title="Tüm paletleri sil ve siparişi bekleyen durumuna geri al">
+          <span>🚫</span> Paketlemeyi İptal Et / Sıfırla
         </button>
-        <button onclick="ktmPaketlemeKaydet(true)"
-          class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md text-sm transition-transform active:scale-95 flex items-center gap-1.5">
-          <span>🚚</span> Kaydet & Sevk Et
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button type="button" onclick="closeModal('ktmPaketlemeModal')"
+            class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm">Vazgeç</button>
+          <button type="button" onclick="ktmPaketlemeKaydet(false)"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold shadow-md text-sm transition-transform active:scale-95 flex items-center gap-1.5">
+            <span>💾</span> Paketlemeyi Kaydet
+          </button>
+          <button type="button" onclick="ktmPaketlemeKaydet(true)"
+            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl font-bold shadow-md text-sm transition-transform active:scale-95 flex items-center gap-1.5">
+            <span>🚚</span> Kaydet & Sevk Et
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- KTM SİPARİŞ SEVKİYAT SONRASI NOT MODALI -->
+  <div id="ktmSiparisNotModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="flex justify-between items-center mb-4 border-b pb-3">
+        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+          <span class="bg-indigo-100 text-indigo-700 p-1.5 rounded-lg text-sm">📝</span> Sipariş / Sevkiyat Notu
+        </h3>
+        <button onclick="closeModal('ktmSiparisNotModal')" class="text-slate-400 hover:text-slate-600 font-bold text-xl leading-none">&times;</button>
+      </div>
+      <input type="hidden" id="ktmSiparisNot_sipId">
+      <div class="mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs">
+        <div>Sipariş No: <b id="ktmSiparisNot_sipNo" class="text-slate-800">-</b></div>
+        <div class="mt-0.5">Müşteri: <b id="ktmSiparisNot_musteri" class="text-indigo-700">-</b></div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-xs font-bold text-slate-700 mb-1">Sevkiyat / Sipariş Notu:</label>
+        <textarea id="ktmSiparisNot_text" rows="4" class="border border-slate-300 p-2.5 rounded-xl w-full text-xs font-medium bg-white focus:ring-2 focus:ring-indigo-100 outline-none" placeholder="Sevkiyat sonrası not, irsaliye/fatura detayları, teslimat notu vb. giriniz..."></textarea>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeModal('ktmSiparisNotModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold text-xs">Vazgeç</button>
+        <button type="button" onclick="ktmSiparisNotKaydet()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm flex items-center gap-1.5">
+          <span>💾</span> Notu Kaydet
         </button>
       </div>
     </div>
@@ -7242,52 +7255,111 @@
 
   <!-- ÜRETİM TAKİBİ DÜZENLEME MODALI -->
   <div id="utDuzenleModal" class="modal">
-    <div class="modal-content" style="max-width: 650px;">
+    <div class="modal-content" style="max-width: 780px;">
       <div class="flex justify-between items-center mb-4 no-print border-b pb-3">
-        <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><span>✏️</span> Üretim Kaydı Düzenle</h3>
+        <div>
+          <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><span>✏️</span> Üretim Kaydı Düzenle</h3>
+          <span class="text-xs text-slate-500 font-medium">Aynı gün üretilen farklı ürünleri ve kilogramları ayrı kalemler olarak alt alta yönetebilirsiniz.</span>
+        </div>
         <button onclick="closeModal('utDuzenleModal')"
           class="text-slate-400 bg-slate-100 p-1.5 rounded-lg hover:bg-slate-200">✕</button>
       </div>
       <input type="hidden" id="utEd_id">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs mb-4">
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">Tarih</label><input type="date"
-            id="utEd_tarih" class="border border-slate-300 p-2 rounded-lg bg-white"></div>
-        <div class="flex flex-col md:col-span-2"><label class="font-bold text-slate-600 mb-1">Not /
-            Açıklama</label><input type="text" id="utEd_acik" class="border border-slate-300 p-2 rounded-lg bg-white">
+      
+      <!-- Tarih, Strip ve Açıklama -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs mb-4 bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-2xs">
+        <div class="flex flex-col">
+          <label class="font-bold text-slate-600 mb-1">Tarih</label>
+          <input type="date" id="utEd_tarih" class="border border-slate-300 p-2 rounded-lg bg-white font-bold text-slate-800">
         </div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">Strip 0.25 (kg)</label><input
-            type="number" step="0.01" id="utEd_s25" class="border border-slate-300 p-2 rounded-lg bg-white"></div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">Strip 0.40 (kg)</label><input
-            type="number" step="0.01" id="utEd_s40" class="border border-slate-300 p-2 rounded-lg bg-white"></div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">Kaba Çekme (kg)</label><input
-            type="number" step="0.01" id="utEd_kaba" class="border border-slate-300 p-2 rounded-lg bg-white font-bold">
+        <div class="flex flex-col">
+          <label class="font-bold text-slate-600 mb-1">Strip 0.25 (kg)</label>
+          <input type="number" step="0.01" id="utEd_s25" class="border border-slate-300 p-2 rounded-lg bg-white font-semibold">
         </div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">Kaba Ürün</label><input type="text"
-            id="utEd_kabaUrun" class="border border-slate-300 p-2 rounded-lg bg-white"></div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">İnce Çekme (kg)</label><input
-            type="number" step="0.01" id="utEd_ince" class="border border-slate-300 p-2 rounded-lg bg-white font-bold">
+        <div class="flex flex-col">
+          <label class="font-bold text-slate-600 mb-1">Strip 0.40 (kg)</label>
+          <input type="number" step="0.01" id="utEd_s40" class="border border-slate-300 p-2 rounded-lg bg-white font-semibold">
         </div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">İnce Ürün</label><input type="text"
-            id="utEd_inceUrun" class="border border-slate-300 p-2 rounded-lg bg-white"></div>
-        <div class="flex flex-col"><label class="font-bold text-emerald-700 mb-1">Bidon Sarma (kg)</label><input
-            type="number" step="0.01" id="utEd_bidon"
-            class="border border-emerald-300 p-2 rounded-lg bg-emerald-50 font-bold"></div>
-        <div class="flex flex-col"><label class="font-bold text-emerald-700 mb-1">Bidon Ürün</label><input type="text"
-            id="utEd_bidonUrun" class="border border-emerald-300 p-2 rounded-lg bg-white"></div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">Hassas Sarma (kg)</label><input
-            type="number" step="0.01" id="utEd_hassas"
-            class="border border-slate-300 p-2 rounded-lg bg-white font-bold"></div>
-        <div class="flex flex-col"><label class="font-bold text-slate-600 mb-1">Hassas Ürün</label><input type="text"
-            id="utEd_hassasUrun" class="border border-slate-300 p-2 rounded-lg bg-white"></div>
-        <div class="flex flex-col"><label class="font-bold text-purple-700 mb-1">Harman (kg)</label><input type="number"
-            step="0.01" id="utEd_harman" class="border border-purple-300 p-2 rounded-lg bg-purple-50 font-bold"></div>
-        <div class="flex flex-col"><label class="font-bold text-purple-700 mb-1">Harman Ürün</label><input type="text"
-            id="utEd_harmanUrun" class="border border-purple-300 p-2 rounded-lg bg-white"></div>
+        <div class="flex flex-col">
+          <label class="font-bold text-slate-600 mb-1">Not / Açıklama</label>
+          <input type="text" id="utEd_acik" class="border border-slate-300 p-2 rounded-lg bg-white" placeholder="Vardiya, hat veya sipariş notu...">
+        </div>
       </div>
-      <button onclick="uretimDuzenleKaydet()"
-        class="bg-slate-800 text-amber-400 px-4 py-3 rounded-xl w-full font-bold hover:bg-slate-700 shadow-md">
-        💾 Değişiklikleri Kaydet
-      </button>
+
+      <!-- Aşamalar ve Çoklu Kalemler -->
+      <div class="space-y-3.5 max-h-[60vh] overflow-y-auto pr-1">
+        <!-- KABA ÇEKME -->
+        <div class="border border-orange-200/80 rounded-xl p-3 bg-white shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-xs text-orange-950 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Kaba Çekme
+            </span>
+            <button type="button" onclick="utEdKalemEkle('kaba')" class="text-xs bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1">
+              ➕ Kalem Ekle
+            </button>
+          </div>
+          <div id="utEdContainer_kaba" class="space-y-1.5"></div>
+        </div>
+
+        <!-- İNCE ÇEKME -->
+        <div class="border border-sky-200/80 rounded-xl p-3 bg-white shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-xs text-sky-950 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> İnce Çekme
+            </span>
+            <button type="button" onclick="utEdKalemEkle('ince')" class="text-xs bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1">
+              ➕ Kalem Ekle
+            </button>
+          </div>
+          <div id="utEdContainer_ince" class="space-y-1.5"></div>
+        </div>
+
+        <!-- BİDON SARMA -->
+        <div class="border border-emerald-200 bg-emerald-50/20 rounded-xl p-3 shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-xs text-emerald-900 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Bidon Sarma (250 kg)
+            </span>
+            <button type="button" onclick="utEdKalemEkle('bidon')" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1">
+              ➕ Kalem Ekle
+            </button>
+          </div>
+          <div id="utEdContainer_bidon" class="space-y-1.5"></div>
+        </div>
+
+        <!-- HASSAS SARMA -->
+        <div class="border border-slate-200 rounded-xl p-3 bg-white shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Hassas Sarma (15 kg Spool)
+            </span>
+            <button type="button" onclick="utEdKalemEkle('hassas')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1">
+              ➕ Kalem Ekle
+            </button>
+          </div>
+          <div id="utEdContainer_hassas" class="space-y-1.5"></div>
+        </div>
+
+        <!-- HARMAN -->
+        <div class="border border-purple-200 bg-purple-50/20 rounded-xl p-3 shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-xs text-purple-900 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Harman
+            </span>
+            <button type="button" onclick="utEdKalemEkle('harman')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1">
+              ➕ Kalem Ekle
+            </button>
+          </div>
+          <div id="utEdContainer_harman" class="space-y-1.5"></div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t">
+        <button onclick="uretimDuzenleKaydet()"
+          class="bg-slate-800 text-amber-400 px-4 py-3 rounded-xl w-full font-bold hover:bg-slate-700 shadow-md flex items-center justify-center gap-2">
+          <span>💾</span> Değişiklikleri Kaydet
+        </button>
+      </div>
     </div>
   </div>
 
@@ -10466,19 +10538,82 @@
     /* ============== DİĞER MODÜLLER (Üretim Takibi vb.) ============== */
     // Çoklu Ürün Girişi State Yönetimi (Stripler hariç tüm makineler için)
     let utDraftKalemler = {
-      kaba: [{ id: 1, urun: '', miktar: 0 }],
-      ince: [{ id: 2, urun: '', miktar: 0 }],
-      bidon: [{ id: 3, urun: '', miktar: 0 }],
-      hassas: [{ id: 4, urun: '', miktar: 0 }],
-      harman: [{ id: 5, urun: '', miktar: 0 }]
+      kaba: [{ id: 1, urun: '', miktar: 0, isEmriId: '' }],
+      ince: [{ id: 2, urun: '', miktar: 0, isEmriId: '' }],
+      bidon: [{ id: 3, urun: '', miktar: 0, isEmriId: '' }],
+      hassas: [{ id: 4, urun: '', miktar: 0, isEmriId: '' }],
+      harman: [{ id: 5, urun: '', miktar: 0, isEmriId: '' }]
     };
+
+    function getIsEmriOptionsHtml(selectedId) {
+      let html = `<option value="">⚙️ Serbest Üretim (Stok)</option>`;
+      const emirler = (DB.isEmirleri || []).filter(i => i && i.durum !== 'İptal');
+      const devamEdenler = emirler.filter(i => i.durum !== 'Tamamlandı');
+      const tamamlananlar = emirler.filter(i => i.durum === 'Tamamlandı');
+
+      devamEdenler.sort((a, b) => (b.id || 0) - (a.id || 0));
+      tamamlananlar.sort((a, b) => (b.id || 0) - (a.id || 0));
+
+      if (devamEdenler.length > 0) {
+        html += `<optgroup label="⏳ Devam Eden & Planlanan İş Emirleri">`;
+        devamEdenler.forEach(i => {
+          const urun = (DB.urunler || []).find(u => u.id == i.urunId);
+          const safAd = temizSafUrunAdi(urun ? (urun.ad || urun.kod) : (i.safUrunAdi || i.urunAdi || 'Ürün'));
+          const capGosterim = (i.cap || (urun ? urun.cap : '')).trim();
+          const capStr = capGosterim && capGosterim !== '-' ? ` (${capGosterim})` : '';
+          const musteriStr = i.musteri ? ` · ${i.musteri}` : '';
+          const selAttr = (selectedId && String(selectedId) === String(i.id)) ? 'selected' : '';
+          html += `<option value="${i.id}" ${selAttr}>🎯 ${i.no || 'İE'} | ${safAd}${capStr}${musteriStr} (${i.hedef || 0} kg)</option>`;
+        });
+        html += `</optgroup>`;
+      }
+
+      if (tamamlananlar.length > 0) {
+        html += `<optgroup label="✅ Tamamlanan İş Emirleri">`;
+        tamamlananlar.forEach(i => {
+          const urun = (DB.urunler || []).find(u => u.id == i.urunId);
+          const safAd = temizSafUrunAdi(urun ? (urun.ad || urun.kod) : (i.safUrunAdi || i.urunAdi || 'Ürün'));
+          const capGosterim = (i.cap || (urun ? urun.cap : '')).trim();
+          const capStr = capGosterim && capGosterim !== '-' ? ` (${capGosterim})` : '';
+          const selAttr = (selectedId && String(selectedId) === String(i.id)) ? 'selected' : '';
+          html += `<option value="${i.id}" ${selAttr}>✅ ${i.no || 'İE'} | ${safAd}${capStr}</option>`;
+        });
+        html += `</optgroup>`;
+      }
+
+      return html;
+    }
+
+    function utKalemIsEmriSecildi(asama, id, val) {
+      if (!utDraftKalemler[asama]) return;
+      const k = utDraftKalemler[asama].find(x => x.id == id);
+      if (!k) return;
+
+      k.isEmriId = val || '';
+
+      if (val) {
+        const ie = (DB.isEmirleri || []).find(x => x.id == val);
+        if (ie) {
+          const urun = (DB.urunler || []).find(u => u.id == ie.urunId);
+          const safAd = temizSafUrunAdi(urun ? (urun.ad || urun.kod) : (ie.safUrunAdi || ie.urunAdi || 'Ürün'));
+          const capGosterim = (ie.cap || (urun ? urun.cap : '')).trim();
+          const urunAd = capGosterim && capGosterim !== '-' ? `${safAd} - ${capGosterim}` : safAd;
+
+          // SADECE BU SATIRIN ÜRÜNÜNÜ DOLDURUR, DİĞER PROSES VE SATIRLARA KESİNLİKLE DOKUNMAZ
+          k.urun = urunAd;
+        }
+      }
+
+      utKalemleriRender(asama);
+    }
 
     function utKalemEkle(asama) {
       if (!utDraftKalemler[asama]) utDraftKalemler[asama] = [];
       utDraftKalemler[asama].push({
         id: Date.now() + Math.floor(Math.random() * 1000),
         urun: '',
-        miktar: 0
+        miktar: 0,
+        isEmriId: ''
       });
       utKalemleriRender(asama);
     }
@@ -10489,6 +10624,7 @@
         // En az 1 satır kalsın, içeriğini sıfırla
         utDraftKalemler[asama][0].urun = '';
         utDraftKalemler[asama][0].miktar = 0;
+        utDraftKalemler[asama][0].isEmriId = '';
       } else {
         utDraftKalemler[asama] = utDraftKalemler[asama].filter(k => k.id != id);
       }
@@ -10511,7 +10647,7 @@
       let html = '';
       items.forEach((k, idx) => {
         const inputId = `utUrunInput_${asama}_${k.id}`;
-        const canDelete = items.length > 1 || (k.urun || k.miktar > 0);
+        const canDelete = items.length > 1 || (k.urun || k.miktar > 0 || k.isEmriId);
 
         let dropdownItems = '';
         urunler.forEach(u => {
@@ -10546,9 +10682,19 @@
         });
 
         html += `
-          <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-200 shadow-2xs hover:border-slate-300 transition-all">
-            <span class="text-[11px] font-bold text-slate-400 w-5 text-center">${idx + 1}</span>
-            <div class="flex-1 relative">
+          <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 shadow-2xs hover:border-slate-300 transition-all">
+            <span class="text-[11px] font-bold text-slate-400 w-5 text-center hidden md:block">${idx + 1}</span>
+
+            <!-- 1. KALEM BAZLI İŞ EMRİ SEÇİCİ -->
+            <div class="w-full md:w-60 shrink-0">
+              <select onchange="utKalemIsEmriSecildi('${asama}', ${k.id}, this.value)"
+                class="border border-indigo-200 p-2 rounded-lg w-full text-xs font-bold ${k.isEmriId ? 'bg-indigo-50 text-indigo-900 border-indigo-400' : 'bg-white text-slate-600'} outline-none focus:ring-2 focus:ring-indigo-200 shadow-xs" title="Bu kalem için İş Emri seçin veya Serbest Üretim olarak bırakın">
+                ${getIsEmriOptionsHtml(k.isEmriId)}
+              </select>
+            </div>
+
+            <!-- 2. ÜRÜN SEÇİCİ / ARAMA -->
+            <div class="flex-1 relative min-w-[180px]">
               <input type="text" id="${inputId}" value="${k.urun || ''}"
                 class="border border-slate-300 p-2 rounded-lg w-full text-xs font-semibold bg-white outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 shadow-inner"
                 placeholder="Ürün Ara Veya Yaz (Örn: RollHARD 414)..."
@@ -10560,17 +10706,21 @@
                 ${dropdownItems}
               </div>
             </div>
-            <div class="w-32">
+
+            <!-- 3. MİKTAR (KG) -->
+            <div class="w-full md:w-32 shrink-0">
               <input type="number" step="0.01" value="${k.miktar > 0 ? k.miktar : ''}" placeholder="0 kg"
                 oninput="utKalemMiktarDegisti('${asama}', ${k.id}, this.value)"
                 class="border border-slate-300 p-2 rounded-lg w-full text-xs font-bold text-slate-800 bg-white outline-none focus:ring-2 focus:ring-blue-100 text-right shadow-inner">
             </div>
+
+            <!-- 4. KALDIR BUTONU -->
             ${canDelete ? `
               <button type="button" onclick="utKalemSil('${asama}', ${k.id})" title="Bu kalemi kaldır"
-                class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-1.5 rounded-lg text-xs font-bold transition-colors">
+                class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-2 rounded-lg text-xs font-bold transition-colors shrink-0">
                 🗑️
               </button>
-            ` : '<div class="w-7"></div>'}
+            ` : '<div class="w-7 hidden md:block"></div>'}
           </div>
         `;
       });
@@ -10646,47 +10796,85 @@
       const ie = (DB.isEmirleri || []).find(x => x.id == isEmriId);
       const hedefKg = ie ? (parseFloat(ie.hedef) || 0) : 0;
 
+      // Çap tespiti: 2.8 mm mi, yoksa 1.6 / 2.4 mm (ince tel) mi?
+      const urun = (DB.urunler || []).find(u => u.id == (ie ? ie.urunId : null));
+      const rawCap = (ie ? (ie.cap || (urun ? urun.cap : '') || (ie.urunAdi || '').split(' - ')[1] || '') : '').trim();
+      const cleanCap = rawCap.replace(/[^\d.,]/g, '').replace(',', '.');
+      const capVal = parseFloat(cleanCap) || 0;
+
+      // 1.0, 1.2, 1.6, 2.0, 2.4 mm ince tel kabul edilir (<= 2.5 mm)
+      const isInceTel = (capVal > 0 && capVal <= 2.5) || rawCap.includes('1.6') || rawCap.includes('2.4') || rawCap.includes('1.2') || rawCap.includes('1.0');
+
       let eslesenPaketlenenToplam = 0;
-      let eslesenKabaToplam = 0;
-      let eslesenInceToplam = 0;
-      let eslesenHarmanToplam = 0;
       let bagimsizUretimToplam = 0;
 
       (DB.uretimTakip || []).forEach(u => {
-        if (u.isEmriId == isEmriId) {
+        if (Array.isArray(u.items) && u.items.length > 0) {
+          u.items.forEach(it => {
+            const m = parseFloat(it.miktar) || 0;
+            if (m <= 0) return;
+
+            // Proses bazlı iş emri kontrolü: kalemin kendi isEmriId'si varsa öncelikli bakar
+            const itemIsEmriId = (it.isEmriId !== undefined && it.isEmriId !== null && it.isEmriId !== '') ? it.isEmriId : u.isEmriId;
+
+            let eslesiyor = false;
+            if (itemIsEmriId && String(itemIsEmriId) === String(isEmriId)) {
+              eslesiyor = true;
+            } else if (!itemIsEmriId && u.isEmriId && String(u.isEmriId) === String(isEmriId)) {
+              eslesiyor = ie ? isItemMatchingIsEmri(it.urun, ie) : true;
+            }
+
+            if (eslesiyor) {
+              kayitSayisi++;
+              if (it.asama === 'kaba') { kabaToplam += m; }
+              else if (it.asama === 'ince') { inceToplam += m; }
+              else if (it.asama === 'bidon') { bidonToplam += m; eslesenPaketlenenToplam += m; }
+              else if (it.asama === 'hassas') { hassasToplam += m; eslesenPaketlenenToplam += m; }
+              else if (it.asama === 'harman') { harmanToplam += m; }
+            } else {
+              bagimsizUretimToplam += m;
+            }
+          });
+        } else if (u.isEmriId && String(u.isEmriId) === String(isEmriId)) {
+          // Eski tekli kayıt formatı uyumluluğu
           kayitSayisi++;
-          if (Array.isArray(u.items) && u.items.length > 0) {
-            u.items.forEach(it => {
-              const m = parseFloat(it.miktar) || 0;
-              if (m <= 0) return;
-
-              const eslesiyor = ie ? isItemMatchingIsEmri(it.urun, ie) : true;
-
-              if (eslesiyor) {
-                if (it.asama === 'kaba') { kabaToplam += m; eslesenKabaToplam += m; }
-                else if (it.asama === 'ince') { inceToplam += m; eslesenInceToplam += m; }
-                else if (it.asama === 'bidon') { bidonToplam += m; eslesenPaketlenenToplam += m; }
-                else if (it.asama === 'hassas') { hassasToplam += m; eslesenPaketlenenToplam += m; }
-                else if (it.asama === 'harman') { harmanToplam += m; eslesenHarmanToplam += m; }
-              } else {
-                bagimsizUretimToplam += m;
-              }
-            });
-          } else {
-            // Eski tekli kayıt formatı uyumluluğu
-            kabaToplam += parseFloat(u.kaba) || 0;
-            inceToplam += parseFloat(u.ince) || 0;
-            bidonToplam += parseFloat(u.bidon) || 0;
-            hassasToplam += parseFloat(u.hassas) || 0;
-            harmanToplam += parseFloat(u.harman) || 0;
-          }
+          kabaToplam += parseFloat(u.kaba) || 0;
+          inceToplam += parseFloat(u.ince) || 0;
+          bidonToplam += parseFloat(u.bidon) || 0;
+          hassasToplam += parseFloat(u.hassas) || 0;
+          harmanToplam += parseFloat(u.harman) || 0;
         }
       });
 
-      const paketlenenToplam = bidonToplam + hassasToplam;
-      const isEmrineAyrilanPaket = hedefKg > 0 ? Math.min(paketlenenToplam, hedefKg) : paketlenenToplam;
-      const fazlaStokMiktari = hedefKg > 0 ? Math.max(0, paketlenenToplam - hedefKg) : 0;
-      const uretilenToplam = kabaToplam > 0 ? kabaToplam : (inceToplam > 0 ? inceToplam : paketlenenToplam);
+      // KULLANICI KURALI:
+      // 2.8 mm için: Kaba çekme -> üretim kısmını, Bidon sarma -> paketleme kısmını ilerletir.
+      // 1.6 ve 2.4 mm için: Kaba %50 + İnce %50 -> üretim kısmını, Bidon veya Makara (Hassas) -> paketleme kısmını ilerletir.
+      let uretimKg = 0;
+      let paketlemeKg = 0;
+      let uretimMetrikKisa = '';
+      let paketlemeMetrikKisa = '';
+
+      if (isInceTel) {
+        // İnce tel (1.6mm & 2.4mm)
+        uretimKg = (kabaToplam * 0.5) + (inceToplam * 0.5);
+        uretimMetrikKisa = `Kaba (%50): ${kabaToplam} kg + İnce (%50): ${inceToplam} kg`;
+        paketlemeKg = bidonToplam + hassasToplam;
+        paketlemeMetrikKisa = `Bidon: ${bidonToplam} kg + Makara: ${hassasToplam} kg`;
+      } else {
+        // Kalın tel (2.8mm ve üzeri)
+        uretimKg = kabaToplam;
+        uretimMetrikKisa = `Kaba: ${kabaToplam} kg`;
+        paketlemeKg = bidonToplam + (hassasToplam > 0 ? hassasToplam : 0);
+        paketlemeMetrikKisa = `Bidon: ${bidonToplam} kg${hassasToplam > 0 ? ` + Makara: ${hassasToplam} kg` : ''}`;
+      }
+
+      const uretimYuzde = hedefKg > 0 ? Math.min(100, Math.round((uretimKg / hedefKg) * 100)) : 0;
+      const paketYuzde = hedefKg > 0 ? Math.min(100, Math.round((paketlemeKg / hedefKg) * 100)) : 0;
+
+      const paketlenenToplam = paketlemeKg;
+      const isEmrineAyrilanPaket = hedefKg > 0 ? Math.min(paketlemeKg, hedefKg) : paketlemeKg;
+      const fazlaStokMiktari = hedefKg > 0 ? Math.max(0, paketlemeKg - hedefKg) : 0;
+      const uretilenToplam = uretimKg;
 
       return {
         kabaToplam,
@@ -10699,16 +10887,25 @@
         fazlaStokMiktari,
         bagimsizUretimToplam,
         uretilenToplam,
+        uretimKg,
+        paketlemeKg,
+        uretimYuzde,
+        paketYuzde,
+        uretimMetrikKisa,
+        paketlemeMetrikKisa,
+        isInceTel,
         kayitSayisi
       };
     }
 
     function utIsEmriSeciciDoldur() {
       const sel = document.getElementById('utIsEmriSecici');
-      if (!sel) return;
+      const asamaList = ['kaba', 'ince', 'bidon', 'hassas', 'harman'];
+      const asamaSels = asamaList.map(as => document.getElementById('utIsEmri_' + as)).filter(Boolean);
 
-      const seciliDeger = sel.value;
-      let html = `<option value="">⚙️ Serbest / Standart Stok Üretimi (İş Emrinden Bağımsız)</option>`;
+      const seciliDeger = sel ? sel.value : '';
+      let masterHtml = `<option value="">⚙️ Serbest / Standart Stok Üretimi (Tüm Prosesler İçin)</option>`;
+      let asamaBaseHtml = `<option value="">⚙️ Serbest Üretim (Stok)</option>`;
 
       const emirler = (DB.isEmirleri || []).filter(i => i && i.durum !== 'İptal');
       const devamEdenler = emirler.filter(i => i.durum !== 'Tamamlandı');
@@ -10717,8 +10914,9 @@
       devamEdenler.sort((a, b) => (b.id || 0) - (a.id || 0));
       tamamlananlar.sort((a, b) => (b.id || 0) - (a.id || 0));
 
+      let optGroupsHtml = '';
       if (devamEdenler.length > 0) {
-        html += `<optgroup label="⏳ Devam Eden & Planlanan İş Emirleri (${devamEdenler.length})">`;
+        optGroupsHtml += `<optgroup label="⏳ Devam Eden & Planlanan İş Emirleri (${devamEdenler.length})">`;
         devamEdenler.forEach(i => {
           const urun = (DB.urunler || []).find(u => u.id == i.urunId);
           const safAd = i.safUrunAdi || (urun ? (urun.ad || urun.kod) : (i.urunAdi || '').split(' - ')[0] || 'Ürün');
@@ -10730,13 +10928,13 @@
           const musteriStr = i.musteri ? ` · ${i.musteri}` : '';
           const fazlaText = ozet.fazlaStokMiktari > 0 ? ` +${ozet.fazlaStokMiktari} kg Stok` : '';
 
-          html += `<option value="${i.id}">${durumIcon} ${i.no || 'İE'} | ${urunAd}${musteriStr} (İş Emri: ${ozet.isEmrineAyrilanPaket} / ${hedef} kg${fazlaText})</option>`;
+          optGroupsHtml += `<option value="${i.id}">${durumIcon} ${i.no || 'İE'} | ${urunAd}${musteriStr} (Üretim: ${ozet.uretimKg.toFixed(0)} / Paket: ${ozet.paketlemeKg.toFixed(0)} / ${hedef} kg${fazlaText})</option>`;
         });
-        html += `</optgroup>`;
+        optGroupsHtml += `</optgroup>`;
       }
 
       if (tamamlananlar.length > 0) {
-        html += `<optgroup label="✅ Tamamlanan İş Emirleri (${tamamlananlar.length})">`;
+        optGroupsHtml += `<optgroup label="✅ Tamamlanan İş Emirleri (${tamamlananlar.length})">`;
         tamamlananlar.forEach(i => {
           const urun = (DB.urunler || []).find(u => u.id == i.urunId);
           const safAd = i.safUrunAdi || (urun ? (urun.ad || urun.kod) : (i.urunAdi || '').split(' - ')[0] || 'Ürün');
@@ -10747,79 +10945,31 @@
           const musteriStr = i.musteri ? ` · ${i.musteri}` : '';
           const fazlaText = ozet.fazlaStokMiktari > 0 ? ` +${ozet.fazlaStokMiktari} kg Stok` : '';
 
-          html += `<option value="${i.id}">✅ ${i.no || 'İE'} | ${urunAd}${musteriStr} (İş Emri: ${ozet.isEmrineAyrilanPaket} / ${hedef} kg${fazlaText})</option>`;
+          optGroupsHtml += `<option value="${i.id}">✅ ${i.no || 'İE'} | ${urunAd}${musteriStr} (${ozet.isEmrineAyrilanPaket} / ${hedef} kg${fazlaText})</option>`;
         });
-        html += `</optgroup>`;
+        optGroupsHtml += `</optgroup>`;
       }
 
-      sel.innerHTML = html;
-      if (seciliDeger) sel.value = seciliDeger;
-    }
-
-    function utIsEmriSecildi(val) {
-      const kart = document.getElementById('utIsEmriBilgiKarti');
-      if (!val) {
-        if (kart) kart.style.display = 'none';
-        return;
+      if (sel) {
+        sel.innerHTML = masterHtml + optGroupsHtml;
+        if (seciliDeger) sel.value = seciliDeger;
       }
 
-      const ie = (DB.isEmirleri || []).find(x => x.id == val);
-      if (!ie) {
-        if (kart) kart.style.display = 'none';
-        return;
-      }
-
-      const urun = (DB.urunler || []).find(u => u.id == ie.urunId);
-      const safAd = temizSafUrunAdi(urun ? (urun.ad || urun.kod) : (ie.safUrunAdi || ie.urunAdi || 'Ürün'));
-      const capGosterim = (ie.cap || (urun ? urun.cap : '')).trim();
-      const urunAd = capGosterim && capGosterim !== '-' ? `${safAd} - ${capGosterim}` : safAd;
-      const hedef = parseFloat(ie.hedef) || 0;
-      const ozet = getIsEmriUretimOzet(ie.id);
-      const yuzde = hedef > 0 ? Math.min(100, Math.round((ozet.isEmrineAyrilanPaket / hedef) * 100)) : 0;
-
-      if (kart) {
-        kart.style.display = 'block';
-        document.getElementById('utIeNoGoster').innerText = ie.no || 'İE';
-        document.getElementById('utIeUrunGoster').innerText = `${safAd} ${capGosterim ? `(${capGosterim})` : ''}`;
-        document.getElementById('utIeTurGoster').innerText = (ie.tur && ie.tur.includes('APM')) ? '🏭 Dahili APM' : `🛒 ${ie.musteri || 'Müşteri'}`;
-        document.getElementById('utIeHedefKg').innerText = `${hedef.toLocaleString('tr-TR')} kg`;
-        document.getElementById('utIeKabaUretilen').innerText = `${ozet.kabaToplam.toLocaleString('tr-TR')} kg`;
-        document.getElementById('utIePaketlenen').innerText = `${ozet.isEmrineAyrilanPaket.toLocaleString('tr-TR')} kg`;
-
-        const fazlaGrupEl = document.getElementById('utIeFazlaStokGrup');
-        const fazlaKgEl = document.getElementById('utIeFazlaStok');
-        if (fazlaGrupEl && fazlaKgEl) {
-          if (ozet.fazlaStokMiktari > 0) {
-            fazlaGrupEl.style.display = 'inline';
-            fazlaKgEl.innerText = `+${ozet.fazlaStokMiktari.toLocaleString('tr-TR')} kg`;
-          } else {
-            fazlaGrupEl.style.display = 'none';
-          }
+      // Her aşamanın kendi dropdown'unu doldur
+      asamaList.forEach(as => {
+        const asSel = document.getElementById('utIsEmri_' + as);
+        if (asSel) {
+          const curVal = asSel.value;
+          asSel.innerHTML = asamaBaseHtml + optGroupsHtml;
+          if (curVal) asSel.value = curVal;
         }
-
-        document.getElementById('utIePaketYuzde').innerText = ozet.fazlaStokMiktari > 0 ? `✅ %100 (+${ozet.fazlaStokMiktari} kg Stok)` : `%${yuzde} Tamamlandı`;
-
-        const pb = document.getElementById('utIeProgressBar');
-        if (pb) {
-          pb.style.width = `${yuzde}%`;
-          if (yuzde >= 100) pb.className = 'bg-emerald-500 h-2 rounded-full transition-all duration-500';
-          else pb.className = 'bg-gradient-to-r from-blue-600 to-indigo-500 h-2 rounded-full transition-all duration-500';
-        }
-      }
-
-      // Otomatik olarak formdaki ilk boş satırlara bu saf ürünü yerleştir
-      if (safAd) {
-        const asamaList = ['kaba', 'ince', 'bidon', 'hassas', 'harman'];
-        asamaList.forEach(asama => {
-          if (utDraftKalemler[asama] && utDraftKalemler[asama].length > 0) {
-            if (!utDraftKalemler[asama][0].urun) {
-              utDraftKalemler[asama][0].urun = safAd;
-            }
-          }
-        });
+      });
+      if (typeof utTumKalemleriRender === 'function') {
         utTumKalemleriRender();
       }
     }
+
+    
 
     function uretimOzetGuncelle() {
       const tAylik = document.getElementById('utOzetAylik'), tTum = document.getElementById('utOzetTum'); if (!tAylik || !tTum) return;
@@ -11066,6 +11216,7 @@
 
       for (const asama of asamaList) {
         const kalemler = utDraftKalemler[asama] || [];
+
         for (const k of kalemler) {
           const miktar = parseFloat(k.miktar) || 0;
           const urun = (k.urun || '').trim();
@@ -11076,13 +11227,18 @@
           }
 
           if (miktar > 0 && urun) {
+            const itemIsEmri = k.isEmriId ? (DB.isEmirleri || []).find(x => x.id == k.isEmriId) : null;
+
             validItems.push({
               asama: asama,
               urun: urun,
-              miktar: miktar
+              miktar: miktar,
+              isEmriId: itemIsEmri ? itemIsEmri.id : null,
+              isEmriNo: itemIsEmri ? itemIsEmri.no : null,
+              isEmriMusteri: itemIsEmri ? (itemIsEmri.musteri || '') : null
             });
             asamaTotals[asama] += miktar;
-            asamaUrunTexts[asama].push(`${urun}: ${miktar} kg`);
+            asamaUrunTexts[asama].push(`${urun}: ${miktar} kg${itemIsEmri ? ' (' + itemIsEmri.no + ')' : ' (Serbest)'}`);
           }
         }
       }
@@ -11095,22 +11251,32 @@
       DB.uretimTakip = DB.uretimTakip || [];
       DB.ktmHareketler = DB.ktmHareketler || [];
 
-      const isEmriSeciciEl = document.getElementById('utIsEmriSecici');
-      const seciliIsEmriId = isEmriSeciciEl ? isEmriSeciciEl.value : '';
-      let bagliIsEmri = null;
-      if (seciliIsEmriId) {
-        bagliIsEmri = (DB.isEmirleri || []).find(x => x.id == seciliIsEmriId);
+      const bagliIsEmriIds = [...new Set(validItems.map(it => it.isEmriId).filter(Boolean))];
+      let primaryIsEmri = null;
+      let isEmriNoSummary = null;
+      let isEmriMusteriSummary = null;
+
+      if (bagliIsEmriIds.length === 1) {
+        primaryIsEmri = (DB.isEmirleri || []).find(x => x.id == bagliIsEmriIds[0]);
+        isEmriNoSummary = primaryIsEmri ? primaryIsEmri.no : null;
+        isEmriMusteriSummary = primaryIsEmri ? primaryIsEmri.musteri : null;
+      } else if (bagliIsEmriIds.length > 1) {
+        const noList = bagliIsEmriIds.map(id => {
+          const ie = (DB.isEmirleri || []).find(x => x.id == id);
+          return ie ? ie.no : id;
+        });
+        isEmriNoSummary = noList.join(', ');
       }
 
       const yeniUretimId = Date.now();
 
-      // Ana kaydı oluştur (Hem yeni çoklu `items` array'ini hem de iş emri bağını doldur)
+      // Ana kaydı oluştur (Her bir kalemin bağımsız isEmriId bilgisi items array'inde yer alır)
       const yeniKayit = {
         id: yeniUretimId,
         tarih: tarih,
-        isEmriId: bagliIsEmri ? bagliIsEmri.id : null,
-        isEmriNo: bagliIsEmri ? bagliIsEmri.no : null,
-        isEmriMusteri: bagliIsEmri ? (bagliIsEmri.musteri || '') : null,
+        isEmriId: primaryIsEmri ? primaryIsEmri.id : (bagliIsEmriIds.length > 0 ? bagliIsEmriIds[0] : null),
+        isEmriNo: isEmriNoSummary,
+        isEmriMusteri: isEmriMusteriSummary,
         aciklama: aciklama,
         s25: s25,
         s40: s40,
@@ -11141,23 +11307,26 @@
         }
       });
 
-      // Bağlı iş emrinin durumunu ve ilerlemesini güncelle (Emir hedefi kadarını o işe, fazlasını stoğa aktar)
-      if (bagliIsEmri) {
-        const hedefKg = parseFloat(bagliIsEmri.hedef) || 0;
-        const ieOzet = getIsEmriUretimOzet(bagliIsEmri.id);
+      // Etkilenen tüm iş emirlerinin durum ve ilerlemelerini güncelle
+      const etkilenenIeIdler = [...new Set(validItems.map(it => it.isEmriId).filter(Boolean))];
+      if (bagliIsEmri && !etkilenenIeIdler.includes(bagliIsEmri.id)) etkilenenIeIdler.push(bagliIsEmri.id);
 
-        if (hedefKg > 0 && ieOzet.paketlenenToplam >= hedefKg) {
-          bagliIsEmri.durum = 'Tamamlandı';
-          if (!bagliIsEmri.tamamlanmaTarihi) bagliIsEmri.tamamlanmaTarihi = tarih || new Date().toISOString().slice(0, 10);
-          mesajOzeti.push(`🎯 İş Emri (${bagliIsEmri.no}): ${hedefKg} kg hedefi başarıyla tamamlandı!`);
-          if (ieOzet.fazlaStokMiktari > 0) {
-            mesajOzeti.push(`⭐ Hedef fazlası üretilen ${ieOzet.fazlaStokMiktari.toFixed(1)} kg ürün otomatik olarak SERBEST MAMÜL STOĞUNA ayrıldı.`);
+      etkilenenIeIdler.forEach(ieId => {
+        const ieObj = (DB.isEmirleri || []).find(x => x.id == ieId);
+        if (ieObj) {
+          const hedefKg = parseFloat(ieObj.hedef) || 0;
+          const ieOzet = getIsEmriUretimOzet(ieObj.id);
+
+          if (hedefKg > 0 && ieOzet.paketlenenToplam >= hedefKg) {
+            ieObj.durum = 'Tamamlandı';
+            if (!ieObj.tamamlanmaTarihi) ieObj.tamamlanmaTarihi = tarih || new Date().toISOString().slice(0, 10);
+            mesajOzeti.push(`🎯 İş Emri (${ieObj.no}): ${hedefKg} kg hedefi tamamlandı!`);
+          } else {
+            ieObj.durum = 'Üretimde';
+            mesajOzeti.push(`⚙️ İş Emri (${ieObj.no}) İlerlemesi: Üretim ${ieOzet.uretimKg.toFixed(0)} kg (% ${ieOzet.uretimYuzde}) | Paketleme ${ieOzet.paketlemeKg.toFixed(0)} / ${hedefKg} kg (% ${ieOzet.paketYuzde})`);
           }
-        } else {
-          bagliIsEmri.durum = 'Üretimde';
-          mesajOzeti.push(`⚙️ İş Emri (${bagliIsEmri.no}) İlerlemesi: ${ieOzet.isEmrineAyrilanPaket} / ${hedefKg} kg`);
         }
-      }
+      });
 
       // Otomatik KTM Stoklarına Alma (Her bir Bidon ve Hassas kalemi için stok ve hareket işlenir)
       let ktmStokBilgisi = [];
@@ -11174,14 +11343,9 @@
           if (ktmU) {
             ktmU.stok = (parseFloat(ktmU.stok) || 0) + item.miktar;
 
-            const isMatching = bagliIsEmri ? isItemMatchingIsEmri(item.urun, bagliIsEmri) : false;
-            let projeEtiketi = 'Serbest Üretim';
-            let aciklamaEtiketi = `Üretim Girişi: ${item.urun} (${item.asama.toUpperCase()}) - ${item.miktar} kg (Serbest Stok)`;
-
-            if (bagliIsEmri && isMatching) {
-              projeEtiketi = bagliIsEmri.no;
-              aciklamaEtiketi = `İş Emri Üretimi (${bagliIsEmri.no}): ${item.urun} - ${item.miktar} kg`;
-            }
+            const itemIe = item.isEmriId ? (DB.isEmirleri || []).find(x => x.id == item.isEmriId) : bagliIsEmri;
+            let projeEtiketi = itemIe ? itemIe.no : 'Serbest Üretim';
+            let aciklamaEtiketi = itemIe ? `İş Emri Üretimi (${itemIe.no}): ${item.urun} - ${item.miktar} kg` : `Üretim Girişi: ${item.urun} (${item.asama.toUpperCase()}) - ${item.miktar} kg (Serbest Stok)`;
 
             DB.ktmHareketler.push({
               id: Date.now() + Math.random(),
@@ -11385,7 +11549,7 @@
         }
       });
 
-      // Hücre formatlayıcı: Çoklu kalemleri alt alta göster
+      // Hücre formatlayıcı: Çoklu kalemleri alt alta göster (Aynı gün üretilen farklı ürünleri her zaman ayrı ayrı listeler)
       const formatCell = (u, asamaKey, totalVal, textVal) => {
         if (Array.isArray(u.items) && u.items.length > 0) {
           let matched = u.items.filter(it => it.asama === asamaKey && it.miktar > 0);
@@ -11397,20 +11561,47 @@
           }
           if (matched.length === 0) return '-';
           return matched.map(it => {
+            // Defensive: Eğer it.urun içerisinde '|' birleşik kalmışsa alt parçalara ayırarak her ürünü kendi satırında göster
+            if (it.urun && String(it.urun).includes('|')) {
+              const subParts = String(it.urun).split('|').map(p => p.trim()).filter(Boolean);
+              return subParts.map(sp => {
+                const matchSub = sp.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+                const uSubName = matchSub ? (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(matchSub[1]) : matchSub[1].trim()) : sp;
+                const subAmt = matchSub && matchSub[2] ? parseFloat(matchSub[2].replace(',', '.')) : null;
+                return `
+                <div class="mb-1.5 last:mb-0">
+                  <span class="text-slate-600 font-semibold text-[11px] block leading-tight" title="${sp}">${uSubName}</span>
+                  ${subAmt !== null ? `<b class="text-slate-800 font-bold">${subAmt} <span class="text-[10px] font-normal text-slate-400">kg</span></b>` : `<b class="text-slate-800 font-bold">${it.miktar} <span class="text-[10px] font-normal text-slate-400">kg</span></b>`}
+                </div>`;
+              }).join('');
+            }
             const gosterimAdi = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun) : it.urun;
             return `
-            <div class="mb-1 last:mb-0">
-              <span class="text-slate-500 font-medium text-[11px] block leading-tight" title="${it.urun || ''}">${gosterimAdi}</span>
+            <div class="mb-1.5 last:mb-0">
+              <span class="text-slate-600 font-semibold text-[11px] block leading-tight" title="${it.urun || ''}">${gosterimAdi}</span>
               <b class="text-slate-800 font-bold">${it.miktar} <span class="text-[10px] font-normal text-slate-400">kg</span></b>
             </div>
           `;
           }).join('');
         } else {
-          // Eski tekli kayıtlar
+          // Eski tekli kayıtlar veya bileşik metin formatı
           const val = parseFloat(totalVal) || 0;
           if (val <= 0) return '-';
+          if (textVal && String(textVal).includes('|')) {
+            const parts = String(textVal).split('|').map(p => p.trim()).filter(Boolean);
+            return parts.map(p => {
+              const match = p.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+              const uName = match ? (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(match[1]) : match[1].trim()) : p;
+              const pAmt = match && match[2] ? parseFloat(match[2].replace(',', '.')) : null;
+              return `
+              <div class="mb-1.5 last:mb-0">
+                <span class="text-slate-600 font-semibold text-[11px] block leading-tight" title="${p}">${uName}</span>
+                ${pAmt !== null ? `<b class="text-slate-800 font-bold">${pAmt} <span class="text-[10px] font-normal text-slate-400">kg</span></b>` : (parts.length === 1 ? `<b class="text-slate-800 font-bold">${val} <span class="text-[10px] font-normal text-slate-400">kg</span></b>` : '')}
+              </div>`;
+            }).join('');
+          }
           const gosterimAdi = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(textVal) : textVal;
-          return `<span class="text-slate-500 font-medium text-[11px] block leading-tight" title="${textVal || ''}">${gosterimAdi || ''}</span><b class="text-slate-800 font-bold">${val} <span class="text-[10px] font-normal text-slate-400">kg</span></b>`;
+          return `<span class="text-slate-600 font-semibold text-[11px] block leading-tight" title="${textVal || ''}">${gosterimAdi || ''}</span><b class="text-slate-800 font-bold">${val} <span class="text-[10px] font-normal text-slate-400">kg</span></b>`;
         }
       };
 
@@ -11503,6 +11694,138 @@
       }
     }
 
+    // =========================================================================
+    // ÇOKLU KALEM ÜRETİM DÜZENLEME STATE & MOTORU
+    // =========================================================================
+    let utEdDraftKalemler = {
+      kaba: [],
+      ince: [],
+      bidon: [],
+      hassas: [],
+      harman: []
+    };
+
+    function utEdKalemEkle(asama, initUrun = '', initMiktar = 0) {
+      if (!utEdDraftKalemler[asama]) utEdDraftKalemler[asama] = [];
+      utEdDraftKalemler[asama].push({
+        id: Date.now() + Math.floor(Math.random() * 10000),
+        urun: initUrun || '',
+        miktar: parseFloat(initMiktar) || 0
+      });
+      utEdKalemleriRender(asama);
+    }
+
+    function utEdKalemSil(asama, id) {
+      if (!utEdDraftKalemler[asama]) return;
+      utEdDraftKalemler[asama] = utEdDraftKalemler[asama].filter(k => k.id != id);
+      utEdKalemleriRender(asama);
+    }
+
+    function utEdKalemMiktarDegisti(asama, id, val) {
+      if (!utEdDraftKalemler[asama]) return;
+      const k = utEdDraftKalemler[asama].find(x => x.id == id);
+      if (k) k.miktar = parseFloat(val) || 0;
+    }
+
+    function utEdKalemUrunYazildi(asama, id, val) {
+      if (!utEdDraftKalemler[asama]) return;
+      const k = utEdDraftKalemler[asama].find(x => x.id == id);
+      if (k) k.urun = (val || '').trim();
+    }
+
+    function utEdKalemDropdownSec(asama, id, val) {
+      const inputId = `utEdUrunInput_${asama}_${id}`;
+      const inputEl = document.getElementById(inputId);
+      if (inputEl) inputEl.value = val;
+      utEdKalemUrunYazildi(asama, id, val);
+      closeDropdown(inputId);
+    }
+
+    function utEdKalemleriRender(asama) {
+      const container = document.getElementById('utEdContainer_' + asama);
+      if (!container) return;
+
+      const items = utEdDraftKalemler[asama] || [];
+      const urunler = DB.urunler || [];
+
+      if (items.length === 0) {
+        container.innerHTML = `<div class="text-[11px] text-slate-400 italic py-2 text-center bg-slate-50/60 rounded-lg border border-dashed border-slate-200">Bu aşamada kayıtlı ürün yok. Yukarıdaki '+ Kalem Ekle' butonuna basarak ürün ekleyebilirsiniz.</div>`;
+        return;
+      }
+
+      let html = '';
+      items.forEach((k, idx) => {
+        const inputId = `utEdUrunInput_${asama}_${k.id}`;
+
+        let dropdownItems = '';
+        urunler.forEach(u => {
+          const adGosterim = (u.ad || u.kod || '').trim();
+          const safAd = temizSafUrunAdi(adGosterim);
+          const kodGosterim = (u.kod || '').trim();
+          let capGosterim = (u.cap || '').trim();
+          if (!capGosterim || capGosterim === '-') {
+            const matchAd = (u.ad || '').match(/(?:Ø\s*|\bcap\s*|\bçap\s*)?([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+            if (matchAd) {
+              let val = matchAd[1].trim().replace(',', '.');
+              if (!val.toLowerCase().includes('mm')) val += ' mm';
+              capGosterim = 'Ø' + val;
+            } else if (u.strip) {
+              const matchStrip = u.strip.match(/(?:Ø\s*|\bcap\s*|\bçap\s*)([0-9]+[.,][0-9]+(?:\s*mm)?)/i);
+              if (matchStrip) {
+                let val = matchStrip[1].trim().replace(',', '.');
+                if (!val.toLowerCase().includes('mm')) val += ' mm';
+                capGosterim = 'Ø' + val;
+              }
+            }
+          }
+          const tamUrunAdi = safAd + (capGosterim && capGosterim !== '-' ? ` - ${capGosterim}` : '');
+
+          dropdownItems += `<div class="dropdown-item flex items-center justify-between py-1.5 px-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" data-ad="${safAd}" data-kod="${kodGosterim}" data-cap="${capGosterim}" onclick="utEdKalemDropdownSec('${asama}', ${k.id}, '${tamUrunAdi.replace(/'/g, "\\'")}')">
+            <div>
+              <span class="font-bold text-slate-800 text-xs block">${safAd}</span>
+              ${kodGosterim && kodGosterim !== safAd ? `<span class="text-[10px] text-slate-400 font-mono">Kod: ${kodGosterim}</span>` : ''}
+            </div>
+            ${capGosterim && capGosterim !== '-' ? `<span class="text-[11px] text-indigo-700 font-mono font-bold bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">${capGosterim}</span>` : ''}
+          </div>`;
+        });
+
+        html += `
+          <div class="flex items-center gap-2 bg-slate-50/80 p-1.5 rounded-lg border border-slate-200">
+            <span class="text-[11px] font-bold text-slate-400 w-4 text-center">${idx + 1}</span>
+            <div class="flex-1 relative">
+              <input type="text" id="${inputId}" value="${k.urun || ''}"
+                class="border border-slate-300 p-1.5 rounded-lg w-full text-xs font-semibold bg-white outline-none focus:ring-1 focus:ring-blue-400"
+                placeholder="Ürün Ara Veya Yaz..."
+                autocomplete="off"
+                onfocus="openDropdown('${inputId}')"
+                onkeyup="filterDropdown('${inputId}'); utEdKalemUrunYazildi('${asama}', ${k.id}, this.value)"
+                onblur="setTimeout(()=>closeDropdown('${inputId}'), 200)">
+              <div id="${inputId}-list" class="custom-dropdown-list">
+                ${dropdownItems}
+              </div>
+            </div>
+            <div class="w-32">
+              <input type="number" step="0.01" value="${k.miktar > 0 ? k.miktar : ''}" placeholder="0 kg"
+                oninput="utEdKalemMiktarDegisti('${asama}', ${k.id}, this.value)"
+                class="border border-slate-300 p-1.5 rounded-lg w-full text-xs font-bold text-slate-800 bg-white outline-none text-right">
+            </div>
+            <button type="button" onclick="utEdKalemSil('${asama}', ${k.id})" title="Bu kalemi kaldır"
+              class="text-rose-500 hover:text-white hover:bg-rose-500 bg-rose-50 p-1.5 rounded-lg text-xs font-bold transition-colors">
+              🗑️
+            </button>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function utEdTumKalemleriRender() {
+      ['kaba', 'ince', 'bidon', 'hassas', 'harman'].forEach(asama => {
+        utEdKalemleriRender(asama);
+      });
+    }
+
     function uretimDuzenleModalAc(id) {
       const u = (DB.uretimTakip || []).find(x => x.id == id);
       if (!u) return;
@@ -11511,16 +11834,64 @@
       document.getElementById('utEd_acik').value = u.aciklama || '';
       document.getElementById('utEd_s25').value = u.s25 || '';
       document.getElementById('utEd_s40').value = u.s40 || '';
-      document.getElementById('utEd_kaba').value = u.kaba || '';
-      document.getElementById('utEd_kabaUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.kabaUrun) : (u.kabaUrun || '');
-      document.getElementById('utEd_ince').value = u.ince || '';
-      document.getElementById('utEd_inceUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.inceUrun) : (u.inceUrun || '');
-      document.getElementById('utEd_bidon').value = u.bidon || '';
-      document.getElementById('utEd_bidonUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.bidonUrun) : (u.bidonUrun || '');
-      document.getElementById('utEd_hassas').value = u.hassas || '';
-      document.getElementById('utEd_hassasUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.hassasUrun) : (u.hassasUrun || '');
-      document.getElementById('utEd_harman').value = u.harman || '';
-      document.getElementById('utEd_harmanUrun').value = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(u.harmanUrun) : (u.harmanUrun || '');
+
+      utEdDraftKalemler = { kaba: [], ince: [], bidon: [], hassas: [], harman: [] };
+
+      const asamaList = ['kaba', 'ince', 'bidon', 'hassas', 'harman'];
+      asamaList.forEach(asama => {
+        // 1. Varsa u.items içerisindeki kalemleri yükle
+        if (Array.isArray(u.items) && u.items.length > 0) {
+          const matched = u.items.filter(it => it.asama === asama && it.miktar > 0);
+          matched.forEach(it => {
+            if (it.urun && String(it.urun).includes('|')) {
+              const parts = String(it.urun).split('|').map(p => p.trim()).filter(Boolean);
+              parts.forEach(p => {
+                const match = p.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+                const uName = match ? (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(match[1]) : match[1].trim()) : p;
+                const pAmt = match && match[2] ? parseFloat(match[2].replace(',', '.')) : null;
+                utEdDraftKalemler[asama].push({
+                  id: Date.now() + Math.random(),
+                  urun: uName,
+                  miktar: pAmt !== null ? pAmt : (parts.length === 1 ? it.miktar : 0)
+                });
+              });
+            } else {
+              utEdDraftKalemler[asama].push({
+                id: Date.now() + Math.random(),
+                urun: it.urun,
+                miktar: it.miktar
+              });
+            }
+          });
+        }
+
+        // 2. items dizisinde bu aşama için kalem yoksa ama ana kayıtta metin/miktar varsa
+        if (utEdDraftKalemler[asama].length === 0 && (parseFloat(u[asama]) > 0 || u[`${asama}Urun`])) {
+          const rawText = u[`${asama}Urun`] || '';
+          const rawMiktar = parseFloat(u[asama]) || 0;
+          if (rawText.includes('|')) {
+            const parts = rawText.split('|').map(p => p.trim()).filter(Boolean);
+            parts.forEach(p => {
+              const match = p.match(/^(.*?)(?::\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:kg)?)?$/i);
+              const uName = match ? (typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(match[1]) : match[1].trim()) : p;
+              const pAmt = match && match[2] ? parseFloat(match[2].replace(',', '.')) : null;
+              utEdDraftKalemler[asama].push({
+                id: Date.now() + Math.random(),
+                urun: uName,
+                miktar: pAmt !== null ? pAmt : 0
+              });
+            });
+          } else {
+            utEdDraftKalemler[asama].push({
+              id: Date.now() + Math.random(),
+              urun: typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(rawText) : rawText,
+              miktar: rawMiktar
+            });
+          }
+        }
+      });
+
+      utEdTumKalemleriRender();
       document.getElementById('utDuzenleModal').classList.add('active');
     }
 
@@ -11538,46 +11909,55 @@
       const yeniAcik = document.getElementById('utEd_acik').value;
       const yeniS25 = parseFloat(document.getElementById('utEd_s25').value) || 0;
       const yeniS40 = parseFloat(document.getElementById('utEd_s40').value) || 0;
-      const yeniKaba = parseFloat(document.getElementById('utEd_kaba').value) || 0;
-      const yeniKabaUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_kabaUrun').value) : document.getElementById('utEd_kabaUrun').value.trim();
-      const yeniInce = parseFloat(document.getElementById('utEd_ince').value) || 0;
-      const yeniInceUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_inceUrun').value) : document.getElementById('utEd_inceUrun').value.trim();
-      const yeniBidon = parseFloat(document.getElementById('utEd_bidon').value) || 0;
-      const yeniBidonUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_bidonUrun').value) : document.getElementById('utEd_bidonUrun').value.trim();
-      const yeniHassas = parseFloat(document.getElementById('utEd_hassas').value) || 0;
-      const yeniHassasUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_hassasUrun').value) : document.getElementById('utEd_hassasUrun').value.trim();
-      const yeniHarman = parseFloat(document.getElementById('utEd_harman').value) || 0;
-      const yeniHarmanUrun = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(document.getElementById('utEd_harmanUrun').value) : document.getElementById('utEd_harmanUrun').value.trim();
 
-      // Değerleri kayda ata
+      const asamaList = ['kaba', 'ince', 'bidon', 'hassas', 'harman'];
+      const validItems = [];
+      const asamaTotals = { kaba: 0, ince: 0, bidon: 0, hassas: 0, harman: 0 };
+      const asamaUrunTexts = { kaba: [], ince: [], bidon: [], hassas: [], harman: [] };
+
+      for (const asama of asamaList) {
+        const kalemler = utEdDraftKalemler[asama] || [];
+        for (const k of kalemler) {
+          const miktar = parseFloat(k.miktar) || 0;
+          const urun = (k.urun || '').trim();
+
+          if (miktar > 0 && !urun) {
+            alert(`HATA: ${asama.toUpperCase()} aşamasında ${miktar} kg miktar girdiniz fakat ürün seçmediniz!`);
+            return;
+          }
+
+          if (miktar > 0 && urun) {
+            validItems.push({
+              asama: asama,
+              urun: urun,
+              miktar: miktar
+            });
+            asamaTotals[asama] += miktar;
+            asamaUrunTexts[asama].push(`${urun}: ${miktar} kg`);
+          }
+        }
+      }
+
       u.tarih = yeniTarih;
       u.aciklama = yeniAcik;
       u.s25 = yeniS25;
       u.s40 = yeniS40;
-      u.kaba = yeniKaba;
-      u.kabaUrun = yeniKabaUrun;
-      u.ince = yeniInce;
-      u.inceUrun = yeniInceUrun;
-      u.bidon = yeniBidon;
-      u.bidonUrun = yeniBidonUrun;
-      u.hassas = yeniHassas;
-      u.hassasUrun = yeniHassasUrun;
-      u.harman = yeniHarman;
-      u.harmanUrun = yeniHarmanUrun;
-
-      // items dizisini de güncelle
-      u.items = [
-        ...(yeniKaba > 0 && yeniKabaUrun ? [{ asama: 'kaba', urun: yeniKabaUrun, miktar: yeniKaba }] : []),
-        ...(yeniInce > 0 && yeniInceUrun ? [{ asama: 'ince', urun: yeniInceUrun, miktar: yeniInce }] : []),
-        ...(yeniBidon > 0 && yeniBidonUrun ? [{ asama: 'bidon', urun: yeniBidonUrun, miktar: yeniBidon }] : []),
-        ...(yeniHassas > 0 && yeniHassasUrun ? [{ asama: 'hassas', urun: yeniHassasUrun, miktar: yeniHassas }] : []),
-        ...(yeniHarman > 0 && yeniHarmanUrun ? [{ asama: 'harman', urun: yeniHarmanUrun, miktar: yeniHarman }] : [])
-      ];
+      u.kaba = asamaTotals.kaba;
+      u.kabaUrun = asamaUrunTexts.kaba.join(' | ');
+      u.ince = asamaTotals.ince;
+      u.inceUrun = asamaUrunTexts.ince.join(' | ');
+      u.bidon = asamaTotals.bidon;
+      u.bidonUrun = asamaUrunTexts.bidon.join(' | ');
+      u.hassas = asamaTotals.hassas;
+      u.hassasUrun = asamaUrunTexts.hassas.join(' | ');
+      u.harman = asamaTotals.harman;
+      u.harmanUrun = asamaUrunTexts.harman.join(' | ');
+      u.items = validItems;
 
       saveDB();
       renderAll();
       closeModal('utDuzenleModal');
-      showToast('Üretim kaydı güncellendi.', 'success');
+      showToast('Üretim kaydı başarıyla güncellendi.', 'success');
     }
 
     function uretimSil(id) {
@@ -12715,17 +13095,32 @@
         </td>
         <td class="py-3 font-black text-slate-700">${hedefKg} <span class="text-xs font-normal">kg</span></td>
         <td class="py-3">
-          <div class="w-36">
-            <div class="flex justify-between items-center text-[10px] font-bold mb-1">
-              <span class="text-emerald-700">Paket: ${ozet.isEmrineAyrilanPaket} kg</span>
-              <span class="text-slate-500">${ozet.fazlaStokMiktari > 0 ? '%100' : `%${yuzde}`}</span>
+          <div class="w-48 space-y-1.5">
+            <!-- Üretim İlerlemesi (2.8: Kaba | 1.6 & 2.4: Kaba %50 + İnce %50) -->
+            <div class="bg-blue-50/70 p-1.5 rounded-lg border border-blue-200/80 shadow-xs">
+              <div class="flex justify-between items-center text-[10px] font-bold">
+                <span class="text-blue-900 flex items-center gap-1"><span>⚙️</span> Üretim: ${ozet.uretimKg.toFixed(0)} kg</span>
+                <span class="text-blue-700 font-black">%${ozet.uretimYuzde}</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden my-0.5">
+                <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-500" style="width:${ozet.uretimYuzde}%"></div>
+              </div>
+              <div class="text-[9px] text-slate-500 truncate" title="${ozet.uretimMetrikKisa}">${ozet.uretimMetrikKisa}</div>
             </div>
-            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-              <div class="${yuzde >= 100 ? 'bg-emerald-500' : 'bg-blue-600'} h-1.5 rounded-full" style="width:${yuzde}%"></div>
-            </div>
-            <div class="flex justify-between text-[9px] text-slate-400 mt-0.5">
-              <span>Kaba: ${ozet.kabaToplam} kg</span>
-              ${ozet.fazlaStokMiktari > 0 ? `<span class="text-indigo-700 font-bold" title="Hedef fazlası üretilip serbest stoğa aktarılan miktar">+${ozet.fazlaStokMiktari} kg Stok</span>` : ''}
+
+            <!-- Paketleme İlerlemesi (2.8: Bidon | 1.6 & 2.4: Bidon + Makara) -->
+            <div class="bg-emerald-50/70 p-1.5 rounded-lg border border-emerald-200/80 shadow-xs">
+              <div class="flex justify-between items-center text-[10px] font-bold">
+                <span class="text-emerald-900 flex items-center gap-1"><span>📦</span> Paketleme: ${ozet.paketlemeKg.toFixed(0)} kg</span>
+                <span class="text-emerald-700 font-black">${ozet.fazlaStokMiktari > 0 ? '%100' : `%${ozet.paketYuzde}`}</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden my-0.5">
+                <div class="${ozet.paketYuzde >= 100 ? 'bg-emerald-500' : 'bg-emerald-600'} h-1.5 rounded-full transition-all duration-500" style="width:${ozet.paketYuzde}%"></div>
+              </div>
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span class="truncate" title="${ozet.paketlemeMetrikKisa}">${ozet.paketlemeMetrikKisa}</span>
+                ${ozet.fazlaStokMiktari > 0 ? `<span class="text-indigo-700 font-bold ml-1 whitespace-nowrap">+ ${ozet.fazlaStokMiktari}kg Stok</span>` : ''}
+              </div>
             </div>
           </div>
         </td>
@@ -16203,7 +16598,11 @@
         urunKod: sip.urunKod || '',
         urunAd: sip.urunAd || '',
         miktar: sip.miktar || sip.toplamMiktar || 0,
-        sevkEdilen: 0
+        sevkEdilen: 0,
+        lot1: '',
+        lot1Kg: '',
+        lot2: '',
+        lot2Kg: ''
       }];
 
       // Önceden bu sipariş için eklenmiş paketlerdeki dağıtılmış miktarları hesapla
@@ -16222,62 +16621,59 @@
         }
       });
 
-      let html = '';
-      if (kalemler.length === 1) {
-        // Tek kalem varsa
-        const k = kalemler[0];
-        const kalanSipKg = Math.max(0, (parseFloat(k.miktar) || 0) - (dagitilmisMiktarlar[0] || 0));
-        html = `
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200">
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="ktmPaketUrunChk_0" checked class="w-4 h-4 text-blue-600 rounded cursor-pointer" onchange="ktmPaketSeciliUrunleriHesapla()">
-              <label for="ktmPaketUrunChk_0" class="text-xs font-bold text-slate-800 cursor-pointer">
-                ${k.urunKod} - <span class="font-normal text-slate-600">${k.urunAd}</span>
-              </label>
-            </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <span class="text-[11px] text-slate-500 font-medium">Toplam Sipariş: <b>${k.miktar} kg</b> (Kalan: <b class="text-amber-700">${kalanSipKg.toFixed(1)} kg</b>)</span>
-              <div class="flex items-center gap-1">
-                <input type="number" step="0.1" id="ktmPaketUrunKg_0" value="${kalanSipKg > 0 ? kalanSipKg : k.miktar}" 
-                  class="border border-slate-300 p-1 rounded-lg text-xs font-bold text-emerald-800 bg-white w-24 text-right"
-                  placeholder="Kg" oninput="ktmPaketSeciliUrunleriHesapla()">
-                <span class="text-xs font-bold text-slate-500">kg</span>
-              </div>
-            </div>
-          </div>
-        `;
-      } else {
-        // Çoklu kalem varsa
-        html = `<div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">`;
-        kalemler.forEach((k, idx) => {
-          const kalanSipKg = Math.max(0, (parseFloat(k.miktar) || 0) - (dagitilmisMiktarlar[idx] || 0));
-          const checked = kalanSipKg > 0 ? 'checked' : '';
-          const defaultKg = kalanSipKg > 0 ? kalanSipKg : '';
+      let html = '<div class="space-y-3">';
+      kalemler.forEach((k, idx) => {
+        const kalanSipKg = Math.max(0, (parseFloat(k.miktar) || 0) - (dagitilmisMiktarlar[idx] || 0));
+        const checked = (kalemler.length === 1 || kalanSipKg > 0) ? 'checked' : '';
+        const defaultKg = kalanSipKg > 0 ? kalanSipKg : (kalemler.length === 1 ? k.miktar : '');
+        const defLot1 = k.lot1 || '';
+        const defLot1Kg = k.lot1Kg || '';
+        const defLot2 = k.lot2 || '';
+        const defLot2Kg = k.lot2Kg || '';
 
-          html += `
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 bg-slate-50 hover:bg-blue-50/40 rounded-lg border border-slate-200 transition-colors">
+        html += `
+          <div class="p-3 bg-slate-50 hover:bg-indigo-50/20 rounded-xl border border-slate-200 transition-colors">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
               <div class="flex items-center gap-2 flex-1">
                 <input type="checkbox" id="ktmPaketUrunChk_${idx}" ${checked} class="w-4 h-4 text-blue-600 rounded cursor-pointer" onchange="ktmPaketSeciliUrunleriHesapla()">
                 <label for="ktmPaketUrunChk_${idx}" class="text-xs font-bold text-slate-800 cursor-pointer">
-                  <span class="font-mono text-blue-700">${k.urunKod}</span> - <span class="font-normal text-slate-600">${k.urunAd}</span>
+                  <span class="font-mono text-blue-700 font-black">${k.urunKod}</span> - <span class="font-normal text-slate-600">${k.urunAd}</span>
                 </label>
               </div>
               <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                 <div class="text-[11px] text-slate-500 whitespace-nowrap">
-                  Sip: <b>${k.miktar} kg</b> | <span class="${kalanSipKg > 0 ? 'text-amber-700 font-bold' : 'text-emerald-700 font-bold'}">Paletsiz: ${kalanSipKg.toFixed(1)} kg</span>
+                  Sipariş: <b>${k.miktar} kg</b> | <span class="${kalanSipKg > 0 ? 'text-amber-700 font-bold' : 'text-emerald-700 font-bold'}">Kalan Paletsiz: ${kalanSipKg.toFixed(1)} kg</span>
                 </div>
                 <div class="flex items-center gap-1">
                   <input type="number" step="0.1" id="ktmPaketUrunKg_${idx}" value="${defaultKg}" 
-                    class="border border-slate-300 p-1 rounded-lg text-xs font-bold text-emerald-800 bg-white w-20 text-right outline-none focus:border-blue-500"
+                    class="border border-slate-300 p-1.5 rounded-lg text-xs font-black text-emerald-800 bg-white w-24 text-right outline-none focus:ring-2 focus:ring-blue-300"
                     placeholder="0" oninput="ktmPaketSeciliUrunleriHesapla()">
                   <span class="text-xs font-bold text-slate-500">kg</span>
                 </div>
               </div>
             </div>
-          `;
-        });
-        html += `</div>`;
-      }
+
+            <!-- ÇOKLU LOT GİRİŞİ ALANI (AYNI ÜRÜN İÇİN 2 FARKLI LOT DESTEĞİ) -->
+            <div class="pt-2 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white/70 p-2 rounded-lg text-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] font-bold text-indigo-700 whitespace-nowrap flex items-center gap-0.5"><span>🏷️</span> Lot 1:</span>
+                <input type="text" id="ktmPaketUrunLot1_${idx}" value="${defLot1}" placeholder="1. Lot No (Örn: L260901)"
+                  class="border border-indigo-200 p-1 rounded-md text-xs font-mono w-full bg-white font-bold text-slate-800 focus:border-indigo-500">
+                <input type="number" step="0.1" id="ktmPaketUrunLot1Kg_${idx}" value="${defLot1Kg}" placeholder="Kg (ops)"
+                  class="border border-indigo-200 p-1 rounded-md text-xs font-bold w-20 text-right bg-white text-indigo-900" title="Lot 1 Kilogramı">
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] font-bold text-purple-700 whitespace-nowrap flex items-center gap-0.5"><span>🏷️</span> Lot 2:</span>
+                <input type="text" id="ktmPaketUrunLot2_${idx}" value="${defLot2}" placeholder="2. Lot No (Varsa 2. Lot)"
+                  class="border border-purple-200 p-1 rounded-md text-xs font-mono w-full bg-white font-bold text-slate-800 focus:border-purple-500">
+                <input type="number" step="0.1" id="ktmPaketUrunLot2Kg_${idx}" value="${defLot2Kg}" placeholder="Kg (ops)"
+                  class="border border-purple-200 p-1 rounded-md text-xs font-bold w-20 text-right bg-white text-purple-900" title="Lot 2 Kilogramı">
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
 
       alan.innerHTML = html;
       ktmPaketSeciliUrunleriHesapla();
@@ -16354,6 +16750,32 @@
       kalemler.forEach((k, idx) => {
         const chk = document.getElementById(`ktmPaketUrunChk_${idx}`);
         const kgInput = document.getElementById(`ktmPaketUrunKg_${idx}`);
+        const lot1Input = document.getElementById(`ktmPaketUrunLot1_${idx}`);
+        const lot1KgInput = document.getElementById(`ktmPaketUrunLot1Kg_${idx}`);
+        const lot2Input = document.getElementById(`ktmPaketUrunLot2_${idx}`);
+        const lot2KgInput = document.getElementById(`ktmPaketUrunLot2Kg_${idx}`);
+
+        const lot1 = lot1Input ? lot1Input.value.trim() : '';
+        const lot1Kg = lot1KgInput ? parseFloat(lot1KgInput.value) || '' : '';
+        const lot2 = lot2Input ? lot2Input.value.trim() : '';
+        const lot2Kg = lot2KgInput ? parseFloat(lot2KgInput.value) || '' : '';
+
+        let lotSummary = '';
+        if (lot1 && lot2) {
+          lotSummary = `Lot 1: ${lot1}${lot1Kg ? ` (${lot1Kg} kg)` : ''} | Lot 2: ${lot2}${lot2Kg ? ` (${lot2Kg} kg)` : ''}`;
+        } else if (lot1) {
+          lotSummary = `Lot: ${lot1}${lot1Kg ? ` (${lot1Kg} kg)` : ''}`;
+        } else if (lot2) {
+          lotSummary = `Lot: ${lot2}${lot2Kg ? ` (${lot2Kg} kg)` : ''}`;
+        }
+
+        // Kaleme de lot bilgilerini kaydet
+        k.lot1 = lot1;
+        k.lot1Kg = lot1Kg;
+        k.lot2 = lot2;
+        k.lot2Kg = lot2Kg;
+        k.lotText = lotSummary;
+
         if (chk && chk.checked && kgInput) {
           const kg = parseFloat(kgInput.value) || 0;
           if (kg > 0) {
@@ -16361,7 +16783,12 @@
               urunId: k.urunId,
               urunKod: k.urunKod,
               urunAd: k.urunAd,
-              miktar: kg
+              miktar: kg,
+              lot1: lot1,
+              lot1Kg: lot1Kg,
+              lot2: lot2,
+              lot2Kg: lot2Kg,
+              lotText: lotSummary
             });
             icerikNetToplam += kg;
           }
@@ -16449,7 +16876,7 @@
         // İçerik Özeti
         let icerikHtml = '-';
         if (Array.isArray(p.icerik) && p.icerik.length > 0) {
-          icerikHtml = p.icerik.map(it => `<div class="text-[11px]"><b class="text-blue-700">${it.urunKod}</b>: <span class="font-bold text-slate-700">${it.miktar} kg</span></div>`).join('');
+          icerikHtml = p.icerik.map(it => `<div class="text-[11px]"><b class="text-blue-700">${it.urunKod}</b>: <span class="font-bold text-slate-700">${it.miktar} kg</span>${it.lotText ? `<div class="text-[10px] text-indigo-700 font-mono font-bold mt-0.5">${it.lotText}</div>` : ''}</div>`).join('');
         }
 
         html += `<tr class="hover:bg-slate-50 border-b border-slate-100">
@@ -16481,6 +16908,39 @@
       }
     }
 
+    function ktmPaketlemeIptalEt(sipId) {
+      if (!sipId) sipId = currentPaketSipId || document.getElementById('ktmPaket_sipId')?.value;
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) return;
+
+      const sNo = sip.siparisNo || ('SIP-' + sip.id);
+      if (!confirm(`Sipariş No: "${sNo}" (${sip.musteri}) için oluşturulan tüm paketleme/palet kayıtlarını iptal etmek ve siparişi "Bekleyen Siparişler" sekmesine geri almak istediğinize emin misiniz?`)) {
+        return;
+      }
+
+      sip.paketler = [];
+      sip.hazirlandiTarihi = null;
+      if (Array.isArray(sip.kalemler)) {
+        sip.kalemler.forEach(k => { k.hazir = false; });
+      }
+
+      const toplamSipKg = (sip.kalemler || []).reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0);
+      const sevkEdilen = (sip.kalemler || []).reduce((acc, k) => acc + (parseFloat(k.sevkEdilen) || 0), 0) || (parseFloat(sip.sevkEdilenMiktar) || 0);
+      if (sevkEdilen > 0 && sevkEdilen < toplamSipKg) {
+        sip.durum = 'kismi_sevk';
+      } else if (sevkEdilen >= toplamSipKg && toplamSipKg > 0) {
+        sip.durum = 'sevk_edildi';
+      } else {
+        sip.durum = 'bekliyor';
+      }
+
+      ktmPaketDraftListe = [];
+      saveDB(true);
+      closeModal('ktmPaketlemeModal');
+      renderAll();
+      showToast(`"${sNo}" siparişinin paketlemesi iptal edildi ve "Bekleyen Siparişler" sekmesine alındı.`, 'info');
+    }
+
     function ktmPaketlemeKaydet(andOpenSevk = false) {
       const sipId = currentPaketSipId || document.getElementById('ktmPaket_sipId')?.value;
       const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
@@ -16489,36 +16949,22 @@
         return;
       }
 
-      // Kullanıcı "➕ Palet Ekle" butonuna basmadan doğrudan kaydetmişse formdaki veriyi palet yap
-      if (ktmPaketDraftListe.length === 0) {
-        paletEkleModalDraft(true);
-      }
+      // Eğer kullanıcı tüm paletleri silip kaydete basmışsa, otomatik paket ekleme yapma! İptal et.
+      if (!ktmPaketDraftListe || ktmPaketDraftListe.length === 0) {
+        sip.paketler = [];
+        sip.hazirlandiTarihi = null;
+        if (Array.isArray(sip.kalemler)) {
+          sip.kalemler.forEach(k => { k.hazir = false; });
+        }
+        const toplamSipKg = (sip.kalemler || []).reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0);
+        const sevkEdilen = (sip.kalemler || []).reduce((acc, k) => acc + (parseFloat(k.sevkEdilen) || 0), 0) || (parseFloat(sip.sevkEdilenMiktar) || 0);
+        sip.durum = (sevkEdilen > 0 && sevkEdilen < toplamSipKg) ? 'kismi_sevk' : (sevkEdilen >= toplamSipKg && toplamSipKg > 0 ? 'sevk_edildi' : 'bekliyor');
 
-      // Hala boşsa siparişin tamamını 1 standart palete ata
-      if (ktmPaketDraftListe.length === 0) {
-        const defKalemler = Array.isArray(sip.kalemler) && sip.kalemler.length > 0 ? sip.kalemler : [{
-          urunId: sip.urunId,
-          urunKod: sip.urunKod || '',
-          urunAd: sip.urunAd || '',
-          miktar: parseFloat(sip.toplamMiktar || sip.miktar) || 0
-        }];
-        const netTop = defKalemler.reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0);
-        ktmPaketDraftListe.push({
-          id: Date.now(),
-          paletTipi: 'Standart Palet (80x120)',
-          en: 80,
-          boy: 120,
-          yukseklik: 100,
-          adet: 1,
-          netAgirlik: netTop,
-          brutAgirlik: netTop + 25,
-          icerik: defKalemler.map(k => ({
-            urunId: k.urunId,
-            urunKod: k.urunKod,
-            urunAd: k.urunAd,
-            miktar: parseFloat(k.miktar) || 0
-          }))
-        });
+        saveDB(true);
+        renderAll();
+        closeModal('ktmPaketlemeModal');
+        showToast(`Paket listesi boş olduğu için sipariş (${sip.siparisNo || 'SIP-' + sip.id}) paketlemesi iptal edildi ve Bekleyenlere alındı.`, 'info');
+        return;
       }
 
       const hazirlandiTarihi = document.getElementById('ktmPaket_hazirlandiTarihi')?.value || new Date().toISOString().slice(0, 10);
@@ -16555,7 +17001,7 @@
       saveDB(true);
       renderAll();
       closeModal('ktmPaketlemeModal');
-      showToast(`Sipariş (${sip.siparisNo || 'SIP-' + sip.id}) paketleme bilgileri başarıyla kaydedildi (${sip.paketler.length} Palet).`, 'success');
+      showToast(`Sipariş (${sip.siparisNo || 'SIP-' + sip.id}) ambalaj ve palet bilgileri başarıyla kaydedildi (${sip.paketler.length} Palet).`, 'success');
 
       if (andOpenSevk) {
         setTimeout(() => {
@@ -16595,11 +17041,14 @@
             if (u && u.cap && u.cap !== '-') capStr = `(⌀ ${u.cap})`;
             return `
             <div class="flex justify-between items-center py-1 border-b border-slate-200">
-              <span class="font-bold text-slate-800 text-sm">
-                ${it.urunKod} ${capStr ? `<span class="text-indigo-700 font-black ml-1">${capStr}</span>` : ''}
-                <small class="text-slate-500 font-normal ml-1">(${it.urunAd})</small>
-              </span>
-              <span class="font-black text-slate-900 text-base">${it.miktar} kg</span>
+              <div>
+                <span class="font-bold text-slate-800 text-sm">
+                  ${it.urunKod} ${capStr ? `<span class="text-indigo-700 font-black ml-1">${capStr}</span>` : ''}
+                  <small class="text-slate-500 font-normal ml-1">(${it.urunAd})</small>
+                </span>
+                ${it.lotText ? `<div class="text-[11px] font-mono font-bold text-indigo-900 mt-0.5">🏷️ ${it.lotText}</div>` : ''}
+              </div>
+              <span class="font-black text-slate-900 text-base whitespace-nowrap ml-2">${it.miktar} kg</span>
             </div>
           `;
           }).join('');
@@ -16758,7 +17207,7 @@
 
         let icerikStr = '-';
         if (Array.isArray(p.icerik) && p.icerik.length > 0) {
-          icerikStr = p.icerik.map(it => `<b>${it.urunKod}</b>: ${it.miktar} kg (${it.urunAd})`).join('<br>');
+          icerikStr = p.icerik.map(it => `<b>${it.urunKod}</b>: ${it.miktar} kg (${it.urunAd})${it.lotText ? `<div style="font-family:monospace;font-size:10px;color:#3730a3;font-weight:bold;margin-top:2px;">🏷️ ${it.lotText}</div>` : ''}`).join('<br>');
         }
 
         paletlerTableRows += `
@@ -17727,8 +18176,10 @@
         </thead>
         <tbody class="divide-y divide-slate-100 bg-white">`;
 
-      let bekleyenHtml = header, hazirlananHtml = header, kismiHtml = header, tamamlananHtml = header;
-      let bekleyenCount = 0, hazirlananCount = 0, kismiCount = 0, tamamlananCount = 0;
+      const iadeEl = document.getElementById('ktmSipIade');
+      const iptalEl = document.getElementById('ktmSipIptal');
+      let bekleyenHtml = header, hazirlananHtml = header, kismiHtml = header, tamamlananHtml = header, iadeHtml = header, iptalHtml = header;
+      let bekleyenCount = 0, hazirlananCount = 0, kismiCount = 0, tamamlananCount = 0, iadeCount = 0, iptalCount = 0;
 
       (DB.ktmSiparisler || []).sort((a, b) => new Date(b.olusturmaTarihi || 0) - new Date(a.olusturmaTarihi || 0)).forEach(s => {
         // Kalemleri normalize et
@@ -17830,6 +18281,7 @@
           <td class="p-2.5">
             <div class="font-bold text-slate-800 text-sm">${s.musteri}</div>
             ${waBadgeHtml}
+            ${(s.kalemler || []).some(k => k.lotText || k.lot1 || k.lot2) ? `<div class="mt-1"><span class="bg-indigo-100 text-indigo-800 border border-indigo-300 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded inline-block">🏷️ ${(s.kalemler || []).filter(k => k.lotText || k.lot1).map(k => k.lotText || k.lot1).join(', ')}</span></div>` : ''}
           </td>
           <td class="p-2.5 min-w-[220px]">
             ${kalemlerHtml}
@@ -17842,10 +18294,16 @@
           <td class="p-2.5">
             ${depoNotuHtml}
             <div class="text-xs mt-0.5">${paketOzet}</div>
+            ${s.sevkiyatSonrasiNot ? `<div class="text-[11px] text-indigo-900 bg-indigo-50/80 p-1.5 rounded-md border border-indigo-200 mt-1 font-medium">🚚 <b>Sevkiyat Notu:</b> ${s.sevkiyatSonrasiNot}</div>` : ''}
+            ${s.iptalNedeni ? `<div class="text-[11px] text-slate-700 bg-slate-100 p-1.5 rounded-md border border-slate-300 mt-1">❌ <b>İptal Gerekçesi:</b> ${s.iptalNedeni}</div>` : ''}
+            ${s.iadeNedeni ? `<div class="text-[11px] text-rose-800 bg-rose-50 p-1.5 rounded-md border border-rose-200 mt-1">↩️ <b>İade Nedeni:</b> ${s.iadeNedeni}</div>` : ''}
           </td>
           <td class="p-2.5 text-right whitespace-nowrap">
             <button onclick="ktmSiparisDuzenle(${s.id})" title="Siparişi Düzenle" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
               ✏️ Düzenle
+            </button>
+            <button onclick="ktmSiparisNotDuzenleModal(${s.id})" title="Sevkiyat Sonrası Not Ekle / Düzenle" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
+              📝 Not
             </button>
             <button onclick="ktmSiparistenIsEmriAc(${s.id})" title="Bu Siparişten İş Emri Oluştur" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
               📝 İş Emri
@@ -17859,6 +18317,10 @@
             <button onclick="ktmPaketlemeModalAc(${s.id})" title="Paketleme ve Paletler" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm">
               📦 Paket (${paketCount})
             </button>
+            ${paketCount > 0 && s.durum !== 'sevk_edildi' ? `
+              <button onclick="ktmPaketlemeIptalEt(${s.id})" title="Paketlemeyi İptal Et (Bekleyenlere Al)" class="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm">
+                🚫 İptal
+              </button>` : ''}
             ${paketCount > 0 ? `
               <button onclick="ktmPaletEtiketleriYazdirModalAc(${s.id})" title="Palet Sevk Etiketi (QR Kodlu)" class="bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm">
                 🏷️ Etiket
@@ -17867,28 +18329,40 @@
                 📄 Çeki Listesi
               </button>` : ''}
             ${sevkButonuHtml}
+            ${s.durum !== 'iptal' && s.durum !== 'iade' ? `
+              <button onclick="ktmSiparisIadeAlPrompt(${s.id})" title="Siparişi İade Al" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
+                ↩️ İade
+              </button>
+              <button onclick="ktmSiparisIptalEtPrompt(${s.id})" title="Siparişi İptal Et" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
+                ❌ İptal
+              </button>` : `
+              <button onclick="ktmSiparisAktifeAl(${s.id})" title="Siparişi Tekrar Aktif Siparişlere Al" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-1.5 rounded-lg font-bold text-xs mr-1 shadow-sm transition-colors">
+                🔄 Aktife Al
+              </button>`}
             <button onclick="ktmSipSil(${s.id})" class="text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white px-2 py-1.5 rounded-lg font-bold text-xs transition-colors">🗑️</button>
           </td>
         </tr>`;
 
         // DOĞRU VE TUTARLI SEKME SINIFLANDIRMASI
-        if (toplamSevkKg > 0 && kalanKg > 0) {
-          // Kısmi Sevk: Herhangi bir sevk gerçekleşmiş ama tamamı bitmemişse kesinlikle Kısmi Sevk sekmesindedir
+        if (s.durum === 'iptal') {
+          iptalCount++;
+          iptalHtml += row;
+        } else if (s.durum === 'iade') {
+          iadeCount++;
+          iadeHtml += row;
+        } else if (toplamSevkKg > 0 && kalanKg > 0) {
           s.durum = 'kismi_sevk';
           kismiCount++;
           kismiHtml += row;
         } else if (toplamSevkKg >= toplamSipKg && toplamSipKg > 0) {
-          // Tamamlanan / Sevk Edilen
           s.durum = 'sevk_edildi';
           tamamlananCount++;
           tamamlananHtml += row;
-        } else if (s.durum === 'hazirlandi' || paketCount > 0 || kalemler.every(k => k.hazir)) {
-          // Hazırlanan / Paketlenen
+        } else if (s.durum === 'hazirlandi' || (paketCount > 0 && s.paketler && s.paketler.length > 0)) {
           s.durum = 'hazirlandi';
           hazirlananCount++;
           hazirlananHtml += row;
         } else {
-          // Bekleyen
           s.durum = 'bekliyor';
           bekleyenCount++;
           bekleyenHtml += row;
@@ -17899,14 +18373,159 @@
       if (hazirlananCount === 0) hazirlananHtml += '<tr><td colspan="6" class="p-4 text-center text-slate-400">Hazırlanan / paketlenen sipariş bulunmuyor.</td></tr>';
       if (kismiCount === 0) kismiHtml += '<tr><td colspan="6" class="p-4 text-center text-slate-400">Kısmi sevk edilen sipariş bulunmuyor.</td></tr>';
       if (tamamlananCount === 0) tamamlananHtml += '<tr><td colspan="6" class="p-4 text-center text-slate-400">Sevk edilen / tamamlanan sipariş bulunmuyor.</td></tr>';
+      if (iadeCount === 0) iadeHtml += '<tr><td colspan="6" class="p-4 text-center text-slate-400">İade edilen sipariş bulunmuyor.</td></tr>';
+      if (iptalCount === 0) iptalHtml += '<tr><td colspan="6" class="p-4 text-center text-slate-400">İptal edilen sipariş bulunmuyor.</td></tr>';
 
       bekleyenEl.innerHTML = bekleyenHtml + '</tbody></table>';
       hazirlananEl.innerHTML = hazirlananHtml + '</tbody></table>';
       if (kismiEl) kismiEl.innerHTML = kismiHtml + '</tbody></table>';
       tamamlananEl.innerHTML = tamamlananHtml + '</tbody></table>';
+      if (iadeEl) iadeEl.innerHTML = iadeHtml + '</tbody></table>';
+      if (iptalEl) iptalEl.innerHTML = iptalHtml + '</tbody></table>';
+
+      // Sekme başlıklarındaki sayı rozetlerini güncelle
+      const btnBekleyen = document.querySelector('.tab-btn[data-tab="ktmSipBekleyen"]');
+      const btnHazirlanan = document.querySelector('.tab-btn[data-tab="ktmSipHazirlanan"]');
+      const btnKismi = document.querySelector('.tab-btn[data-tab="ktmSipKismi"]');
+      const btnTamamlanan = document.querySelector('.tab-btn[data-tab="ktmSipTamamlanan"]');
+      const btnIade = document.querySelector('.tab-btn[data-tab="ktmSipIade"]');
+      const btnIptal = document.querySelector('.tab-btn[data-tab="ktmSipIptal"]');
+
+      if (btnBekleyen) btnBekleyen.innerHTML = `⏳ Bekleyen Siparişler <span class="ml-1 bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded-full text-[10px] font-black">${bekleyenCount}</span>`;
+      if (btnHazirlanan) btnHazirlanan.innerHTML = `📦 Hazırlananlar & Paketleme <span class="ml-1 bg-blue-100 text-blue-900 px-1.5 py-0.5 rounded-full text-[10px] font-black">${hazirlananCount}</span>`;
+      if (btnKismi) btnKismi.innerHTML = `🔄 Kısmi Sevk Edilenler <span class="ml-1 bg-purple-100 text-purple-900 px-1.5 py-0.5 rounded-full text-[10px] font-black">${kismiCount}</span>`;
+      if (btnTamamlanan) btnTamamlanan.innerHTML = `✅ Tamamlanan / Sevk Edilenler <span class="ml-1 bg-emerald-100 text-emerald-900 px-1.5 py-0.5 rounded-full text-[10px] font-black">${tamamlananCount}</span>`;
+      if (btnIade) btnIade.innerHTML = `↩️ İade Edilenler <span class="ml-1 ${iadeCount > 0 ? 'bg-rose-600 text-white font-black' : 'bg-rose-100 text-rose-800'} px-1.5 py-0.5 rounded-full text-[10px]">${iadeCount}</span>`;
+      if (btnIptal) btnIptal.innerHTML = `❌ İptal Edilenler <span class="ml-1 bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full text-[10px] font-black">${iptalCount}</span>`;
     }
 
     /* ========================================================================= */
+    
+    /* ========================================================================= */
+    /* KTM SİPARİŞ İADE, İPTAL VE SEVKİYAT NOTU FONKSİYONLARI                   */
+    /* ========================================================================= */
+    function ktmSiparisNotDuzenleModal(sipId) {
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) return;
+
+      document.getElementById('ktmSiparisNot_sipId').value = sip.id;
+      document.getElementById('ktmSiparisNot_sipNo').innerText = sip.siparisNo || ('SIP-' + sip.id);
+      document.getElementById('ktmSiparisNot_musteri').innerText = sip.musteri || '-';
+      document.getElementById('ktmSiparisNot_text').value = sip.sevkiyatSonrasiNot || sip.depoNotu || '';
+
+      document.getElementById('ktmSiparisNotModal').classList.add('active');
+    }
+
+    function ktmSiparisNotKaydet() {
+      const sipId = document.getElementById('ktmSiparisNot_sipId')?.value;
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) return;
+
+      const notVal = document.getElementById('ktmSiparisNot_text')?.value.trim() || '';
+      sip.sevkiyatSonrasiNot = notVal;
+
+      saveDB(true);
+      closeModal('ktmSiparisNotModal');
+      renderAll();
+      showToast('Sipariş notu başarıyla kaydedildi.', 'success');
+    }
+
+    function ktmSiparisIptalEtPrompt(sipId) {
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) return;
+
+      const sNo = sip.siparisNo || ('SIP-' + sip.id);
+      const neden = prompt(`"${sNo}" (${sip.musteri}) numaralı siparişi İPTAL etmek istediğinize emin misiniz?\nVarsa iptal gerekçesini yazınız:`, 'Müşteri talebi / İptal');
+      if (neden === null) return;
+
+      sip.durum = 'iptal';
+      sip.iptalNedeni = neden.trim();
+      sip.iptalTarihi = new Date().toISOString();
+
+      saveDB(true);
+      renderAll();
+      showToast(`${sNo} siparişi iptal edildi ve 'İptal Edilenler' sekmesine aktarıldı.`, 'warning');
+    }
+
+    function ktmSiparisIadeAlPrompt(sipId) {
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) return;
+
+      const sNo = sip.siparisNo || ('SIP-' + sip.id);
+      const neden = prompt(`"${sNo}" (${sip.musteri}) numaralı sipariş için İADE işlemi başlatılsın mı?\nİade gerekçesini yazınız:`, 'Müşteri iadesi / Hatalı sevk');
+      if (neden === null) return;
+
+      const sevkMiktari = (sip.kalemler || []).reduce((acc, k) => acc + (parseFloat(k.sevkEdilen) || 0), 0) || (parseFloat(sip.sevkEdilenMiktar) || 0);
+
+      let stokIadeEdilsin = false;
+      if (sevkMiktari > 0) {
+        stokIadeEdilsin = confirm(`Bu siparişten toplam ${sevkMiktari} kg sevk edilmiş görünüyor.\nSevk edilen miktarlar KTM Mamül Stoğuna geri iade edilsin mi?`);
+      }
+
+      sip.durum = 'iade';
+      sip.iadeNedeni = neden.trim();
+      sip.iadeTarihi = new Date().toISOString();
+
+      if (stokIadeEdilsin && sevkMiktari > 0) {
+        DB.ktmHareketler = DB.ktmHareketler || [];
+        (sip.kalemler || []).forEach(k => {
+          const m = parseFloat(k.sevkEdilen) || 0;
+          if (m > 0) {
+            const u = (DB.ktmUrunler || []).find(x => x.id == k.urunId || x.kod === k.urunKod);
+            if (u) {
+              u.stok = (parseFloat(u.stok) || 0) + m;
+            }
+            DB.ktmHareketler.push({
+              id: Date.now() + Math.random(),
+              urunId: k.urunId,
+              urunAd: k.urunAd,
+              urunKod: k.urunKod,
+              tip: 'giris',
+              miktar: m,
+              kaynakTip: 'Müşteri İadesi',
+              proje: sip.musteri,
+              aciklama: `Sipariş İadesi (${sNo}): ${k.urunKod} - ${m} kg (${sip.iadeNedeni})`,
+              tarih: new Date().toISOString()
+            });
+          }
+        });
+      }
+
+      saveDB(true);
+      renderAll();
+      showToast(`${sNo} siparişi iade alındı ve 'İade Edilenler' sekmesine aktarıldı.`, 'info');
+    }
+
+    function ktmSiparisAktifeAl(sipId) {
+      const sip = (DB.ktmSiparisler || []).find(s => s.id == sipId || String(s.id) === String(sipId));
+      if (!sip) return;
+
+      const sNo = sip.siparisNo || ('SIP-' + sip.id);
+      if (!confirm(`"${sNo}" siparişi tekrar aktif siparişlere geri alınsın mı?`)) return;
+
+      const sevkMiktari = (sip.kalemler || []).reduce((acc, k) => acc + (parseFloat(k.sevkEdilen) || 0), 0) || (parseFloat(sip.sevkEdilenMiktar) || 0);
+      const toplamMiktar = (sip.kalemler || []).reduce((acc, k) => acc + (parseFloat(k.miktar) || 0), 0) || (parseFloat(sip.toplamMiktar || sip.miktar) || 0);
+
+      if (sevkMiktari >= toplamMiktar && toplamMiktar > 0) {
+        sip.durum = 'sevk_edildi';
+      } else if (sevkMiktari > 0) {
+        sip.durum = 'kismi_sevk';
+      } else if (Array.isArray(sip.paketler) && sip.paketler.length > 0) {
+        sip.durum = 'hazirlandi';
+      } else {
+        sip.durum = 'bekliyor';
+      }
+
+      delete sip.iptalNedeni;
+      delete sip.iptalTarihi;
+      delete sip.iadeNedeni;
+      delete sip.iadeTarihi;
+
+      saveDB(true);
+      renderAll();
+      showToast(`${sNo} siparişi aktif duruma (${sip.durum}) geri alındı.`, 'success');
+    }
+
     /* SİPARİŞ DETAY VE KALEM ONAYI FONKSİYONLARI                                */
     /* ========================================================================= */
     let currentDetaySipId = null;
@@ -17945,13 +18564,25 @@
 
       document.getElementById('ktmDetay_tarih').innerText = formatTarihTR(sip.tarih);
       document.getElementById('ktmDetay_teslimTarihi').innerText = formatTarihTR(sip.teslimTarihi);
-      document.getElementById('ktmDetay_depoNotu').innerText = sip.depoNotu || 'Özel bir depo notu eklenmemiş.';
+      let detayNotlarHtml = sip.depoNotu ? `<div><b>Depo Talimatı:</b> ${sip.depoNotu}</div>` : '<div class="text-slate-400">Özel bir depo talimatı bulunmuyor.</div>';
+      if (sip.sevkiyatSonrasiNot) {
+        detayNotlarHtml += `<div class="mt-2 p-2 bg-indigo-50 text-indigo-900 rounded-lg border border-indigo-200">🚚 <b>Sevkiyat Notu:</b> ${sip.sevkiyatSonrasiNot}</div>`;
+      }
+      if (sip.iadeNedeni) {
+        detayNotlarHtml += `<div class="mt-2 p-2 bg-rose-50 text-rose-900 rounded-lg border border-rose-200">↩️ <b>İade Nedeni (${formatTarihTR(sip.iadeTarihi)}):</b> ${sip.iadeNedeni}</div>`;
+      }
+      if (sip.iptalNedeni) {
+        detayNotlarHtml += `<div class="mt-2 p-2 bg-slate-100 text-slate-800 rounded-lg border border-slate-300">❌ <b>İptal Gerekçesi (${formatTarihTR(sip.iptalTarihi)}):</b> ${sip.iptalNedeni}</div>`;
+      }
+      document.getElementById('ktmDetay_depoNotu').innerHTML = detayNotlarHtml;
 
       const badgeEl = document.getElementById('ktmDetay_durumBadge');
       if (badgeEl) {
         if (sip.durum === 'bekliyor') badgeEl.innerHTML = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">⏳ Bekliyor</span>';
         else if (sip.durum === 'hazirlandi') badgeEl.innerHTML = '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">📦 Hazırlandı</span>';
         else if (sip.durum === 'kismi_sevk') badgeEl.innerHTML = '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold">🔄 Kısmi Sevk Edildi</span>';
+        else if (sip.durum === 'iade') badgeEl.innerHTML = '<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold">↩️ İade Alındı</span>';
+        else if (sip.durum === 'iptal') badgeEl.innerHTML = '<span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-bold">❌ İptal Edildi</span>';
         else badgeEl.innerHTML = '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">✅ Tamamlandı</span>';
       }
 
@@ -18035,6 +18666,19 @@
           <button onclick="ktmSiparisWhatsAppGonder(${sip.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
             <span>💬</span> WhatsApp Paylaş
           </button>
+          <button onclick="closeModal('ktmSiparisDetayModal'); ktmSiparisNotDuzenleModal(${sip.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
+            <span>📝</span> Sevkiyat Notu Ekle
+          </button>
+          ${sip.durum !== 'iptal' && sip.durum !== 'iade' ? `
+            <button onclick="closeModal('ktmSiparisDetayModal'); ktmSiparisIadeAlPrompt(${sip.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
+              <span>↩️</span> İade Al
+            </button>
+            <button onclick="closeModal('ktmSiparisDetayModal'); ktmSiparisIptalEtPrompt(${sip.id})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
+              <span>❌</span> İptal Et
+            </button>` : `
+            <button onclick="closeModal('ktmSiparisDetayModal'); ktmSiparisAktifeAl(${sip.id})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
+              <span>🔄</span> Aktife Al
+            </button>`}
           ${hasPaket ? `
             <button onclick="closeModal('ktmSiparisDetayModal'); ktmPaletEtiketleriYazdirModalAc(${sip.id})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-sm">
               <span>🏷️</span> Palet Etiketleri
@@ -24712,7 +25356,7 @@
           ['kaba', 'ince', 'bidon', 'hassas', 'harman'].forEach(asama => {
             const asamaItems = u.items.filter(it => it.asama === asama);
             if (asamaItems.length > 0) {
-              u[`${asama}Urun`] = asamaItems.map(it => it.urun).join(' | ');
+              u[`${asama}Urun`] = asamaItems.map(it => `${it.urun}: ${it.miktar} kg`).join(' | ');
               u[asama] = asamaItems.reduce((acc, it) => acc + (parseFloat(it.miktar) || 0), 0);
             }
           });
