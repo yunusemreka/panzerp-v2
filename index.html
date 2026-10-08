@@ -7960,28 +7960,66 @@
           </div>
         </div>
 
-        <!-- Üretim İlerleme & Hedef Durumu -->
-        <div class="p-3.5 bg-gradient-to-r from-slate-50 to-indigo-50/30 rounded-xl border border-slate-200 space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-slate-700">Üretim & Paketleme İlerlemesi:</span>
-            <span class="font-black text-indigo-700 text-sm" id="dtIeIlerlemeText">0 / 0 kg (%0)</span>
-          </div>
-          <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
-            <div id="dtIeProgressBar" class="bg-indigo-600 h-3 rounded-full transition-all duration-500"
-              style="width: 0%;"></div>
-          </div>
-          <div class="grid grid-cols-3 gap-2 pt-1 text-center text-[11px]">
-            <div class="bg-white p-1.5 rounded border border-slate-200">
-              <span class="text-slate-400 block text-[9px] font-bold">HEDEF MİKTAR</span>
-              <b class="text-slate-800 text-xs font-black" id="dtIeHedefKg">0 kg</b>
+        <!-- Üretim İlerleme & Hedef Durumu (Çift Metrik: Üretim + Paketleme) -->
+        <div class="p-3.5 bg-gradient-to-r from-slate-50 via-indigo-50/20 to-blue-50/30 rounded-xl border border-indigo-200/80 space-y-3">
+          <!-- Üretim İlerlemesi Barı -->
+          <div class="bg-white p-2.5 rounded-lg border border-blue-200 shadow-2xs">
+            <div class="flex justify-between items-center text-xs font-bold mb-1">
+              <span class="text-blue-900 flex items-center gap-1.5">
+                <span>⚙️</span> <span>Üretim İlerlemesi:</span>
+                <span class="text-blue-700 font-extrabold text-sm" id="dtIeUretimText">0 / 0 kg (%0)</span>
+              </span>
+              <span class="text-blue-800 font-black text-sm" id="dtIeUretimYuzdeText">%0</span>
             </div>
-            <div class="bg-white p-1.5 rounded border border-slate-200">
-              <span class="text-slate-400 block text-[9px] font-bold">KABA ÇEKİLEN</span>
-              <b class="text-amber-700 text-xs font-black" id="dtIeKabaKg">0 kg</b>
+            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+              <div id="dtIeUretimProgressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
             </div>
-            <div class="bg-white p-1.5 rounded border border-slate-200">
-              <span class="text-slate-400 block text-[9px] font-bold">PAKETLENEN (NET)</span>
-              <b class="text-emerald-700 text-xs font-black" id="dtIePaketlenenKg">0 kg</b>
+            <div class="text-[10px] text-slate-500 font-medium mt-1" id="dtIeUretimMetrikDetay">-</div>
+          </div>
+
+          <!-- Paketleme İlerlemesi Barı -->
+          <div class="bg-white p-2.5 rounded-lg border border-emerald-200 shadow-2xs">
+            <div class="flex justify-between items-center text-xs font-bold mb-1">
+              <span class="text-emerald-900 flex items-center gap-1.5">
+                <span>📦</span> <span>Paketleme İlerlemesi:</span>
+                <span class="text-emerald-700 font-extrabold text-sm" id="dtIePaketlemeText">0 / 0 kg (%0)</span>
+              </span>
+              <span class="text-emerald-800 font-black text-sm" id="dtIePaketlemeYuzdeText">%0</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+              <div id="dtIePaketlemeProgressBar" class="bg-emerald-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-500 font-medium mt-1">
+              <span id="dtIePaketlemeMetrikDetay">-</span>
+              <span id="dtIeFazlaStokText" class="text-indigo-700 font-bold"></span>
+            </div>
+          </div>
+
+          <!-- Aşama & Makine Metrikleri Grid (6 Kutu) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5 pt-1 text-center text-[11px]">
+            <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+              <span class="text-slate-400 block text-[9px] font-bold">🎯 HEDEF</span>
+              <b class="text-slate-800 text-xs font-black block mt-0.5" id="dtIeHedefKg">0 kg</b>
+            </div>
+            <div class="bg-white p-2 rounded-lg border border-amber-200 bg-amber-50/20 shadow-2xs">
+              <span class="text-amber-800 block text-[9px] font-bold">🟡 KABA ÇEKME</span>
+              <b class="text-amber-900 text-xs font-black block mt-0.5" id="dtIeKabaKg">0 kg</b>
+            </div>
+            <div class="bg-white p-2 rounded-lg border border-rose-200 bg-rose-50/20 shadow-2xs">
+              <span class="text-rose-800 block text-[9px] font-bold">🔴 İNCE ÇEKME</span>
+              <b class="text-rose-900 text-xs font-black block mt-0.5" id="dtIeInceKg">0 kg</b>
+            </div>
+            <div class="bg-white p-2 rounded-lg border border-emerald-200 bg-emerald-50/20 shadow-2xs">
+              <span class="text-emerald-800 block text-[9px] font-bold">🟢 BİDON SARMA</span>
+              <b class="text-emerald-900 text-xs font-black block mt-0.5" id="dtIeBidonKg">0 kg</b>
+            </div>
+            <div class="bg-white p-2 rounded-lg border border-blue-200 bg-blue-50/20 shadow-2xs">
+              <span class="text-blue-800 block text-[9px] font-bold">🔵 HASSAS MAKARA</span>
+              <b class="text-blue-900 text-xs font-black block mt-0.5" id="dtIeHassasKg">0 kg</b>
+            </div>
+            <div class="bg-white p-2 rounded-lg border border-purple-200 bg-purple-50/20 shadow-2xs">
+              <span class="text-purple-800 block text-[9px] font-bold">🟣 HARMAN</span>
+              <b class="text-purple-900 text-xs font-black block mt-0.5" id="dtIeHarmanKg">0 kg</b>
             </div>
           </div>
         </div>
@@ -11577,10 +11615,21 @@
               }).join('');
             }
             const gosterimAdi = typeof temizSafUrunAdi === 'function' ? temizSafUrunAdi(it.urun) : it.urun;
+            const ieBadge = it.isEmriNo ? `
+              <button type="button" onclick="event.stopPropagation(); isEmrineGit('${it.isEmriId || it.isEmriNo}')"
+                class="text-[9px] font-mono font-black text-indigo-700 hover:text-white bg-indigo-50 hover:bg-indigo-600 px-1.5 py-0.5 rounded border border-indigo-200 transition-all inline-flex items-center gap-0.5 mt-0.5 cursor-pointer shadow-2xs"
+                title="Bu kalemin bağlı olduğu İş Emrine Git (${it.isEmriNo})">
+                <span>📝</span> ${it.isEmriNo} ➔
+              </button>
+            ` : `<span class="text-[9px] text-slate-400 font-medium block mt-0.5">⚙️ Serbest</span>`;
+
             return `
-            <div class="mb-1.5 last:mb-0">
-              <span class="text-slate-600 font-semibold text-[11px] block leading-tight" title="${it.urun || ''}">${gosterimAdi}</span>
-              <b class="text-slate-800 font-bold">${it.miktar} <span class="text-[10px] font-normal text-slate-400">kg</span></b>
+            <div class="mb-2 last:mb-0 p-1 rounded hover:bg-white/70 transition-colors">
+              <span class="text-slate-700 font-bold text-[11px] block leading-tight" title="${it.urun || ''}">${gosterimAdi}</span>
+              <div class="flex items-center justify-between gap-1 mt-0.5 flex-wrap">
+                <b class="text-slate-900 font-black">${it.miktar} <span class="text-[10px] font-normal text-slate-400">kg</span></b>
+                ${ieBadge}
+              </div>
             </div>
           `;
           }).join('');
@@ -11609,14 +11658,63 @@
       let rowsHtml = '';
 
       ls.forEach(u => {
-        const isEmriBilgisiHtml = u.isEmriNo ? `
-          <div class="flex flex-col">
-            <span class="font-extrabold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 text-xs w-max">${u.isEmriNo}</span>
-            <span class="text-[10px] text-slate-500 mt-0.5">${u.isEmriMusteri ? '🛒 ' + u.isEmriMusteri : 'İş Emri'}</span>
-          </div>
-        ` : `
-          <span class="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded text-[11px] border border-slate-200">⚙️ Serbest Stok</span>
-        `;
+        // Tüm bağlı iş emirlerini topla (birden fazla iş emri varsa HEPSİNİ listeler)
+        const distinctIeMap = new Map();
+        let hasSerbestStok = false;
+
+        if (Array.isArray(u.items) && u.items.length > 0) {
+          u.items.forEach(it => {
+            if (it.miktar > 0) {
+              if (it.isEmriId || it.isEmriNo) {
+                const key = String(it.isEmriId || it.isEmriNo);
+                if (!distinctIeMap.has(key)) {
+                  const ieObj = (DB.isEmirleri || []).find(x => x.id == it.isEmriId || x.no === it.isEmriNo);
+                  distinctIeMap.set(key, {
+                    id: it.isEmriId || (ieObj ? ieObj.id : null),
+                    no: it.isEmriNo || (ieObj ? ieObj.no : key),
+                    musteri: it.isEmriMusteri || (ieObj ? ieObj.musteri : '')
+                  });
+                }
+              } else {
+                hasSerbestStok = true;
+              }
+            }
+          });
+        }
+
+        // Eski tekil veya virgülle ayrılmış kayıt uyumluluğu
+        if (distinctIeMap.size === 0 && u.isEmriNo) {
+          const noParts = String(u.isEmriNo).split(',').map(s => s.trim()).filter(Boolean);
+          noParts.forEach(np => {
+            const ieObj = (DB.isEmirleri || []).find(x => x.no === np || x.id == np);
+            distinctIeMap.set(np, {
+              id: ieObj ? ieObj.id : np,
+              no: np,
+              musteri: ieObj ? ieObj.musteri : (u.isEmriMusteri || '')
+            });
+          });
+        }
+
+        let isEmriBilgisiHtml = '';
+        if (distinctIeMap.size > 0) {
+          const badges = Array.from(distinctIeMap.values()).map(ie => `
+            <button type="button" onclick="event.stopPropagation(); isEmrineGit('${ie.id || ie.no}')"
+              class="group flex flex-col text-left bg-blue-50 hover:bg-blue-600 text-blue-900 hover:text-white border border-blue-200 hover:border-blue-600 px-2 py-1 rounded-lg text-xs transition-all shadow-2xs w-full cursor-pointer"
+              title="İş Emrine Git ve İlerlemeyi Gör (${ie.no})">
+              <div class="flex items-center justify-between w-full gap-1">
+                <span class="font-extrabold group-hover:text-white flex items-center gap-1 font-mono text-xs">
+                  <span>📝</span> ${ie.no}
+                </span>
+                <span class="text-[10px] text-blue-500 group-hover:text-white font-black">➔</span>
+              </div>
+              ${ie.musteri ? `<span class="text-[10px] text-slate-500 group-hover:text-blue-100 truncate max-w-full font-medium mt-0.5">🛒 ${ie.musteri}</span>` : ''}
+            </button>
+          `).join('');
+
+          isEmriBilgisiHtml = `<div class="space-y-1.5">${badges}${hasSerbestStok ? `<span class="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded text-[10px] border border-slate-200 block text-center">⚙️ + Serbest Stok</span>` : ''}</div>`;
+        } else {
+          isEmriBilgisiHtml = `<span class="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded text-[11px] border border-slate-200 inline-block">⚙️ Serbest Stok</span>`;
+        }
 
         rowsHtml += `
           <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
@@ -14272,6 +14370,50 @@
       showToast(`✅ "${kod} - ${cap}" ürünü kaydedildi ve KTM stok kartı başarıyla açıldı.`, 'success');
     }
 
+        /* ========================================================================= */
+    /* İŞ EMRİNE HIZLI GEÇİŞ VE İLERLEME GÖRÜNTÜLEME                             */
+    /* ========================================================================= */
+    function isEmrineGit(isEmriIdVeyaNo) {
+      if (!isEmriIdVeyaNo) return;
+      const isEmirleri = DB.isEmirleri || [];
+      let ie = isEmirleri.find(x => x.id == isEmriIdVeyaNo || String(x.id) === String(isEmriIdVeyaNo) || x.no === isEmriIdVeyaNo);
+      if (!ie && typeof isEmriIdVeyaNo === 'string') {
+        ie = isEmirleri.find(x => x.no === isEmriIdVeyaNo.trim());
+      }
+      if (!ie) {
+        showToast(`İş emri (${isEmriIdVeyaNo}) bulunamadı.`, 'warning');
+        return;
+      }
+
+      // 1. İş Emirleri sekmesine geç
+      if (typeof navigate === 'function') {
+        navigate('isemri');
+      }
+
+      // 2. Filtre ve aramayı bu iş emrine ayarla ve detay modalını aç
+      setTimeout(() => {
+        const aramaInput = document.getElementById('ieAramaInput');
+        if (aramaInput) {
+          aramaInput.value = ie.no;
+        }
+        ieAktifSekme = 'hepsi';
+        const tabBtns = document.querySelectorAll('.ie-tab-btn');
+        if (tabBtns) {
+          tabBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-durum') === 'hepsi');
+          });
+        }
+        if (typeof isEmriListele === 'function') {
+          isEmriListele();
+        }
+
+        // 3. İş Emrinin Detay / İlerleme modalını da doğrudan aç
+        if (typeof isEmriDetayGosterModalAc === 'function') {
+          isEmriDetayGosterModalAc(ie.id);
+        }
+      }, 120);
+    }
+
     function isEmriDetayGosterModalAc(isEmriIdVeyaNo) {
       if (!isEmriIdVeyaNo) return;
       const isEmirleri = DB.isEmirleri || [];
@@ -14313,16 +14455,43 @@
       document.getElementById('dtIeTur').textContent = i.tur || 'Müşteri Siparişi';
       document.getElementById('dtIeSipNo').textContent = i.sipNo ? `Sipariş No: ${i.sipNo}` : 'Sipariş No: -';
 
-      // İlerleme & Hedefler
-      document.getElementById('dtIeIlerlemeText').textContent = `${paketlenenKg.toLocaleString('tr-TR')} / ${hedefKg.toLocaleString('tr-TR')} kg (%${yuzde})`;
-      const pBar = document.getElementById('dtIeProgressBar');
-      if (pBar) {
-        pBar.style.width = `${yuzde}%`;
-        pBar.className = yuzde >= 100 ? 'bg-emerald-600 h-3 rounded-full transition-all duration-500' : 'bg-indigo-600 h-3 rounded-full transition-all duration-500';
+      // İlerleme & Hedefler (Üretim & Paketleme Çift Metrik)
+      const uretimEl = document.getElementById('dtIeUretimText');
+      if (uretimEl) uretimEl.textContent = `${ozet.uretimKg.toFixed(0)} / ${hedefKg} kg (%${ozet.uretimYuzde})`;
+      const uretimYuzdeEl = document.getElementById('dtIeUretimYuzdeText');
+      if (uretimYuzdeEl) uretimYuzdeEl.textContent = `%${ozet.uretimYuzde}`;
+      const uretimBarEl = document.getElementById('dtIeUretimProgressBar');
+      if (uretimBarEl) {
+        uretimBarEl.style.width = `${ozet.uretimYuzde}%`;
+        uretimBarEl.className = ozet.uretimYuzde >= 100 ? 'bg-emerald-600 h-2.5 rounded-full transition-all duration-500' : 'bg-blue-600 h-2.5 rounded-full transition-all duration-500';
       }
-      document.getElementById('dtIeHedefKg').textContent = `${hedefKg.toLocaleString('tr-TR')} kg`;
-      document.getElementById('dtIeKabaKg').textContent = `${kabaKg.toLocaleString('tr-TR')} kg`;
-      document.getElementById('dtIePaketlenenKg').textContent = `${paketlenenKg.toLocaleString('tr-TR')} kg`;
+      const uretimMetrikEl = document.getElementById('dtIeUretimMetrikDetay');
+      if (uretimMetrikEl) uretimMetrikEl.textContent = ozet.uretimMetrikKisa || '-';
+
+      const paketEl = document.getElementById('dtIePaketlemeText');
+      if (paketEl) paketEl.textContent = `${ozet.paketlemeKg.toFixed(0)} / ${hedefKg} kg (%${ozet.paketYuzde})`;
+      const paketYuzdeEl = document.getElementById('dtIePaketlemeYuzdeText');
+      if (paketYuzdeEl) paketYuzdeEl.textContent = `%${ozet.paketYuzde}`;
+      const paketBarEl = document.getElementById('dtIePaketlemeProgressBar');
+      if (paketBarEl) {
+        paketBarEl.style.width = `${ozet.paketYuzde}%`;
+        paketBarEl.className = ozet.paketYuzde >= 100 ? 'bg-emerald-500 h-2.5 rounded-full transition-all duration-500' : 'bg-emerald-600 h-2.5 rounded-full transition-all duration-500';
+      }
+      const paketMetrikEl = document.getElementById('dtIePaketlemeMetrikDetay');
+      if (paketMetrikEl) paketMetrikEl.textContent = ozet.paketlemeMetrikKisa || '-';
+
+      const fazlaStokEl = document.getElementById('dtIeFazlaStokText');
+      if (fazlaStokEl) {
+        fazlaStokEl.textContent = ozet.fazlaStokMiktari > 0 ? `+ ${ozet.fazlaStokMiktari} kg Stok Fazlası` : '';
+      }
+
+      // 6 Aşamalı Kutu
+      if (document.getElementById('dtIeHedefKg')) document.getElementById('dtIeHedefKg').textContent = `${hedefKg} kg`;
+      if (document.getElementById('dtIeKabaKg')) document.getElementById('dtIeKabaKg').textContent = `${ozet.kabaToplam} kg`;
+      if (document.getElementById('dtIeInceKg')) document.getElementById('dtIeInceKg').textContent = `${ozet.inceToplam} kg`;
+      if (document.getElementById('dtIeBidonKg')) document.getElementById('dtIeBidonKg').textContent = `${ozet.bidonToplam} kg`;
+      if (document.getElementById('dtIeHassasKg')) document.getElementById('dtIeHassasKg').textContent = `${ozet.hassasToplam} kg`;
+      if (document.getElementById('dtIeHarmanKg')) document.getElementById('dtIeHarmanKg').textContent = `${ozet.harmanToplam} kg`;
 
       // Hat & Teknik Parametreler
       document.getElementById('dtIeHat').textContent = i.hat || '-';
